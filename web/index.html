@@ -1,0 +1,909 @@
+<title>Calibra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+
+<!--
+  Calibra - the instrument face.
+
+  This page is the argument, in order: the venue's underlying is a coin flip, its
+  prices are informative but miscalibrated, and the miscalibration is NOT
+  constant. The section numbering encodes that dependency - each finding only
+  means anything given the one before it - which is the only reason it is
+  numbered at all.
+
+  It runs two ways. Served next to the API it polls /v1/summary and shows live
+  numbers. Opened standalone it falls back to the snapshot baked into
+  #snapshot by `npm run dashboard`. Same file either way.
+-->
+
+<style>
+  /* ---- Tokens -------------------------------------------------------------
+     Every color is defined here on bare :root, so the un-stamped "system"
+     state (which is most viewers) always resolves. The two blocks below
+     redefine these same names and nothing else. */
+  :root {
+    color-scheme: light dark;
+
+    --surface:      #F7F7F4;
+    --panel:        #FFFFFF;
+    --panel-sunk:   #F1F2EE;
+    --ink:          #16191A;
+    --ink-2:        #414A4C;
+    --ink-3:        #6B7477;
+    --rule:         #DFE2DC;
+    --rule-strong:  #C6CBC3;
+
+    /* Diverging poles for signed pricing error. Validated for CVD separation
+       against the light surface (ΔE 18.8 protan / 27.6 normal). */
+    --neg:          #C0492A;   /* realized BELOW implied - UP was overpriced */
+    --pos:          #1A6BA8;   /* realized ABOVE implied - UP was underpriced */
+    --neg-wash:     #C0492A1F;
+    --pos-wash:     #1A6BA81F;
+    --mid:          #8A9290;
+
+    /* Status is reserved: it never doubles as a data series, and always ships
+       with a word beside it rather than standing on color alone. */
+    --ok:           #2F6F4F;
+    --warn:         #8A5E0C;
+    --warn-wash:    #8A5E0C14;
+
+    --shadow: 0 1px 2px #16191A0A, 0 8px 24px -16px #16191A24;
+
+    --f-display: "IBM Plex Serif", ui-serif, Georgia, serif;
+    --f-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --measure: 68ch;
+    --pad: clamp(1.1rem, 3.2vw, 2rem);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --surface:     #131618;
+      --panel:       #1A1E20;
+      --panel-sunk:  #15191B;
+      --ink:         #E7EAE5;
+      --ink-2:       #B4BCB9;
+      --ink-3:       #8B9491;
+      --rule:        #2A2F32;
+      --rule-strong: #3B4245;
+      --neg:         #D2714F;
+      --pos:         #4A97CC;
+      --neg-wash:    #D2714F24;
+      --pos-wash:    #4A97CC24;
+      --mid:         #79817F;
+      --ok:          #5FA37D;
+      --warn:        #C79A3E;
+      --warn-wash:   #C79A3E1A;
+      --shadow: 0 1px 2px #0006, 0 10px 30px -18px #000A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --surface:     #131618;
+    --panel:       #1A1E20;
+    --panel-sunk:  #15191B;
+    --ink:         #E7EAE5;
+    --ink-2:       #B4BCB9;
+    --ink-3:       #8B9491;
+    --rule:        #2A2F32;
+    --rule-strong: #3B4245;
+    --neg:         #D2714F;
+    --pos:         #4A97CC;
+    --neg-wash:    #D2714F24;
+    --pos-wash:    #4A97CC24;
+    --mid:         #79817F;
+    --ok:          #5FA37D;
+    --warn:        #C79A3E;
+    --warn-wash:   #C79A3E1A;
+    --shadow: 0 1px 2px #0006, 0 10px 30px -18px #000A;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--f-sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: var(--pad); }
+
+  /* ---- Type ---- */
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+  h1 {
+    font-family: var(--f-display);
+    font-size: clamp(2.1rem, 5.2vw, 3.1rem);
+    font-weight: 600;
+    letter-spacing: -0.022em;
+    line-height: 1.06;
+  }
+  h2 {
+    font-family: var(--f-display);
+    font-size: clamp(1.32rem, 2.9vw, 1.72rem);
+    font-weight: 600;
+    letter-spacing: -0.014em;
+    line-height: 1.2;
+  }
+  h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+  p { margin: 0; max-width: var(--measure); }
+  .lede { font-size: 1.06rem; color: var(--ink-2); }
+  .note { font-size: 0.875rem; color: var(--ink-3); max-width: var(--measure); }
+  .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  em { font-style: italic; }
+  strong { font-weight: 600; color: var(--ink); }
+
+  /* ---- Masthead ---- */
+  header.top {
+    display: flex; flex-wrap: wrap; gap: 1.5rem 2rem;
+    align-items: flex-end; justify-content: space-between;
+    padding-bottom: 1.6rem; margin-bottom: 1.9rem;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .brandline { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; }
+  .tag {
+    font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.05em;
+    color: var(--ink-3); border: 1px solid var(--rule); border-radius: 3px;
+    padding: 0.15rem 0.45rem;
+  }
+  .provenance {
+    font-family: var(--f-mono); font-size: 0.74rem; line-height: 1.75;
+    color: var(--ink-3); text-align: right;
+  }
+  .provenance b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---- Instrument readout ---- */
+  .readout {
+    display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 0; border: 1px solid var(--rule-strong); border-radius: 6px;
+    background: var(--panel); box-shadow: var(--shadow); overflow: hidden;
+    margin-bottom: 2.6rem;
+  }
+  .readout > * { padding: 1.35rem var(--pad); }
+  .readout-main { border-right: 1px solid var(--rule); }
+  @media (max-width: 720px) {
+    .readout { grid-template-columns: 1fr; }
+    .readout-main { border-right: 0; border-bottom: 1px solid var(--rule); }
+    .provenance { text-align: left; }
+  }
+  .verdict {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    font-family: var(--f-mono); font-size: 1.42rem; font-weight: 600;
+    letter-spacing: -0.01em; margin: 0.35rem 0 0.5rem;
+  }
+  .verdict .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .v-stand { color: var(--warn); }
+  .v-stand .dot { background: var(--warn); }
+  .v-trade { color: var(--ok); }
+  .v-trade .dot { background: var(--ok); }
+  .reason { font-size: 0.9rem; color: var(--ink-2); max-width: 46ch; }
+
+  .gauge { margin-top: 1rem; }
+  .gauge-track {
+    position: relative; height: 30px; border-radius: 3px;
+    background: var(--panel-sunk); border: 1px solid var(--rule);
+  }
+  .gauge-zero { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--rule-strong); }
+  .gauge-zero::after {
+    content: "0"; position: absolute; top: -1.15rem; left: 50%; transform: translateX(-50%);
+    font-family: var(--f-mono); font-size: 0.66rem; color: var(--ink-3);
+  }
+  .gauge-band { position: absolute; top: 7px; height: 14px; border-radius: 2px; }
+  .gauge-point { position: absolute; top: 4px; width: 2px; height: 20px; }
+
+  /* ---- Sections ---- */
+  section { margin: 0 0 2.9rem; }
+  .sec-head { display: flex; gap: 1rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .sec-num {
+    font-family: var(--f-mono); font-size: 0.78rem; font-weight: 600;
+    color: var(--ink-3); padding-top: 0.28rem; flex: none;
+  }
+  .sec-body { padding-left: calc(0.78rem + 1.6rem); }
+  @media (max-width: 620px) { .sec-body { padding-left: 0; } }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--rule);
+    border-radius: 6px; padding: var(--pad); box-shadow: var(--shadow);
+  }
+  .stack { display: flex; flex-direction: column; gap: 1rem; }
+  .cols { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+
+  /* ---- Stat tiles ---- */
+  .tiles { display: grid; gap: 1px; background: var(--rule);
+           grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+           border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+  .tile { background: var(--panel); padding: 0.9rem 1rem; }
+  .tile .k { font-family: var(--f-mono); font-size: 0.68rem; letter-spacing: 0.08em;
+             text-transform: uppercase; color: var(--ink-3); }
+  .tile .v { font-family: var(--f-mono); font-size: 1.5rem; font-weight: 500;
+             letter-spacing: -0.02em; margin-top: 0.15rem; font-variant-numeric: tabular-nums; }
+  .tile .s { font-size: 0.78rem; color: var(--ink-3); font-family: var(--f-mono); }
+
+  /* ---- Charts ---- */
+  figure { margin: 0; }
+  figcaption { font-size: 0.83rem; color: var(--ink-3); margin-top: 0.7rem; max-width: var(--measure); }
+  .chart-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.15rem; }
+  .chart-sub { font-size: 0.8rem; color: var(--ink-3); margin-bottom: 0.9rem; }
+  .scroll-x { overflow-x: auto; }
+  svg { display: block; max-width: 100%; height: auto; }
+  .grid-line { stroke: var(--rule); stroke-width: 1; }
+  .axis-line { stroke: var(--rule-strong); stroke-width: 1; }
+  .axis-text { font-family: var(--f-mono); font-size: 10px; fill: var(--ink-3); }
+  .ref-line { stroke: var(--mid); stroke-width: 1.5; stroke-dasharray: 4 3; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; margin-top: 0.85rem;
+            font-size: 0.78rem; color: var(--ink-2); font-family: var(--f-mono); }
+  .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .swatch { width: 11px; height: 11px; border-radius: 2px; flex: none; }
+  .swatch.line { height: 0; border-top: 2px dashed var(--mid); border-radius: 0; }
+
+  /* ---- Table ---- */
+  table { border-collapse: collapse; width: 100%; font-size: 0.845rem; }
+  th, td { text-align: right; padding: 0.42rem 0.6rem; border-bottom: 1px solid var(--rule); }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-family: var(--f-mono); font-size: 0.68rem; letter-spacing: 0.07em;
+             text-transform: uppercase; color: var(--ink-3); font-weight: 500;
+             border-bottom-color: var(--rule-strong); white-space: nowrap; }
+  tbody td { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  tbody td:first-child { color: var(--ink); }
+  tbody tr:last-child td { border-bottom: 0; }
+
+  /* ---- Callout ---- */
+  .callout {
+    border-left: 2px solid var(--rule-strong); padding: 0.1rem 0 0.1rem 1rem;
+    font-family: var(--f-display); font-size: 1.02rem; line-height: 1.55; color: var(--ink-2);
+  }
+  .callout strong { font-weight: 600; }
+  .flag {
+    display: flex; gap: 0.6rem; align-items: flex-start;
+    background: var(--warn-wash); border: 1px solid color-mix(in srgb, var(--warn) 26%, transparent);
+    border-radius: 5px; padding: 0.8rem 1rem; font-size: 0.87rem; color: var(--ink-2);
+  }
+  .flag .mark { color: var(--warn); font-weight: 600; font-family: var(--f-mono); flex: none; }
+
+  /* ---- Gate list ---- */
+  ol.gate { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  ol.gate li { font-size: 0.9rem; color: var(--ink-2); }
+  ol.gate code, .api code { font-family: var(--f-mono); font-size: 0.83em; color: var(--ink); }
+
+  .api { display: grid; gap: 0; }
+  .api div { display: flex; gap: 0.9rem; padding: 0.42rem 0; border-bottom: 1px solid var(--rule);
+             font-size: 0.845rem; color: var(--ink-3); flex-wrap: wrap; }
+  .api div:last-child { border-bottom: 0; }
+  .api code { flex: none; min-width: 20ch; color: var(--pos); }
+
+  footer { border-top: 1px solid var(--rule-strong); margin-top: 2.4rem; padding-top: 1.3rem; }
+
+  /* ---- Tooltip ---- */
+  .tip {
+    position: fixed; z-index: 50; pointer-events: none; opacity: 0;
+    transition: opacity .1s; background: var(--panel); color: var(--ink);
+    border: 1px solid var(--rule-strong); border-radius: 5px;
+    padding: 0.5rem 0.65rem; font-family: var(--f-mono); font-size: 0.76rem;
+    line-height: 1.5; box-shadow: var(--shadow); max-width: 250px;
+  }
+  .tip.on { opacity: 1; }
+  .tip b { font-weight: 600; }
+  .hit { cursor: crosshair; }
+  .hit:focus-visible { outline: 2px solid var(--pos); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<script id="snapshot" type="application/json">null</script>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brandline">
+        <h1>Calibra</h1>
+        <span class="tag">DreamDEX · Somnia</span>
+      </div>
+      <p class="lede" style="margin-top:.55rem">
+        When this venue says 70%, does it happen 70% of the time? Short windows make that
+        answerable in hours instead of years - so it is worth asking continuously.
+      </p>
+    </div>
+    <div class="provenance" id="provenance"></div>
+  </header>
+
+  <div class="readout">
+    <div class="readout-main">
+      <div class="eyebrow">Live verdict</div>
+      <div class="verdict" id="verdict"><span class="dot"></span><span id="verdict-text">-</span></div>
+      <p class="reason" id="verdict-reason"></p>
+    </div>
+    <div>
+      <div class="eyebrow">Measured pricing error, last 7 days</div>
+      <div class="gauge">
+        <div class="gauge-track" id="gauge"></div>
+      </div>
+      <p class="note" style="margin-top:.85rem" id="gauge-note"></p>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <h2>The underlying is a coin flip</h2>
+    </div>
+    <div class="sec-body stack">
+      <p>
+        Every market asks the same question: does the asset close at or above where the window
+        opened? Across every resolved market on the venue, it does almost exactly half the time.
+        There is no drift to harvest here - so any edge has to come from the <em>price</em> being
+        wrong, not from the asset going up.
+      </p>
+      <div class="tiles" id="baserate-tiles"></div>
+      <table id="baserate-table"></table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">02</div>
+      <h2>Prices are informative, but miscalibrated</h2>
+    </div>
+    <div class="sec-body stack">
+      <p>
+        Plotting what the venue charged against what actually happened gives a calibration curve.
+        Perfect pricing lies on the diagonal. This venue is well clear of a coin flip - but it
+        bends away from the diagonal at both ends: cheap markets resolve even less often than
+        their price implies, expensive ones more.
+      </p>
+      <div class="panel">
+        <figure>
+          <div class="chart-title">Implied probability vs. realized frequency</div>
+          <div class="chart-sub">One point per price bucket. Vertical bars are 95% Wilson intervals on the realized rate.</div>
+          <div class="scroll-x"><div id="chart-calibration"></div></div>
+          <div class="legend">
+            <span><i class="swatch" style="background:var(--neg)"></i>realized below implied</span>
+            <span><i class="swatch" style="background:var(--pos)"></i>realized above implied</span>
+            <span><i class="swatch line"></i>perfect calibration</span>
+          </div>
+          <figcaption id="calibration-caption"></figcaption>
+        </figure>
+      </div>
+
+      <div class="flag">
+        <span class="mark">!</span>
+        <div>
+          <strong>Most of that curve is the clock, not skill.</strong>
+          Scoring a market by its volume-weighted price mixes trades from the whole window
+          together - including ones placed seconds before expiry, when the outcome is nearly
+          decided. Score each trade separately by how much of the window was left and the
+          curve flattens sharply. The check below is what separates a real edge from an
+          artifact of aggregation.
+        </div>
+      </div>
+
+      <div class="panel">
+        <figure>
+          <div class="chart-title">The same curve, split by time remaining</div>
+          <div class="chart-sub">Pricing error (realized − implied) per bucket. Closer to zero is better priced.</div>
+          <div class="scroll-x"><div id="chart-phases"></div></div>
+          <figcaption>
+            Early in a window the venue prices close to fair. The dramatic S-shape above is largely
+            an artifact of aggregating a market's entire life into a single number.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <h2>But the edge is not constant - and that changes everything</h2>
+    </div>
+    <div class="sec-body stack">
+      <p>
+        Here is the result the rest of this project is built on. Measure the average pricing error
+        three ways and you get three different answers, ranging from "obviously real" to
+        "indistinguishable from noise." Only the last one is honest.
+      </p>
+
+      <div class="panel">
+        <figure>
+          <div class="chart-title">The same data, three estimators</div>
+          <div class="chart-sub">Mean pricing error with 95% intervals. An interval clearing zero means a measurable edge.</div>
+          <div class="scroll-x"><div id="chart-forest"></div></div>
+          <figcaption id="forest-caption"></figcaption>
+        </figure>
+      </div>
+
+      <div class="callout" id="forest-callout"></div>
+
+      <div class="panel">
+        <figure>
+          <div class="chart-title">Why the interval widens: the sign flips</div>
+          <div class="chart-sub">Mean pricing error by ISO week, one observation per market.</div>
+          <div class="scroll-x"><div id="chart-weekly"></div></div>
+          <div class="legend">
+            <span><i class="swatch" style="background:var(--neg)"></i>UP overpriced that week</span>
+            <span><i class="swatch" style="background:var(--pos)"></i>UP underpriced that week</span>
+          </div>
+          <figcaption>
+            Whole weeks run rich, then cheap. Errors are correlated in time, so resampling
+            individual markets understates the uncertainty - the bootstrap resamples entire weeks.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">04</div>
+      <h2>Most markets never trade at all</h2>
+    </div>
+    <div class="sec-body stack">
+      <p>
+        The venue's real bottleneck is not signal quality, it is emptiness. Most event contracts
+        are listed, run their window and settle without a single position being taken. That is
+        where a quote is worth the most - and it is why the agent's job is to provide liquidity,
+        not to take it.
+      </p>
+      <div class="tiles" id="coverage-tiles"></div>
+      <div class="panel">
+        <figure>
+          <div class="chart-title">Share of markets that saw at least one trade</div>
+          <div class="chart-sub">By series, over the venue's full resolved history.</div>
+          <div class="scroll-x"><div id="chart-coverage"></div></div>
+        </figure>
+      </div>
+      <div class="cols">
+        <div class="panel">
+          <h3>Who gets paid</h3>
+          <p class="note" style="margin:.35rem 0 .8rem">
+            Settled PnL split by which side of the trade a wallet was on. The venue charges no
+            fees, so this is purely the spread changing hands.
+          </p>
+          <table id="mvt-table"></table>
+        </div>
+        <div class="panel">
+          <h3>Is this a market or a handful of bots?</h3>
+          <p class="note" style="margin:.35rem 0 .8rem">
+            Stated plainly, because it is the main reason to discount everything above.
+          </p>
+          <table id="conc-table"></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">05</div>
+      <h2>What the agent does about it</h2>
+    </div>
+    <div class="sec-body stack">
+      <p>
+        The agent's default state is flat. It takes positive evidence to make it quote, and all
+        four of these must hold on every pass:
+      </p>
+      <div class="panel">
+        <ol class="gate">
+          <li>Enough resolved markets in the lookback window to estimate anything at all.</li>
+          <li>The window's confidence interval <strong>excludes zero</strong> - there is a measurable mispricing.</li>
+          <li>It is larger than the minimum edge, so we are not trading noise into a spread.</li>
+          <li>Its sign <strong>agrees with the long-run estimate</strong>. Condition 2 alone fires by chance
+              about one window in twenty; this is what separates a regime from a run of luck.</li>
+        </ol>
+      </div>
+      <p class="note">
+        When it does quote, it quotes <strong>post-only</strong> on both sides around an edge-corrected
+        fair value, sizes to the near bound of the interval rather than its centre, refuses markets
+        in the last stretch of their window, and never posts inside the touch. Order expiry is set
+        just past the requote interval, so a crashed agent's orders age off the book by themselves.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="sec-num">06</div>
+      <h2>The API underneath</h2>
+    </div>
+    <div class="sec-body stack">
+      <p>
+        DreamDEX's own HTTP API covers spot only, so anything wanting event-contract data today has
+        to run the TypeScript SDK. Every number on this page is also available as plain JSON, no key
+        required.
+      </p>
+      <div class="panel api">
+        <div><code>GET /v1/summary</code><span>everything on this page, in one call</span></div>
+        <div><code>GET /v1/markets/live</code><span>currently tradable contracts, live from the indexer</span></div>
+        <div><code>GET /v1/stats/base-rate</code><span>how often the underlying actually closes up</span></div>
+        <div><code>GET /v1/stats/calibration</code><span>implied vs realized, including by time-to-expiry</span></div>
+        <div><code>GET /v1/stats/edge</code><span>all three estimators, side by side</span></div>
+        <div><code>GET /v1/edge/live</code><span>the trade / stand-down verdict the agent obeys</span></div>
+        <div><code>GET /v1/traders</code><span>settled PnL leaderboard</span></div>
+        <div><code>GET /v1/liquidity</code><span>coverage, hour-of-day, participant concentration</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p class="note" id="footer-note"></p>
+  </footer>
+</div>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = (id) => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs = {}, text) => {
+    const n = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
+    if (text !== undefined) n.textContent = text;
+    return n;
+  };
+  const cents = (x) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(2)}¢`;
+  const pct = (x, d = 1) => `${(x * 100).toFixed(d)}%`;
+  const num = (x) => x.toLocaleString("en-US");
+
+  // ---- Tooltip ------------------------------------------------------------
+  const tip = $("tip");
+  function bindTip(node, html) {
+    const show = (e) => {
+      tip.innerHTML = html;
+      tip.classList.add("on");
+      const r = tip.getBoundingClientRect();
+      const x = (e.clientX ?? 0) + 14, y = (e.clientY ?? 0) + 14;
+      tip.style.left = Math.min(x, window.innerWidth - r.width - 8) + "px";
+      tip.style.top = Math.min(y, window.innerHeight - r.height - 8) + "px";
+    };
+    node.addEventListener("mousemove", show);
+    node.addEventListener("mouseenter", show);
+    node.addEventListener("mouseleave", () => tip.classList.remove("on"));
+    node.setAttribute("tabindex", "0");
+    node.classList.add("hit");
+    node.addEventListener("focus", () => {
+      const b = node.getBoundingClientRect();
+      show({ clientX: b.left + b.width / 2, clientY: b.top });
+    });
+    node.addEventListener("blur", () => tip.classList.remove("on"));
+  }
+
+  // ---- Charts -------------------------------------------------------------
+
+  /** Calibration: implied (x) vs realized (y), with the 45-degree reference. */
+  function calibrationChart(bins) {
+    const W = 560, H = 400, m = { t: 14, r: 18, b: 40, l: 46 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const x = (v) => m.l + v * iw;
+    const y = (v) => m.t + (1 - v) * ih;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, role: "img",
+      "aria-label": "Calibration curve: implied probability against realized frequency" });
+
+    for (let i = 0; i <= 5; i++) {
+      const v = i / 5;
+      svg.appendChild(el("line", { class: "grid-line", x1: m.l, x2: m.l + iw, y1: y(v), y2: y(v) }));
+      svg.appendChild(el("text", { class: "axis-text", x: m.l - 8, y: y(v) + 3.5, "text-anchor": "end" }, v.toFixed(1)));
+      svg.appendChild(el("text", { class: "axis-text", x: x(v), y: m.t + ih + 16, "text-anchor": "middle" }, v.toFixed(1)));
+    }
+    svg.appendChild(el("line", { class: "ref-line", x1: x(0), y1: y(0), x2: x(1), y2: y(1) }));
+    svg.appendChild(el("line", { class: "axis-line", x1: m.l, y1: m.t + ih, x2: m.l + iw, y2: m.t + ih }));
+    svg.appendChild(el("line", { class: "axis-line", x1: m.l, y1: m.t, x2: m.l, y2: m.t + ih }));
+    svg.appendChild(el("text", { class: "axis-text", x: m.l + iw / 2, y: H - 6, "text-anchor": "middle" }, "implied probability (what the venue charged)"));
+    svg.appendChild(el("text", { class: "axis-text", x: -(m.t + ih / 2), y: 13, transform: "rotate(-90)", "text-anchor": "middle" }, "realized frequency"));
+
+    // Connect the points so the shape of the bend is legible.
+    const pts = bins.map((b) => `${x(b.implied)},${y(b.realized)}`).join(" ");
+    svg.appendChild(el("polyline", { points: pts, fill: "none", stroke: "var(--mid)", "stroke-width": 1.5, "stroke-opacity": .55 }));
+
+    for (const b of bins) {
+      const color = b.error < 0 ? "var(--neg)" : "var(--pos)";
+      const g = el("g", {});
+      // Wilson interval as a whisker - the uncertainty is the point of the chart.
+      g.appendChild(el("line", { x1: x(b.implied), x2: x(b.implied), y1: y(b.ci95[0]), y2: y(b.ci95[1]),
+        stroke: color, "stroke-width": 2, "stroke-opacity": .45, "stroke-linecap": "round" }));
+      // 2px surface ring so overlapping marks stay separable.
+      g.appendChild(el("circle", { cx: x(b.implied), cy: y(b.realized), r: 5.5,
+        fill: color, stroke: "var(--panel)", "stroke-width": 2 }));
+      bindTip(g, `<b>${b.lo.toFixed(1)}–${b.hi.toFixed(1)} bucket</b><br>
+        markets ${b.n}<br>implied ${b.implied.toFixed(3)}<br>realized ${b.realized.toFixed(3)}<br>
+        error ${cents(b.error)}<br>95% CI [${b.ci95[0].toFixed(3)}, ${b.ci95[1].toFixed(3)}]
+        ${b.significant ? "<br><b>excludes the quoted price</b>" : ""}`);
+      svg.appendChild(g);
+    }
+    return svg;
+  }
+
+  /** Grouped bars: pricing error per price bucket, faceted by window phase. */
+  function phaseChart(phases) {
+    const W = 620, rowH = 108, m = { t: 20, r: 16, b: 26, l: 108 };
+    const H = m.t + phases.length * rowH + m.b;
+    const all = phases.flatMap((p) => p.bins.map((b) => Math.abs(b.error)));
+    const max = Math.max(0.12, ...all) * 1.12;
+    const iw = W - m.l - m.r;
+    const cx = m.l + iw / 2;
+    const x = (v) => cx + (v / max) * (iw / 2);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, role: "img",
+      "aria-label": "Pricing error by price bucket, split by how much of the window remained" });
+
+    phases.forEach((p, pi) => {
+      const top = m.t + pi * rowH;
+      svg.appendChild(el("text", { class: "axis-text", x: 8, y: top + 14, "font-weight": 600 }, p.phase.toUpperCase()));
+      svg.appendChild(el("text", { class: "axis-text", x: 8, y: top + 27 }, p.label));
+      svg.appendChild(el("text", { class: "axis-text", x: 8, y: top + 40 }, `${p.n} fills`));
+
+      const bh = 11, gap = 5;
+      p.bins.forEach((b, bi) => {
+        const yy = top + 8 + bi * (bh + gap);
+        const color = b.error < 0 ? "var(--neg)" : "var(--pos)";
+        const w = Math.abs(x(b.error) - cx);
+        const g = el("g", {});
+        g.appendChild(el("rect", {
+          x: b.error < 0 ? cx - w : cx, y: yy, width: Math.max(w, 1), height: bh,
+          rx: 3, fill: color,
+        }));
+        g.appendChild(el("text", { class: "axis-text", x: m.l - 46, y: yy + bh - 1.5 },
+          `${b.lo.toFixed(1)}–${b.hi.toFixed(1)}`));
+        bindTip(g, `<b>${p.label}</b><br>bucket ${b.lo.toFixed(1)}–${b.hi.toFixed(1)}<br>
+          fills ${b.n}<br>implied ${b.implied.toFixed(3)}<br>realized ${b.realized.toFixed(3)}<br>
+          error ${cents(b.error)}`);
+        svg.appendChild(g);
+      });
+      if (pi < phases.length - 1) {
+        svg.appendChild(el("line", { class: "grid-line", x1: 8, x2: W - m.r, y1: top + rowH - 6, y2: top + rowH - 6 }));
+      }
+    });
+    svg.appendChild(el("line", { class: "axis-line", x1: cx, y1: m.t - 6, x2: cx, y2: H - m.b + 2 }));
+    svg.appendChild(el("text", { class: "axis-text", x: cx, y: H - 8, "text-anchor": "middle" }, "0"));
+    svg.appendChild(el("text", { class: "axis-text", x: cx - 60, y: 12, "text-anchor": "middle" }, "← overpriced"));
+    svg.appendChild(el("text", { class: "axis-text", x: cx + 62, y: 12, "text-anchor": "middle" }, "underpriced →"));
+    return svg;
+  }
+
+  /** Forest plot: three estimates of one quantity, with their intervals. */
+  function forestChart(rows) {
+    const W = 600, m = { t: 34, r: 24, b: 42, l: 176 };
+    const rowH = 62, H = m.t + rows.length * rowH + m.b;
+    const lim = Math.max(...rows.flatMap((r) => [Math.abs(r.ci[0]), Math.abs(r.ci[1])])) * 1.2;
+    const iw = W - m.l - m.r;
+    const x = (v) => m.l + ((v + lim) / (2 * lim)) * iw;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, role: "img",
+      "aria-label": "Forest plot of three estimates of the mean pricing error" });
+
+    for (let i = 0; i <= 4; i++) {
+      const v = -lim + (i / 4) * 2 * lim;
+      svg.appendChild(el("line", { class: "grid-line", x1: x(v), x2: x(v), y1: m.t - 10, y2: m.t + rows.length * rowH }));
+      svg.appendChild(el("text", { class: "axis-text", x: x(v), y: m.t + rows.length * rowH + 16, "text-anchor": "middle" }, cents(v)));
+    }
+    // Zero is the decision boundary: an interval touching it means no edge.
+    svg.appendChild(el("line", { class: "axis-line", x1: x(0), x2: x(0), y1: m.t - 16, y2: m.t + rows.length * rowH, "stroke-width": 1.5 }));
+    svg.appendChild(el("text", { class: "axis-text", x: x(0), y: m.t - 22, "text-anchor": "middle", "font-weight": 600 }, "no edge"));
+
+    rows.forEach((r, i) => {
+      const yy = m.t + i * rowH + rowH / 2 - 6;
+      const crosses = r.ci[0] <= 0 && r.ci[1] >= 0;
+      const color = crosses ? "var(--mid)" : (r.mean < 0 ? "var(--neg)" : "var(--pos)");
+      const g = el("g", {});
+      g.appendChild(el("line", { x1: x(r.ci[0]), x2: x(r.ci[1]), y1: yy, y2: yy,
+        stroke: color, "stroke-width": 2.5, "stroke-linecap": "round" }));
+      for (const b of r.ci) {
+        g.appendChild(el("line", { x1: x(b), x2: x(b), y1: yy - 6, y2: yy + 6, stroke: color, "stroke-width": 2 }));
+      }
+      g.appendChild(el("circle", { cx: x(r.mean), cy: yy, r: 6, fill: color, stroke: "var(--panel)", "stroke-width": 2 }));
+
+      svg.appendChild(el("text", { class: "axis-text", x: 8, y: yy - 8, "font-weight": 600, fill: "var(--ink)" }, r.label));
+      svg.appendChild(el("text", { class: "axis-text", x: 8, y: yy + 6 }, r.unit));
+      svg.appendChild(el("text", { class: "axis-text", x: 8, y: yy + 20, fill: crosses ? "var(--warn)" : "var(--ink-3)" },
+        crosses ? "touches zero - inconclusive" : "clears zero"));
+      bindTip(g, `<b>${r.label}</b><br>${r.unit}<br>mean ${cents(r.mean)}<br>
+        95% CI [${cents(r.ci[0])}, ${cents(r.ci[1])}]<br>${r.detail}`);
+      svg.appendChild(g);
+    });
+    return svg;
+  }
+
+  /** Diverging weekly bars around a zero baseline. */
+  function weeklyChart(weeks) {
+    const W = Math.max(420, weeks.length * 92), m = { t: 26, r: 14, b: 46, l: 46 }, H = 260;
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const max = Math.max(...weeks.map((w) => Math.abs(w.mean))) * 1.18 || 0.05;
+    const y = (v) => m.t + ih / 2 - (v / max) * (ih / 2);
+    const bw = Math.min(52, (iw / weeks.length) * 0.56);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, role: "img",
+      "aria-label": "Mean pricing error by week" });
+
+    for (const v of [-max, -max / 2, 0, max / 2, max]) {
+      svg.appendChild(el("line", { class: "grid-line", x1: m.l, x2: m.l + iw, y1: y(v), y2: y(v) }));
+      svg.appendChild(el("text", { class: "axis-text", x: m.l - 8, y: y(v) + 3.5, "text-anchor": "end" }, cents(v)));
+    }
+    svg.appendChild(el("line", { class: "axis-line", x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0), "stroke-width": 1.5 }));
+
+    weeks.forEach((w, i) => {
+      const cxw = m.l + (i + 0.5) * (iw / weeks.length);
+      const color = w.mean < 0 ? "var(--neg)" : "var(--pos)";
+      const h = Math.max(2, Math.abs(y(w.mean) - y(0)));
+      const g = el("g", {});
+      g.appendChild(el("rect", { x: cxw - bw / 2, y: w.mean < 0 ? y(0) : y(w.mean),
+        width: bw, height: h, rx: 4, fill: color }));
+      svg.appendChild(el("text", { class: "axis-text", x: cxw, y: H - 26, "text-anchor": "middle" }, w.week.replace("2026-", "")));
+      svg.appendChild(el("text", { class: "axis-text", x: cxw, y: H - 13, "text-anchor": "middle" }, `n=${w.n}`));
+      bindTip(g, `<b>${w.week}</b><br>markets ${w.n}<br>mean error ${cents(w.mean)}<br>
+        ${w.mean < 0 ? "UP overpriced" : "UP underpriced"}`);
+      svg.appendChild(g);
+    });
+    svg.appendChild(el("text", { class: "axis-text", x: m.l, y: 12, "font-weight": 600 }, "each bar is one ISO week"));
+    return svg;
+  }
+
+  /** Simple magnitude bars for coverage. One measure, one hue. */
+  function coverageChart(series) {
+    const W = 560, rowH = 40, m = { t: 8, r: 60, b: 26, l: 96 };
+    const H = m.t + series.length * rowH + m.b;
+    const iw = W - m.l - m.r;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, role: "img",
+      "aria-label": "Share of markets with at least one trade, by series" });
+    for (let i = 0; i <= 4; i++) {
+      const v = i / 4;
+      svg.appendChild(el("line", { class: "grid-line", x1: m.l + v * iw, x2: m.l + v * iw, y1: m.t, y2: m.t + series.length * rowH }));
+      svg.appendChild(el("text", { class: "axis-text", x: m.l + v * iw, y: H - 8, "text-anchor": "middle" }, pct(v, 0)));
+    }
+    series.forEach((s, i) => {
+      const yy = m.t + i * rowH + 9;
+      const w = Math.max(2, s.coverage * iw);
+      const g = el("g", {});
+      g.appendChild(el("rect", { x: m.l, y: yy, width: iw, height: 16, rx: 3, fill: "var(--panel-sunk)" }));
+      g.appendChild(el("rect", { x: m.l, y: yy, width: w, height: 16, rx: 3, fill: "var(--pos)" }));
+      svg.appendChild(el("text", { class: "axis-text", x: 8, y: yy + 12, fill: "var(--ink)" },
+        `${s.asset} ${s.intervalSec / 60}m`));
+      svg.appendChild(el("text", { class: "axis-text", x: m.l + iw + 8, y: yy + 12 }, pct(s.coverage)));
+      bindTip(g, `<b>${s.asset} ${s.intervalSec / 60}m</b><br>markets ${num(s.markets)}<br>
+        traded ${num(s.traded)}<br>coverage ${pct(s.coverage)}<br>trades ${num(s.trades)}`);
+      svg.appendChild(g);
+    });
+    return svg;
+  }
+
+  // ---- Render -------------------------------------------------------------
+  function render(d) {
+    const asOf = d.dataAsOf ? new Date(d.dataAsOf * 1000) : null;
+    $("provenance").innerHTML = `
+      <div><b>network</b> ${d.network}</div>
+      <div><b>venue</b> ${String(d.venueId).slice(0, 14)}…</div>
+      <div><b>resolved markets</b> ${num(d.baseRate.n)}</div>
+      <div><b>data as of</b> ${asOf ? asOf.toISOString().replace("T", " ").slice(0, 16) + " UTC" : "-"}</div>`;
+
+    // Verdict readout
+    const live = d.live;
+    const trading = live.verdict === "trade";
+    $("verdict").className = "verdict " + (trading ? "v-trade" : "v-stand");
+    $("verdict-text").textContent = trading ? "TRADE" : "STAND DOWN";
+    $("verdict-reason").textContent = live.reason;
+
+    // Gauge: the interval against zero. Sizing off the near bound is the point.
+    const span = Math.max(0.06, Math.abs(live.recent.ci95[0]), Math.abs(live.recent.ci95[1])) * 1.3;
+    const posOf = (v) => ((v + span) / (2 * span)) * 100;
+    const crosses = live.recent.ci95[0] <= 0 && live.recent.ci95[1] >= 0;
+    const c = crosses ? "var(--mid)" : (live.edge < 0 ? "var(--neg)" : "var(--pos)");
+    $("gauge").innerHTML = `
+      <div class="gauge-zero" style="left:${posOf(0)}%"></div>
+      <div class="gauge-band" style="left:${posOf(live.recent.ci95[0])}%;
+        width:${posOf(live.recent.ci95[1]) - posOf(live.recent.ci95[0])}%;
+        background:${crosses ? "var(--warn-wash)" : (live.edge < 0 ? "var(--neg-wash)" : "var(--pos-wash)")};
+        border:1px solid ${c}"></div>
+      <div class="gauge-point" style="left:${posOf(live.edge)}%; background:${c}"></div>`;
+    $("gauge-note").innerHTML =
+      `Point estimate <b class="mono">${cents(live.edge)}</b>, 95% interval
+       <b class="mono">[${cents(live.recent.ci95[0])}, ${cents(live.recent.ci95[1])}]</b>
+       over ${num(live.sampleMarkets)} markets.
+       ${crosses ? "The interval spans zero, so the agent stands down." : "The interval clears zero."}`;
+
+    // 01 - base rate
+    const br = d.baseRate;
+    $("baserate-tiles").innerHTML = `
+      <div class="tile"><div class="k">Resolved markets</div><div class="v">${num(br.n)}</div><div class="s">BTC and ETH</div></div>
+      <div class="tile"><div class="k">Closed up</div><div class="v">${pct(br.rate, 2)}</div><div class="s">${num(br.up)} of ${num(br.n)}</div></div>
+      <div class="tile"><div class="k">Verdict</div><div class="v" style="font-size:1.05rem;color:var(--ink-2)">fair coin</div><div class="s">50% is inside the interval</div></div>`;
+    $("baserate-table").innerHTML =
+      `<thead><tr><th>Series</th><th>Markets</th><th>Closed up</th></tr></thead><tbody>` +
+      br.byAsset.map((r) => `<tr><td>${r.asset} ${r.intervalSec / 60}m</td><td>${num(r.n)}</td><td>${pct(r.rate, 2)}</td></tr>`).join("") +
+      `</tbody>`;
+
+    // 02 - calibration
+    $("chart-calibration").appendChild(calibrationChart(d.calibration.byMarket));
+    $("calibration-caption").innerHTML =
+      `Brier skill <b class="mono">${d.calibration.brierSkill.toFixed(3)}</b> against an always-50% forecaster
+       (1 is perfect, 0 is no better than a coin). The venue's prices carry real information -
+       the question is whether the residual error is exploitable.`;
+    $("chart-phases").appendChild(phaseChart(d.calibration.byTimeToExpiry));
+
+    // 03 - the three estimators
+    const e = d.edge;
+    const rows = [
+      { label: "Per fill", unit: `n = ${num(e.naive.n)} fills`, mean: e.naive.mean, ci: e.naive.ci95,
+        detail: `t = ${e.naive.t.toFixed(2)} - assumes every fill is independent` },
+      { label: "Clustered by market", unit: `n = ${num(e.clustered.n)} markets`, mean: e.clustered.mean, ci: e.clustered.ci95,
+        detail: `t = ${e.clustered.t.toFixed(2)} - fills in one window share one outcome` },
+      { label: "Week-block bootstrap", unit: `${e.bootstrap.blocks} weekly blocks`, mean: e.bootstrap.mean, ci: e.bootstrap.ci95,
+        detail: "resamples whole weeks - also drops the independence-in-time assumption" },
+    ];
+    $("chart-forest").appendChild(forestChart(rows));
+    $("forest-caption").innerHTML =
+      `The point estimate barely moves. The <em>interval</em> is what changes - and the interval is
+       what decides whether there is anything to trade.`;
+    $("forest-callout").innerHTML =
+      `Treating each fill as an independent observation counts
+       <b class="mono">${num(e.naive.n)}</b> data points where there are really
+       <b class="mono">${num(e.clustered.n)}</b> coin flips. That alone moves the t-statistic from
+       <b class="mono">${e.naive.t.toFixed(2)}</b> to <b class="mono">${e.clustered.t.toFixed(2)}</b>.
+       Resample whole weeks and the interval
+       ${e.bootstrap.crossesZero ? "<strong>straddles zero entirely</strong>" : "still clears zero"}.
+       A bot hard-coding “always fade UP” would be fitting last month's weather.`;
+    $("chart-weekly").appendChild(weeklyChart(e.weekly.filter((w) => w.n >= 20)));
+
+    // 04 - coverage
+    const cov = d.coverage;
+    $("coverage-tiles").innerHTML = `
+      <div class="tile"><div class="k">Markets settled</div><div class="v">${num(cov.markets)}</div><div class="s">full history</div></div>
+      <div class="tile"><div class="k">Never traded</div><div class="v">${pct(1 - cov.coverage)}</div><div class="s">${num(cov.markets - cov.traded)} markets</div></div>
+      <div class="tile"><div class="k">Total trades</div><div class="v">${num(cov.trades)}</div><div class="s">${(cov.trades / cov.traded).toFixed(1)} per traded market</div></div>`;
+    $("chart-coverage").appendChild(coverageChart(d.bySeries));
+
+    const mvt = d.makerVsTaker;
+    $("mvt-table").innerHTML =
+      `<thead><tr><th>Side</th><th>Settled PnL</th><th>ROI</th></tr></thead><tbody>
+        <tr><td>Maker (passive)</td><td>${mvt.maker.pnl.toFixed(2)}</td><td style="color:var(--pos)">${pct(mvt.maker.roi, 2)}</td></tr>
+        <tr><td>Taker (aggressive)</td><td>${mvt.taker.pnl.toFixed(2)}</td><td style="color:var(--neg)">${pct(mvt.taker.roi, 2)}</td></tr>
+      </tbody>`;
+
+    const cc = d.concentration;
+    $("conc-table").innerHTML =
+      `<thead><tr><th>Measure</th><th>Value</th></tr></thead><tbody>
+        <tr><td>Distinct takers</td><td>${num(cc.distinctTakers)}</td></tr>
+        <tr><td>Distinct makers</td><td>${num(cc.distinctMakers)}</td></tr>
+        <tr><td>Largest taker's share</td><td>${pct(cc.topTakerShare)}</td></tr>
+        <tr><td>Herfindahl index</td><td>${cc.takerHHI.toFixed(3)}</td></tr>
+      </tbody>`;
+
+    $("footer-note").innerHTML =
+      `Every figure is recomputed from the venue's own settled history - no model fitting, no
+       simulated fills. Reproduce it with <code class="mono">npm run backfill</code> then
+       <code class="mono">npm run analyze</code>, or read the same numbers from
+       <code class="mono">/v1/summary</code>. Built for the Somnia × DreamDEX Event Contracts Hackathon.`;
+  }
+
+  // Live API if it is there, baked-in snapshot otherwise. Same page either way.
+  const baked = JSON.parse($("snapshot").textContent || "null");
+  const API = (location.protocol === "http:" || location.protocol === "https:")
+    ? `${location.protocol}//${location.hostname}:8787/v1/summary` : null;
+
+  const boot = (d) => { try { render(d); } catch (err) { console.error(err); } };
+
+  if (API) {
+    fetch(API, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then(boot)
+      .catch(() => { if (baked) boot(baked); });
+  } else if (baked) {
+    boot(baked);
+  }
+})();
+</script>
