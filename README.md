@@ -225,3 +225,5 @@ web/             dashboard (template + baked build)
 
 Built with [`@somnia-chain/markets-sdk`](https://www.npmjs.com/package/@somnia-chain/markets-sdk)
 against the [DreamDEX event-contract docs](https://docs.dreamdex.io/developers/event-contracts).
+#   e v e n t - c o n t r a c t s  
+ 
