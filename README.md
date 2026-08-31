@@ -107,7 +107,18 @@ book by themselves.
 Because ~83% of markets have no book at all, seeding an empty market is the main path, not an edge
 case - the agent's quotes are usually the only ones there.
 
-### 4. The dashboard
+### 4. The terminal
+A React trading client (`app/`) that puts the measurement next to the money. Connect a wallet,
+browse the open BTC/ETH windows with live countdowns and books, and place orders - with Calibra's
+fair value and a RICH / CHEAP / IN LINE badge beside every price.
+
+It is opinionated where the data says to be. Post-only is the default order type, because settled
+PnL on this venue pays the passive side +1.34% and charges the aggressive side -2.18% on a book
+with no fees at all. Claiming is a first-class action, because winnings are claimed rather than
+received. And when the measured interval covers zero the app says **no edge** instead of inventing
+a number - a trading UI that always has an opinion is one that is lying some of the time.
+
+### 5. The dashboard
 A single self-contained HTML file with the whole argument, including the charts. It polls the API
 when one is running and falls back to a baked-in snapshot otherwise, so it opens from disk with no
 server and no network.
@@ -125,7 +136,11 @@ npm run api          # http://localhost:8787
 npm run dashboard    # bake web/dashboard.html, openable straight from disk
 npm test             # 13 tests over the policy and the statistics
 npm run verify       # re-derive every number quoted in this README
+npm run app          # the trading terminal on http://localhost:5173
 ```
+
+Run `npm run api` and `npm run app` together: the terminal proxies `/api` to the stats server, and
+without it every price simply shows no fair value rather than a wrong one.
 
 `npm run doctor` is the one to run first, and the one to run when something goes quiet.
 It is read-only and needs no key. It will tell you if the venue id has moved, which
@@ -204,6 +219,7 @@ src/ingest/      idempotent historical backfill
 src/analytics/   stats, calibration, edge/regime detection, traders, liquidity
 src/api/         the public JSON API (node:http, no framework)
 src/agent/       SDK bootstrap + guards, quoting policy, runner
+app/             React trading terminal (Vite, wallet-connected)
 web/             dashboard (template + baked build)
 ```
 

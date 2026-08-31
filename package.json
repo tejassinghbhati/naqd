@@ -16,7 +16,9 @@
     "build": "tsc -p tsconfig.json",
     "test": "tsx --test src/**/*.test.ts",
     "dashboard": "tsx src/cli/dashboard.ts",
-    "verify": "tsx src/cli/verify.ts"
+    "verify": "tsx src/cli/verify.ts",
+    "app": "npm --prefix app run dev",
+    "app:build": "npm --prefix app run build"
   },
   "dependencies": {
     "@somnia-chain/markets-sdk": "^0.28.0",
