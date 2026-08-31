@@ -119,17 +119,31 @@ server and no network.
 ```bash
 npm install
 npm run backfill     # pull the venue's full history into data/calibra-mainnet.db  (~3 min)
+npm run doctor       # preflight: indexer reachable, venue drift, store age, live verdict
 npm run analyze      # print every finding above, recomputed from your own copy
 npm run api          # http://localhost:8787
 npm run dashboard    # bake web/dashboard.html, openable straight from disk
 npm test             # 13 tests over the policy and the statistics
+npm run verify       # re-derive every number quoted in this README
 ```
+
+`npm run doctor` is the one to run first, and the one to run when something goes quiet.
+It is read-only and needs no key. It will tell you if the venue id has moved, which
+happens often - both networks changed theirs three times in a single week, and a bot
+pointed at a stale venue finds nothing, forever, with nothing in the log to say so.
 
 The agent defaults to **testnet** and **DRY_RUN**, and logs exactly what it would place:
 
 ```bash
 ONCE=1 npm run agent                      # one pass, sends nothing
 ONCE=1 EDGE_WINDOW_DAYS=30 npm run agent  # a window where the edge does clear zero
+```
+
+On **PowerShell** the inline `VAR=value cmd` prefix is not valid syntax - set it first:
+
+```powershell
+$env:ONCE=1; npm run agent
+$env:ONCE=1; $env:EDGE_WINDOW_DAYS=30; npm run agent
 ```
 
 To go live, set `PRIVATE_KEY` and `DRY_RUN=false` in `.env`. Get testnet funds at
