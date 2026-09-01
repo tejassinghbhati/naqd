@@ -1,0 +1,21 @@
+# Normalize line endings.
+#
+# Without this, a checkout on Windows converts to CRLF while the index holds LF,
+# so git reports whole files as modified when nothing changed. That is what made
+# the initial README commit a 456-line diff with no content change. Committing
+# LF for everything keeps diffs meaningful on every platform.
+* text=auto eol=lf
+
+# Binary - never touch these.
+*.png binary
+*.jpg binary
+*.ico binary
+*.db binary
+*.woff binary
+*.woff2 binary
+
+# Generated. Collapsed in diffs and excluded from language stats so the repo
+# reports as TypeScript rather than as its lockfiles.
+package-lock.json linguist-generated=true -diff
+app/package-lock.json linguist-generated=true -diff
+web/dashboard.html linguist-generated=true
