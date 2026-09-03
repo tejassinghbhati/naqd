@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * The market list.
  *
@@ -15,8 +17,8 @@
  */
 
 import { useEffect, useRef } from "react";
-import type { LiveMarket, Book } from "../lib/markets.js";
-import { fairValue, type CalibraStats } from "../lib/calibra.js";
+import type { LiveMarket, Book } from "@/lib/markets";
+import { fairValue, type CalibraStats } from "@/lib/calibra";
 
 const fmtLeft = (s: number): string => {
   if (s <= 0) return "closed";

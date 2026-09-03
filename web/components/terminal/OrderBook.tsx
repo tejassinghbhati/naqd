@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * The order book, quoted in UP terms.
  *
@@ -12,7 +14,7 @@
  * sit furthest from the touch.
  */
 
-import type { Book } from "../lib/markets.js";
+import type { Book } from "@/lib/markets";
 
 const px = (n: number) => n.toFixed(3);
 const sz = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n.toFixed(n < 10 ? 2 : 1));

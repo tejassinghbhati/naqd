@@ -7,7 +7,7 @@
 
 import type { SomniaMarkets, UnifiedMarket, MarketOnchain } from "@somnia-chain/markets-sdk";
 import type { Hex } from "viem";
-import type { NetworkConfig } from "./chain.js";
+import type { NetworkConfig } from "./chain";
 
 export interface LiveMarket {
   marketId: Hex;

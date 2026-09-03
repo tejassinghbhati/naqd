@@ -28,7 +28,7 @@
 
 import { SomniaMarkets, type MarketOnchain, type UnifiedMarket } from "@somnia-chain/markets-sdk";
 import type { Hex, WalletClient } from "viem";
-import { MARKET_STATUS, ORDER_TYPE, type NetworkConfig } from "./chain.js";
+import { MARKET_STATUS, ORDER_TYPE, type NetworkConfig } from "./chain";
 
 export type Outcome = "UP" | "DOWN";
 export type OrderMode = "post" | "take";

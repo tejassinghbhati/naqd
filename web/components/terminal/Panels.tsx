@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * The remaining panels: the quote header, the edge strip, and the portfolio.
  *
@@ -8,8 +10,8 @@
  * app says so rather than manufacturing a number to fill the space.
  */
 
-import type { LiveMarket, Book } from "../lib/markets.js";
-import { cents, type CalibraStats, type FairValue } from "../lib/calibra.js";
+import type { LiveMarket, Book } from "@/lib/markets";
+import { cents, type CalibraStats, type FairValue } from "@/lib/calibra";
 
 const fmtLeft = (s: number): string => {
   if (s <= 0) return "CLOSED";

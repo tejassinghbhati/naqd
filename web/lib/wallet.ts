@@ -13,7 +13,7 @@
  */
 
 import { createWalletClient, custom, type Address, type WalletClient } from "viem";
-import type { NetworkConfig } from "./chain.js";
+import type { NetworkConfig } from "./chain";
 
 /** Minimal EIP-1193 surface, so we do not depend on a wallet library's types. */
 export interface Eip1193Provider {

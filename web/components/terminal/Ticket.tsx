@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * The order ticket.
  *
@@ -15,10 +17,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { SomniaMarkets, MarketOnchain } from "@somnia-chain/markets-sdk";
-import type { NetworkConfig } from "../lib/chain.js";
-import type { LiveMarket, Book } from "../lib/markets.js";
-import { placeOrder, explainError, minSize, tickStep, type Outcome, type OrderMode } from "../lib/exchange.js";
-import type { FairValue } from "../lib/calibra.js";
+import type { NetworkConfig } from "@/lib/chain";
+import type { LiveMarket, Book } from "@/lib/markets";
+import { placeOrder, explainError, minSize, tickStep, type Outcome, type OrderMode } from "@/lib/exchange";
+import type { FairValue } from "@/lib/calibra";
 
 interface Props {
   cfg: NetworkConfig;

@@ -56,8 +56,9 @@ export interface CalibraStats {
   dataAsOf: number;
 }
 
-/** Vite proxies /api to the stats server, so the bundle carries no hostname. */
-const API = "/api";
+/** Next rewrites /api/stats to the stats server, so the bundle carries no
+ *  hostname and the browser never makes a cross-origin request. */
+const API = "/api/stats";
 
 /**
  * Read the current edge and calibration curve.

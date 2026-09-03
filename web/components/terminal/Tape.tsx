@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * The price track and the tape - the two things that belong in the middle of a
  * terminal, under the book.

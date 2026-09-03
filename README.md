@@ -6,11 +6,11 @@
 
 Built for the [Somnia × DreamDEX Event Contracts Hackathon](https://dorahacks.io/hackathon/event-contracts/detail)
 
-[Live analytics dashboard](https://claude.ai/code/artifact/c547b4c8-d646-4307-99c5-26c93f4f5447) · [DreamDEX docs](https://docs.dreamdex.io/developers/event-contracts) · [MIT licensed](LICENSE)
+[DreamDEX docs](https://docs.dreamdex.io/developers/event-contracts) · [Somnia](https://somnia.network) · [MIT licensed](LICENSE)
 
 </div>
 
-![Calibra Terminal](docs/terminal-dark.png)
+![Calibra Terminal](docs/web-terminal-dark.png)
 
 ---
 
@@ -102,14 +102,16 @@ flowchart LR
     AG["Agent<br/>post-only maker"]
   end
 
-  subgraph out["Surfaces"]
-    UI["Terminal<br/>React · wallet"]
-    DASH["Dashboard<br/>static HTML"]
+  subgraph out["Next.js app"]
+    HOME["Overview"]
+    RES["Research<br/>server-rendered"]
+    UI["Terminal<br/>client · wallet"]
   end
 
   IDX --> ING --> DB --> AN --> API
+  API --> HOME
+  API --> RES
   API --> UI
-  API --> DASH
   API --> AG
   IDX --> UI
   RPC --> UI
@@ -119,11 +121,12 @@ flowchart LR
   classDef c fill:#1a6ba8,stroke:#1a6ba8,color:#fff
   classDef d fill:#146b63,stroke:#146b63,color:#fff
   class ING,AN,API,AG c
-  class UI,DASH d
+  class HOME,RES,UI d
 ```
 
-The measurement engine is the spine. The terminal, the dashboard and the agent are three consumers
-of the same numbers, so none of them can disagree about what the edge currently is.
+The measurement engine is the spine. The web app and the agent consume the same numbers, so they
+cannot disagree about what the edge currently is. The research pages are rendered on the server,
+which puts the finding in the HTML rather than painting it in after a spinner.
 
 ---
 
@@ -193,13 +196,29 @@ and it is what would have kept the agent flat through week 33 when the weekly me
 
 ---
 
-## The terminal
+## The web app
 
-A React trading client that puts the measurement next to the money. Connect a wallet, browse the
+A Next.js 15 application on the App Router, four routes sharing one design system.
+
+| Route | What it is |
+|---|---|
+| `/` | Overview, with the live verdict rendered server-side |
+| `/research` | The full finding: base rate, calibration curve, three estimators, weekly sign flips, coverage, concentration, leaderboard |
+| `/terminal` | The trading client |
+| `/api-docs` | The public API surface, with a live example response |
+
+`/`, `/research` and `/api-docs` are **server components**: they fetch the measurement on the server
+and ship it inside the HTML, revalidating every 60 seconds. Only `/terminal` runs on the client,
+because it holds a wallet and reads live chain state. Theme resolves before first paint via a small
+inline script, so navigating never flashes the wrong one.
+
+### The terminal
+
+A trading client that puts the measurement next to the money. Connect a wallet, browse the
 open windows with live countdowns and books, and trade - with Calibra's fair value and a
 **RICH / CHEAP / IN LINE** badge beside every price.
 
-![Calibra Terminal, light theme](docs/terminal-light.png)
+![Calibra Terminal, light theme](docs/web-terminal-light.png)
 
 | Panel | What it does |
 |---|---|
@@ -274,15 +293,14 @@ npm run analyze      # every finding above, recomputed from your own copy
 Then, in two terminals:
 
 ```bash
-npm run api          # http://localhost:8787
-npm run app          # http://localhost:5173  <- the trading terminal
+npm run api          # http://localhost:8787  the stats service
+npm run web          # http://localhost:3000  the Next.js app
 ```
 
-The terminal proxies `/api` to the stats server. Without it, every price simply shows **no fair
-value** rather than a wrong one.
+Next rewrites `/api/stats/*` to the stats service, so the browser stays on one origin. Without the
+stats service running, every price simply shows **no fair value** rather than a wrong one.
 
 ```bash
-npm run dashboard    # bake web/dashboard.html, opens from disk with no server
 npm test             # 13 tests over the quoting policy and the statistics
 npm run verify       # re-derive every number quoted in this README
 ```
@@ -365,9 +383,11 @@ src/ingest/      idempotent historical backfill
 src/analytics/   stats · calibration · edge & regime detection · traders · liquidity
 src/api/         the public JSON API (node:http, no framework)
 src/agent/       SDK bootstrap + guards, quoting policy, runner
-src/cli/         backfill · doctor · analyze · agent · dashboard · verify
-app/             React trading terminal (Vite, wallet-connected)
-web/             analytics dashboard (template + baked build)
+src/cli/         backfill · doctor · analyze · agent · verify
+web/             Next.js app - overview, research, terminal, API docs
+web/app/         routes (server components except /terminal)
+web/components/  charts (server-rendered SVG) and terminal panels
+web/lib/         chain, wallet, exchange, markets, fair value
 docs/            screenshots used above
 ```
 

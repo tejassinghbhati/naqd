@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Calibra Terminal.
  *
@@ -16,9 +18,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SomniaMarkets, MarketOnchain } from "@somnia-chain/markets-sdk";
-import { DEFAULT_NETWORK, NETWORKS, type Network } from "./lib/chain.js";
-import { connect, reconnect, watchWallet, hasWallet, short, type Connection } from "./lib/wallet.js";
-import { createExchange, explainError, redeem, type Outcome } from "./lib/exchange.js";
+import { DEFAULT_NETWORK, NETWORKS, type Network } from "@/lib/chain";
+import { connect, reconnect, watchWallet, hasWallet, short, type Connection } from "@/lib/wallet";
+import { createExchange, explainError, redeem, type Outcome } from "@/lib/exchange";
 import {
   loadBook,
   loadLiveMarkets,
@@ -27,20 +29,20 @@ import {
   loadTrades,
   type Book,
   type LiveMarket,
-} from "./lib/markets.js";
-import { fairValue, fetchStats, type CalibraStats } from "./lib/calibra.js";
-import { OrderBook } from "./components/OrderBook.js";
-import { Ticket } from "./components/Ticket.js";
-import { MarketList } from "./components/MarketList.js";
-import { QuoteHeader, EdgeStrip, Claims, VenueStats, type ClaimRow } from "./components/Panels.js";
-import { PriceTrack, Tape, toPrint, type Print } from "./components/Tape.js";
+} from "@/lib/markets";
+import { fairValue, fetchStats, type CalibraStats } from "@/lib/calibra";
+import { OrderBook } from "@/components/terminal/OrderBook";
+import { Ticket } from "@/components/terminal/Ticket";
+import { MarketList } from "@/components/terminal/MarketList";
+import { QuoteHeader, EdgeStrip, Claims, VenueStats, type ClaimRow } from "@/components/terminal/Panels";
+import { PriceTrack, Tape, toPrint, type Print } from "@/components/terminal/Tape";
 
 const BOOK_MS = 5_000;
 const MARKETS_MS = 15_000;
 const STATS_MS = 60_000;
 const EMPTY_BOOK: Book = { bids: [], asks: [], empty: true };
 
-export default function App() {
+export default function TerminalClient() {
   const [network, setNetwork] = useState<Network>(DEFAULT_NETWORK);
   const cfg = NETWORKS[network];
 
@@ -241,7 +243,7 @@ export default function App() {
   const age = lastTick ? Math.max(0, Math.round((now * 1000 - lastTick) / 1000)) : null;
 
   return (
-    <div className="app">
+    <div className="terminal">
       <header className="topbar">
         <div className="wordmark">
           <span className="name">CALIBRA</span>
