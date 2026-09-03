@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { Nav } from "@/components/nav";
+import { WalletProvider } from "@/components/wallet/WalletProvider";
 import "./globals.css";
 import "./terminal.css";
+import "./wallet.css";
 
 // Self-hosted through next/font: no render-blocking request to a font CDN, and
 // no layout shift while a fallback swaps out.
@@ -60,8 +62,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="skip">
           Skip to content
         </a>
-        <Nav />
-        <main id="main">{children}</main>
+        {/* The nav shows the account and the terminal signs with it, so the
+            connection has to sit above both. */}
+        <WalletProvider>
+          <Nav />
+          <main id="main">{children}</main>
+        </WalletProvider>
       </body>
     </html>
   );

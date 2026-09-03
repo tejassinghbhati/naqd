@@ -18,9 +18,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SomniaMarkets, MarketOnchain } from "@somnia-chain/markets-sdk";
-import { DEFAULT_NETWORK, NETWORKS, type Network } from "@/lib/chain";
-import { connect, reconnect, watchWallet, hasWallet, short, type Connection } from "@/lib/wallet";
-import { createExchange, explainError, redeem, type Outcome } from "@/lib/exchange";
+import type { Network } from "@/lib/chain";
+import { explainError, redeem, type Outcome } from "@/lib/exchange";
+import { loadOpenOrders, type RestingOrder } from "@/lib/account";
+import { useWallet } from "@/components/wallet/WalletProvider";
+import { OpenOrders } from "@/components/terminal/OpenOrders";
 import {
   loadBook,
   loadLiveMarkets,
@@ -43,11 +45,11 @@ const STATS_MS = 60_000;
 const EMPTY_BOOK: Book = { bids: [], asks: [], empty: true };
 
 export default function TerminalClient() {
-  const [network, setNetwork] = useState<Network>(DEFAULT_NETWORK);
-  const cfg = NETWORKS[network];
+  // Wallet, network and both SDK clients come from the provider, so the header
+  // and this workspace can never disagree about which account is signing.
+  const { cfg, network, setNetwork, conn, wrongChain, read, trade, openConnect, refreshBalances } =
+    useWallet();
 
-  const [conn, setConn] = useState<Connection | null>(null);
-  const [walletError, setWalletError] = useState<string | null>(null);
   const [markets, setMarkets] = useState<LiveMarket[]>([]);
   const [venue, setVenue] = useState<{ venueId: string; fallback: boolean } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -64,40 +66,32 @@ export default function TerminalClient() {
   const [lastTick, setLastTick] = useState<number | null>(null);
   const [latency, setLatency] = useState<number | null>(null);
   const [prints, setPrints] = useState<Print[]>([]);
+  const [orders, setOrders] = useState<RestingOrder[]>([]);
 
-  // A read-only client always exists, so the terminal is fully usable before any
-  // wallet is connected. A second one carrying the signer appears on connect.
-  const read = useMemo(() => createExchange(cfg), [cfg]);
-  const trade = useMemo(() => (conn ? createExchange(cfg, conn.walletClient) : null), [cfg, conn]);
   const selected = useMemo(
     () => markets.find((m) => m.marketId === selectedId) ?? markets[0] ?? null,
     [markets, selectedId],
   );
   const book = (selected && books.get(selected.marketId)) || EMPTY_BOOK;
   const fair = fairValue(stats, book.mid ?? null);
-  const wrongChain = conn !== null && conn.chainId !== cfg.chain.id;
 
   useEffect(() => {
     const id = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
     return () => clearInterval(id);
   }, []);
 
-  // ---- wallet ----
-  useEffect(() => {
-    reconnect(cfg).then((c) => c && setConn(c));
-    return watchWallet(() => {
-      reconnect(cfg).then(setConn);
-    });
-  }, [cfg]);
+  // ---- resting orders ----
+  const refreshOrders = useCallback(() => {
+    if (!trade) return setOrders([]);
+    loadOpenOrders(trade).then(setOrders);
+  }, [trade]);
 
-  const doConnect = useCallback(async () => {
-    setWalletError(null);
-    try {
-      setConn(await connect(cfg));
-    } catch (e) {
-      setWalletError(explainError(e));
-    }
-  }, [cfg]);
+  useEffect(() => {
+    refreshOrders();
+    if (!trade) return;
+    const id = setInterval(refreshOrders, 10_000);
+    return () => clearInterval(id);
+  }, [refreshOrders, trade]);
 
   // ---- markets ----
   const refreshMarkets = useCallback(async () => {
@@ -203,6 +197,7 @@ export default function TerminalClient() {
     try {
       await redeem(trade, marketId);
       setNotice("Claimed. Winnings are in your wallet.");
+      refreshBalances();
       setClaims((c) => c.filter((x) => x.marketId !== marketId));
     } catch (e) {
       setNotice(explainError(e));
@@ -281,43 +276,12 @@ export default function TerminalClient() {
           </span>
         </div>
 
-        <div style={{ paddingLeft: 12, borderLeft: "1px solid var(--rule)" }}>
-          {conn ? (
-            <div className="rowf">
-              <span className={`dot ${wrongChain ? "bad" : "live"}`} />
-              <span className="mono" style={{ fontSize: 12 }}>
-                {short(conn.address)}
-              </span>
-            </div>
-          ) : (
-            <button type="button" onClick={doConnect} disabled={!hasWallet()}>
-              {hasWallet() ? "Connect wallet" : "No wallet"}
-            </button>
-          )}
-        </div>
       </header>
 
       <EdgeStrip stats={stats} />
 
-      {(walletError || wrongChain || notice || venue?.fallback) && (
+      {(notice || venue?.fallback) && (
         <div style={{ padding: "8px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
-          {walletError && (
-            <div className="notice err">
-              <span className="ic">!</span>
-              <span>{walletError}</span>
-            </div>
-          )}
-          {wrongChain && (
-            <div className="notice err">
-              <span className="ic">!</span>
-              <span>
-                Wallet is on chain {conn?.chainId}. Switch to {cfg.chain.name} ({cfg.chain.id}) to trade.{" "}
-                <button type="button" className="link" onClick={doConnect}>
-                  switch now
-                </button>
-              </span>
-            </div>
-          )}
           {venue?.fallback && (
             <div className="notice warn">
               <span className="ic">!</span>
@@ -426,17 +390,28 @@ export default function TerminalClient() {
               book={book}
               fair={fair}
               connected={!!conn && !wrongChain}
-              onConnect={doConnect}
+              onConnect={openConnect}
               onPlaced={() => {
                 refreshBooks();
                 refreshOnchain();
                 refreshClaims();
+                refreshOrders();
+                refreshBalances();
               }}
               presetPrice={presetPrice}
               outcome={outcome}
               setOutcome={setOutcome}
             />
           )}
+          <OpenOrders
+            orders={orders}
+            exchange={trade}
+            connected={!!conn && !wrongChain}
+            onChanged={() => {
+              refreshOrders();
+              refreshBalances();
+            }}
+          />
           <Claims rows={claims} connected={!!conn} claiming={claiming} onClaim={doClaim} />
           <VenueStats stats={stats} />
         </div>

@@ -224,12 +224,37 @@ open windows with live countdowns and books, and trade - with Assay's fair value
 
 ![Assay Terminal, light theme](docs/web-terminal-light.png)
 
+![Connecting a wallet](docs/wallet-modal.png)
+
+### The wallet layer
+
+Connection is built on **EIP-6963**, not `window.ethereum`. That distinction is
+invisible until it bites: with two extensions installed they race to own that property, so a user
+with Rabby and MetaMask gets whichever injected last, with no way to choose. EIP-6963 has each
+wallet announce itself with its own provider, name and icon, and the page picks.
+
+| | |
+|---|---|
+| **Wallet picker** | Lists what actually announced, so an unknown wallet works with no code change |
+| **Balances** | Collateral and gas, always visible, with a warning before low gas causes a revert rather than after |
+| **Positions** | Outcome-token holdings, in the account menu |
+| **Open orders** | With cancel. A resting order holds escrow, so an interface that hides it hides your money |
+| **Faucet** | 1,000 test collateral on testnet only, because mainnet USDso has no faucet and the button would be a lie |
+| **Disconnect** | Scoped honestly: a dapp cannot revoke its own permission, so this stops the site using the account rather than claiming more |
+
+The connection lives in one context above both the nav and the terminal. Two components each with
+their own `accountsChanged` listener is how you get a header showing one account while the trading
+panel still signs as the previous one.
+
+### Panels
+
 | Panel | What it does |
 |---|---|
 | **Markets** | Every open window with its own live book. Prices flash in the direction they ticked. |
 | **Book** | Depth-weighted; click any level to load its price into the ticket. |
 | **Traded probability** | Every print inside the current window, on a fixed 0–1 axis so a market pinned near certainty looks pinned. |
 | **Ticket** | Post-only by default, with the payoff stated in money before probability. |
+| **Open orders** | Resting orders with per-row cancel. |
 | **Settled** | Claiming is a first-class action, because winnings are claimed rather than received. |
 | **Keyboard** | `J`/`K` move market, `U`/`D` flip side. |
 
@@ -391,7 +416,7 @@ src/cli/         backfill · doctor · analyze · agent · verify
 web/             Next.js app - overview, research, terminal, API docs
 web/app/         routes (server components except /terminal)
 web/components/  charts (server-rendered SVG) and terminal panels
-web/lib/         chain, wallet, exchange, markets, fair value
+web/lib/         chain, wallet (EIP-6963), account, exchange, markets, fair value
 docs/            screenshots used above
 ```
 

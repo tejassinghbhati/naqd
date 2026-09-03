@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
+import { useWallet } from "./wallet/WalletProvider";
+import { AccountMenu } from "./wallet/AccountMenu";
 
 const LINKS = [
   { href: "/", label: "Overview" },
@@ -13,12 +15,16 @@ const LINKS = [
 
 export function Nav() {
   const path = usePathname();
+  const { cfg, conn, balances, wrongChain, openConnect, disconnect, switchChain, runFaucet, faucetBusy } =
+    useWallet();
+
   return (
     <nav className="nav">
       <Link href="/" className="brand">
         <span className="n">ASSAY</span>
         <span className="t">ASSAY OFFICE</span>
       </Link>
+
       <div className="nav-links">
         {LINKS.map((l) => {
           // Every route is a prefix of "/", so the root needs an exact match or
@@ -31,7 +37,26 @@ export function Nav() {
           );
         })}
       </div>
+
       <div className="spacer" />
+
+      {conn ? (
+        <AccountMenu
+          cfg={cfg}
+          conn={conn}
+          balances={balances}
+          wrongChain={wrongChain}
+          faucetBusy={faucetBusy}
+          onFaucet={runFaucet}
+          onSwitchChain={switchChain}
+          onDisconnect={disconnect}
+        />
+      ) : (
+        <button type="button" className="btn-primary" onClick={openConnect}>
+          Connect wallet
+        </button>
+      )}
+
       <ThemeToggle />
     </nav>
   );

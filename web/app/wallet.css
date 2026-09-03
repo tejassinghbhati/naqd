@@ -1,0 +1,187 @@
+/*
+  Wallet surfaces: the connect dialog and the account menu.
+
+  Separate from globals.css because these are overlays with their own stacking
+  and focus rules, and mixing them into the base sheet makes the z-index story
+  harder to reason about. Tokens still come from globals.css, so nothing here
+  can drift from the rest of the design.
+*/
+
+/* ===================== Connect dialog ===================== */
+
+.modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  backdrop-filter: blur(6px);
+  animation: scrim-in 0.14s ease-out;
+}
+@keyframes scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  width: 100%;
+  max-width: 380px;
+  background: var(--panel);
+  border: 1px solid var(--rule-2);
+  border-radius: 6px;
+  box-shadow: var(--chrome);
+  animation: modal-in 0.16s cubic-bezier(0.2, 0, 0.2, 1);
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.99); }
+  to { opacity: 1; transform: none; }
+}
+
+.modal-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.modal-hd h2 { font-size: 14px; font-weight: 600; }
+.modal-bd { padding: 14px; }
+
+.wallet-list { display: flex; flex-direction: column; gap: 6px; }
+
+.wallet-row {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  background: var(--sunk);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+}
+.wallet-row:hover:not(:disabled) { border-color: var(--accent); background: var(--panel-2); }
+.wallet-icon { display: flex; align-items: center; justify-content: center; }
+.wallet-icon img { border-radius: 4px; display: block; }
+.wallet-glyph {
+  display: flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 4px;
+  background: var(--panel-2); border: 1px solid var(--rule-2);
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+}
+.wallet-name { font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.wallet-state {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-4);
+}
+
+/* ===================== Account menu ===================== */
+
+.acct { position: relative; }
+
+.acct-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--rule-2);
+  border-radius: var(--r);
+  font-size: 12.5px;
+}
+.acct-trigger:hover { background: var(--sunk); }
+.acct-bal {
+  padding-left: 8px;
+  border-left: 1px solid var(--rule-2);
+  color: var(--ink-3);
+  font-size: 11.5px;
+}
+@media (max-width: 720px) { .acct-bal { display: none; } }
+
+.acct-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 60;
+  width: 320px;
+  background: var(--panel);
+  border: 1px solid var(--rule-2);
+  border-radius: 5px;
+  box-shadow: var(--chrome);
+  animation: modal-in 0.12s ease-out;
+  overflow: hidden;
+}
+
+.acct-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--panel-2);
+}
+
+/* Address above, actions below.
+   Side by side, a full 42-character address leaves the two buttons nothing to
+   sit in at this width, and `.row` wraps them into a vertical stack that makes
+   the row three times taller than it needs to be. Stacking deliberately is
+   shorter and reads better than a squeezed single line. */
+.acct-addr {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.acct-addr code {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--ink-3);
+  line-height: 1.45;
+}
+.acct-addr .row { flex-wrap: nowrap; gap: 6px; }
+.acct-addr .row > * { flex: 1 1 0; justify-content: center; }
+
+.acct-bals { padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; }
+.acct-bal-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.acct-positions {
+  padding: 10px 12px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.acct-ft {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-top: 1px solid var(--rule);
+  background: var(--panel-2);
+}
+.acct-ft .link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--bad);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.acct-ft .link:hover { background: none; opacity: 0.8; }
