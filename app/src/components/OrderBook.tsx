@@ -1,61 +1,92 @@
 /**
- * The book, in UP terms.
+ * The order book, quoted in UP terms.
  *
- * One deliberate simplification: the venue runs a single unified book where
- * DOWN is the complement of UP, so a "bid for UP at 0.40" and an "ask for DOWN
- * at 0.60" are the same resting order seen from two sides. Showing both would
- * double-count the depth. This renders the UP book and labels it plainly, and
- * the trade panel does the complement arithmetic when you buy DOWN.
+ * One deliberate simplification worth stating: the venue runs a single unified
+ * book where DOWN is the complement of UP, so "bid UP at 0.40" and "ask DOWN at
+ * 0.60" are the same resting order seen from opposite sides. Rendering both
+ * would double-count the depth. This shows the UP book, labels it, and lets the
+ * ticket do the complement arithmetic when you buy DOWN.
+ *
+ * Depth bars are anchored to the outside edge of each column so the two sides
+ * grow away from the spread - the conventional reading, where the widest bars
+ * sit furthest from the touch.
  */
 
 import type { Book } from "../lib/markets.js";
 
-const fmt = (n: number, d = 3) => n.toFixed(d);
+const px = (n: number) => n.toFixed(3);
+const sz = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n.toFixed(n < 10 ? 2 : 1));
 
-export function OrderBook({ book, onPick }: { book: Book; onPick?: (price: number) => void }) {
-  const maxSize = Math.max(1e-9, ...book.bids.map((l) => l.size), ...book.asks.map((l) => l.size));
+interface Props {
+  book: Book;
+  onPick?: (price: number) => void;
+  rows?: number;
+}
+
+export function OrderBook({ book, onPick, rows = 7 }: Props) {
+  const bids = book.bids.slice(0, rows);
+  const asks = book.asks.slice(0, rows);
+  const maxSize = Math.max(1e-9, ...bids.map((l) => l.size), ...asks.map((l) => l.size));
+
+  const spread =
+    book.bestBid !== undefined && book.bestAsk !== undefined ? book.bestAsk - book.bestBid : null;
 
   const Side = ({ levels, kind }: { levels: Book["bids"]; kind: "bid" | "ask" }) => (
-    <div className="book-side">
-      <h4>{kind === "bid" ? "Bids (buy UP)" : "Asks (sell UP)"}</h4>
+    <div className="book-col">
+      <div className="book-hd">
+        <span>{kind === "bid" ? "Bid" : "Ask"}</span>
+        <span>Size</span>
+      </div>
       {levels.length === 0 ? (
-        <div className="book-empty">No resting orders</div>
+        <div className="empty xs" style={{ padding: "14px 8px" }}>
+          none
+        </div>
       ) : (
-        levels.slice(0, 6).map((l, i) => (
-          <div
+        levels.map((l, i) => (
+          <button
             key={`${l.price}-${i}`}
-            className="book-level"
-            role={onPick ? "button" : undefined}
-            tabIndex={onPick ? 0 : undefined}
+            type="button"
+            className={`lvl ${kind}`}
             onClick={() => onPick?.(l.price)}
-            onKeyDown={(e) => {
-              if (onPick && (e.key === "Enter" || e.key === " ")) {
-                e.preventDefault();
-                onPick(l.price);
-              }
-            }}
-            style={{ cursor: onPick ? "pointer" : undefined }}
-            title={onPick ? `Use ${fmt(l.price)} as your price` : undefined}
+            title={onPick ? `Use ${px(l.price)} as your price` : undefined}
+            disabled={!onPick}
           >
             <span
               className="depth"
               style={{
-                width: `${(l.size / maxSize) * 100}%`,
-                background: kind === "bid" ? "var(--up-wash)" : "var(--down-wash)",
+                width: `${Math.max(2, (l.size / maxSize) * 100)}%`,
+                [kind === "bid" ? "right" : "left"]: 0,
               }}
             />
-            <span style={{ color: kind === "bid" ? "var(--up)" : "var(--down)" }}>{fmt(l.price)}</span>
-            <span className="muted">{l.size.toFixed(2)}</span>
-          </div>
+            <span className="p">{px(l.price)}</span>
+            <span className="s">{sz(l.size)}</span>
+          </button>
         ))
       )}
     </div>
   );
 
   return (
-    <div className="book">
-      <Side levels={book.bids} kind="bid" />
-      <Side levels={book.asks} kind="ask" />
-    </div>
+    <>
+      <div className="book-grid">
+        <Side levels={bids} kind="bid" />
+        <Side levels={asks} kind="ask" />
+      </div>
+      <div className="book-spread">
+        {spread === null ? (
+          <span>NO TWO-SIDED MARKET</span>
+        ) : (
+          <>
+            <span>
+              SPREAD <b style={{ color: "var(--ink-2)" }}>{(spread * 100).toFixed(1)}¢</b>
+            </span>
+            <span className="dimmer">·</span>
+            <span>
+              MID <b style={{ color: "var(--ink-2)" }}>{px(book.mid ?? 0)}</b>
+            </span>
+          </>
+        )}
+      </div>
+    </>
   );
 }

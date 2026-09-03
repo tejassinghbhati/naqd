@@ -182,6 +182,20 @@ export async function loadSettledMarkets(
   }
 }
 
+/**
+ * Recent prints on a market, newest last.
+ *
+ * Returns [] rather than throwing when a market has never traded, which is the
+ * majority case here - an empty tape is a fact about the venue, not a failure.
+ */
+export async function loadTrades(exchange: SomniaMarkets, yesSymbol: string, limit = 40) {
+  try {
+    return await exchange.fetchTrades(yesSymbol, undefined, limit);
+  } catch {
+    return [];
+  }
+}
+
 export async function loadOpenOrders(exchange: SomniaMarkets) {
   try {
     return await exchange.fetchOpenOrders();
