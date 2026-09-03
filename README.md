@@ -14,7 +14,11 @@ Built for the [Somnia × DreamDEX Event Contracts Hackathon](https://dorahacks.i
 
 </div>
 
-![Assay Terminal](docs/web-terminal-dark.png)
+![Assay](docs/web-home-dark.png)
+
+> The hero backdrop is not decoration. It is the venue&rsquo;s real calibration curve rendered as
+> light: the diagonal of perfect pricing, and every price bucket sitting off it by exactly as much
+> as it actually missed by.
 
 ---
 
@@ -203,6 +207,20 @@ and it is what would have kept the agent flat through week 33 when the weekly me
 ## The web app
 
 A Next.js 15 application on the App Router, four routes sharing one design system.
+
+### Design
+
+A monochrome light field with dark glass over it. One cool hue family carries all the atmosphere;
+everything structural is ink, hairline and glass. Three rules hold it together:
+
+- **Colour is nearly absent from the chrome.** The cyan-steel family is *light*, never information.
+  That is what lets the two validated data poles stay legible - they are the only real colour on
+  screen, so a red or blue mark always means something.
+- **Type is split by voice.** An assay office publishes reports, so research and marketing speak in
+  Instrument Serif with editorial weight. The desk trades, so the terminal is mono and sans
+  throughout. Same product, two registers, deliberately.
+- **Panels are glass over the field**, not opaque boxes on a flat ground: one hairline and a faint
+  inner highlight, no stacked shadows.
 
 | Route | What it is |
 |---|---|

@@ -233,7 +233,7 @@ export function Ticket({
         </div>
 
         <div className="payoff">
-          <div className="r hero">
+          <div className="r lead">
             <span className="k">Max profit</span>
             <span className="v" style={{ color: "var(--ok)" }}>
               +{profit.toFixed(2)}

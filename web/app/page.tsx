@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSummary } from "@/lib/stats-server";
 import { EdgeGauge } from "@/components/charts";
+import { CalibrationField } from "@/components/hero";
 import { OfflineNotice } from "@/components/offline-notice";
 
 const cents = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(2)}¢`;
@@ -12,72 +13,93 @@ export default async function Overview() {
 
   return (
     <>
-      <section className="section" style={{ paddingBottom: 34 }}>
-        <div className="wrap hero">
-          <div className="stack" style={{ gap: 14 }}>
-            <span className="eyebrow">DreamDEX event contracts · Somnia</span>
-            <h1 style={{ fontSize: "clamp(28px, 5vw, 44px)", lineHeight: 1.1 }}>
-              When this venue says 70%, does it happen 70% of the time?
-            </h1>
-            <p className="prose" style={{ fontSize: 16 }}>
-              DreamDEX settles a BTC and an ETH event contract every 15 minutes. That cadence makes
-              something possible no other prediction market allows: you can measure whether the
-              venue&rsquo;s prices are <em>actually calibrated</em>, continuously, across thousands of
-              resolved outcomes. Assay measures it, publishes it as an API, and trades against the
-              answer &mdash; standing down when there is nothing to trade.
-            </p>
-            <p className="sm dim measure">
-              An assay office tests metal for what it is actually made of, and certifies the result.
-              This does the same for prices.
-            </p>
-            <div className="row" style={{ marginTop: 4 }}>
-              <Link href="/research" className="btn btn-primary btn-lg">
-                Read the finding
-              </Link>
-              <Link href="/terminal" className="btn btn-lg">
-                Open the terminal
-              </Link>
-            </div>
-          </div>
+      {/*
+        Hero. The reference puts a dark glass panel over a lit field and splits
+        it with a single hairline: thesis on the left, the thing you can act on
+        on the right. Same structure here, with our own measurement as the light.
+      */}
+      <section className="hero">
+        {s && <CalibrationField bins={s.calibration.byMarket} />}
 
-          {s ? (
-            <div className="panel">
-              <div className="panel-hd">
-                <h3>Live verdict</h3>
-                <span className="lbl">last {s.live.windowDays} days · {num(s.live.sampleMarkets)} markets</span>
+        <div className="wrap hero-inner">
+          <div className="glass hero-card">
+            <div className="hero-col">
+              <span className="eyebrow">What we do</span>
+              <h1 className="display hero-title">
+                We test what a price
+                <br />
+                is actually made of.
+              </h1>
+              <p className="prose hero-lede">
+                DreamDEX settles a BTC and an ETH event contract every fifteen minutes. That cadence
+                makes something possible no other prediction market allows: you can measure whether
+                the venue&rsquo;s prices are <em>truly calibrated</em>, continuously, across thousands
+                of resolved outcomes.
+              </p>
+              <div className="hero-cta">
+                <Link href="/research" className="cta-text">
+                  Read the assay
+                  <span className="arw">&rarr;</span>
+                </Link>
               </div>
-              <div className="panel-bd stack" style={{ gap: 12 }}>
-                <div className="stack" style={{ gap: 12 }}>
-                  <div className="row" style={{ gap: 9 }}>
+            </div>
+
+            <div className="hero-col hero-col-right">
+              <span className="eyebrow">Current reading</span>
+
+              {s ? (
+                <>
+                  <div className="verdict">
                     <span className={`dot ${s.live.verdict === "trade" ? "live" : "warn"}`} />
                     <span
-                      className="mono"
-                      style={{
-                        fontSize: 20,
-                        fontWeight: 600,
-                        color: s.live.verdict === "trade" ? "var(--ok)" : "var(--warn)",
-                      }}
+                      className="verdict-word"
+                      style={{ color: s.live.verdict === "trade" ? "var(--ok)" : "var(--warn)" }}
                     >
-                      {s.live.verdict === "trade" ? "TRADE" : "STAND DOWN"}
+                      {s.live.verdict === "trade" ? "Edge present" : "No edge"}
                     </span>
                   </div>
+
                   <EdgeGauge estimate={s.live.recent} point={s.live.edge} />
-                </div>
-                <p className="sm dim measure">{s.live.reason}</p>
-              </div>
+
+                  <p className="sm dim" style={{ lineHeight: 1.6 }}>
+                    {s.live.reason}
+                  </p>
+
+                  <dl className="hero-facts">
+                    <div>
+                      <dt className="lbl">Markets assayed</dt>
+                      <dd className="mono">{num(s.baseRate.n)}</dd>
+                    </div>
+                    <div>
+                      <dt className="lbl">Window</dt>
+                      <dd className="mono">last {s.live.windowDays}d</dd>
+                    </div>
+                    <div>
+                      <dt className="lbl">Brier skill</dt>
+                      <dd className="mono">{s.calibration.brierSkill.toFixed(3)}</dd>
+                    </div>
+                  </dl>
+
+                  <Link href="/terminal" className="btn" style={{ justifyContent: "center" }}>
+                    Open the terminal
+                  </Link>
+                </>
+              ) : (
+                <OfflineNotice />
+              )}
             </div>
-          ) : (
-            <OfflineNotice />
-          )}
+          </div>
         </div>
       </section>
 
       {s && (
         <section className="section">
-          <div className="wrap stack" style={{ gap: 20 }}>
+          <div className="wrap stack" style={{ gap: 30 }}>
             <div className="stack-sm">
               <span className="eyebrow">Measured, not assumed</span>
-              <h2 style={{ fontSize: 22 }}>What the venue&rsquo;s own history says</h2>
+              <h2 className="display" style={{ fontSize: "clamp(26px, 3.2vw, 38px)" }}>
+                What the venue&rsquo;s own history says
+              </h2>
             </div>
 
             <div className="tiles">
@@ -121,53 +143,66 @@ export default async function Overview() {
               <strong>The result that shapes everything else:</strong> the pricing error is real but{" "}
               <em>not constant</em>. Pooled per fill it reads {cents(s.edge.naive.mean)} at t ={" "}
               {s.edge.naive.t.toFixed(2)}. But fills inside one market share a single outcome, so
-              clustering by market gives t = {s.edge.clustered.t.toFixed(2)} &mdash; and a bootstrap over
+              clustering by market gives t = {s.edge.clustered.t.toFixed(2)}, and a bootstrap over
               whole weeks puts the interval at [{cents(s.edge.bootstrap.ci95[0])},{" "}
               {cents(s.edge.bootstrap.ci95[1])}], which{" "}
-              {s.edge.bootstrap.crossesZero ? "straddles zero" : "clears zero"}.{" "}
-              <Link href="/research">See how that number falls apart &rarr;</Link>
+              {s.edge.bootstrap.crossesZero ? "straddles zero" : "clears zero"}.
             </div>
+
+            <Link href="/research" className="cta-text" style={{ fontSize: "clamp(20px, 2.4vw, 26px)" }}>
+              See how that number falls apart
+              <span className="arw">&rarr;</span>
+            </Link>
           </div>
         </section>
       )}
 
       <section className="section">
-        <div className="wrap stack" style={{ gap: 20 }}>
+        <div className="wrap stack" style={{ gap: 30 }}>
           <div className="stack-sm">
-            <span className="eyebrow">Four pieces</span>
-            <h2 style={{ fontSize: 22 }}>What is here</h2>
+            <span className="eyebrow">Four instruments</span>
+            <h2 className="display" style={{ fontSize: "clamp(26px, 3.2vw, 38px)" }}>
+              What is here
+            </h2>
           </div>
           <div className="grid-2x2">
             {[
               {
+                n: "01",
                 h: "Measurement engine",
                 p: "Pulls the venue's entire binary-market history into a local store, then computes calibration curves, cluster-robust and block-bootstrapped edge estimates, settled per-wallet PnL and liquidity coverage. The database is a plain file you can open and check the arithmetic against.",
               },
               {
+                n: "02",
                 h: "Public event-contract API",
                 p: "DreamDEX's own HTTP API covers spot only, so anything wanting this data has to run the TypeScript SDK. Assay serves it as plain JSON, no key, permissive CORS.",
                 href: "/api-docs",
                 cta: "Browse the routes",
               },
               {
+                n: "03",
                 h: "Trading terminal",
                 p: "Live books, countdowns, depth and tape, with the measured fair value beside every price. Post-only by default, because settled PnL pays the passive side and charges the aggressive one.",
                 href: "/terminal",
                 cta: "Open it",
               },
               {
+                n: "04",
                 h: "Market-making agent",
                 p: "Quotes both sides around an edge-corrected fair value, sized to the near bound of the interval rather than its centre. Its default state is flat: it takes positive evidence to make it quote at all.",
               },
             ].map((c) => (
-              <div key={c.h} className="panel panel-bd stack" style={{ gap: 8 }}>
-                <h3 style={{ fontSize: 15 }}>{c.h}</h3>
-                <p className="sm dim" style={{ lineHeight: 1.6 }}>
+              <div key={c.h} className="panel panel-bd instrument">
+                <span className="instrument-n mono">{c.n}</span>
+                <h3 className="display" style={{ fontSize: 21 }}>
+                  {c.h}
+                </h3>
+                <p className="sm dim" style={{ lineHeight: 1.65 }}>
                   {c.p}
                 </p>
                 {c.href && (
-                  <Link href={c.href} className="sm" style={{ color: "var(--accent)", marginTop: 2 }}>
-                    {c.cta} &rarr;
+                  <Link href={c.href} className="sm instrument-link">
+                    {c.cta} <span aria-hidden="true">&rarr;</span>
                   </Link>
                 )}
               </div>
@@ -185,8 +220,10 @@ export default async function Overview() {
             </a>
             .
           </span>
-          <span className="dimmer">
-            {s ? `Data as of ${new Date(s.dataAsOf * 1000).toISOString().slice(0, 16).replace("T", " ")} UTC` : "Stats API offline"}
+          <span className="dimmer mono xs">
+            {s
+              ? `Assayed ${new Date(s.dataAsOf * 1000).toISOString().slice(0, 16).replace("T", " ")} UTC`
+              : "Stats API offline"}
           </span>
         </div>
       </footer>

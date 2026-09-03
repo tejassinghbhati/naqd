@@ -84,7 +84,7 @@ export default async function ApiDocs() {
               <div
                 key={r.path}
                 className="route-row"
-                style={{ borderTop: i === 0 ? "none" : "1px solid var(--rule)" }}
+                style={{ borderTop: i === 0 ? "none" : "1px solid var(--glass-line)" }}
               >
                 <code className="mono sm" style={{ color: "var(--accent)" }}>
                   GET {r.path}

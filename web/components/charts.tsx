@@ -272,7 +272,7 @@ export function EdgeGauge({ estimate, point }: { estimate: Estimate; point: numb
           flex: "1 1 auto",
           minWidth: 140,
           background: "var(--sunk)",
-          border: "1px solid var(--rule)",
+          border: "1px solid var(--glass-line)",
           borderRadius: 2,
         }}
         title={`95% CI [${cents(lo)}, ${cents(hi)}], point ${cents(point)}`}

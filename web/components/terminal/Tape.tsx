@@ -84,7 +84,7 @@ export function PriceTrack({
             x2={m.l + iw}
             y1={y(v)}
             y2={y(v)}
-            stroke={v === 0.5 ? "var(--rule-2)" : "var(--rule)"}
+            stroke={v === 0.5 ? "var(--glass-line-2)" : "var(--glass-line)"}
             strokeDasharray={v === 0.5 ? "3 3" : undefined}
           />
           <text x={m.l + iw + 6} y={y(v) + 3.5} fontSize="9.5" fill="var(--ink-4)" fontFamily="var(--mono)">
