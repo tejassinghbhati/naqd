@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { getSummary, API_BASE } from "@/lib/stats-server";
+import { Section, SectionHead, SiteFooter } from "@/components/site/parts";
 
 export const metadata: Metadata = {
-  title: "API",
+  title: "Developers",
   description:
     "A public JSON API for DreamDEX event contracts. No key, permissive CORS, every figure recomputed from settled history.",
 };
@@ -55,11 +56,13 @@ export default async function ApiDocs() {
 
   return (
     <>
-      <section className="section" style={{ paddingBottom: 30 }}>
-        <div className="wrap stack" style={{ gap: 14, maxWidth: "72ch" }}>
-          <span className="eyebrow">API</span>
-          <h1 style={{ fontSize: "clamp(26px, 4.4vw, 36px)", lineHeight: 1.15 }}>
-            The event-contract data API that did not exist
+      <Section>
+        <div className="page-head">
+          <span className="eyebrow">Developers</span>
+          <h1 className="display page-title">
+            The event-contract API
+            <br />
+            that did not exist.
           </h1>
           <p className="prose">
             DreamDEX&rsquo;s own documentation is explicit that{" "}
@@ -69,16 +72,16 @@ export default async function ApiDocs() {
             JSON over HTTP: no key, permissive CORS, and every figure recomputed from the
             venue&rsquo;s own settled history.
           </p>
-          <div className="row">
+          <div className="row" style={{ marginTop: 4 }}>
             <span className={`tag ${s ? "ok" : "warn"}`}>{s ? "ONLINE" : "OFFLINE"}</span>
             <code className="mono xs dim">{API_BASE}</code>
           </div>
         </div>
-      </section>
+      </Section>
 
-      <section className="section">
-        <div className="wrap stack" style={{ gap: 16 }}>
-          <h2 style={{ fontSize: 20 }}>Routes</h2>
+      <Section tone="sunk">
+        <SectionHead eyebrow="Reference" title="Routes" />
+        <div className="stack" style={{ gap: 16 }}>
           <div className="panel">
             {ROUTES.map((r, i) => (
               <div
@@ -101,11 +104,11 @@ export default async function ApiDocs() {
             changes when a backfill runs.
           </p>
         </div>
-      </section>
+      </Section>
 
-      <section className="section">
-        <div className="wrap stack" style={{ gap: 16 }}>
-          <h2 style={{ fontSize: 20 }}>Example</h2>
+      <Section>
+        <SectionHead eyebrow="Example" title="A single call" />
+        <div className="stack" style={{ gap: 16 }}>
           <div className="panel panel-bd">
             <pre className="mono xs code-block">{example}</pre>
           </div>
@@ -114,16 +117,24 @@ export default async function ApiDocs() {
             how far the near bound of the interval sits from zero, so a wide interval sizes small
             even when its centre looks attractive. At zero, the correct position is none.
           </p>
-        </div>
-      </section>
 
-      <footer className="footer">
-        <div className="wrap">
-          <span>
-            Run it locally with <code>npm run api</code> after <code>npm run backfill</code>.
-          </span>
+          <div className="panel panel-bd" style={{ marginTop: 8 }}>
+            <pre className="mono code-block">{`git clone https://github.com/tejassinghbhati/event-contracts
+npm install
+
+npm run backfill   # pull the venue's full history  (~3 min)
+npm run api        # http://localhost:8787
+npm run web        # http://localhost:3000`}</pre>
+          </div>
+          <p className="sm dimmer" style={{ lineHeight: 1.6 }}>
+            The site rewrites <code>/api/stats/*</code> to the stats service, so the browser stays on
+            one origin. Without it running, every price shows <strong>no fair value</strong> rather
+            than a wrong one.
+          </p>
         </div>
-      </footer>
+      </Section>
+
+      <SiteFooter asOf={s?.dataAsOf} />
     </>
   );
 }

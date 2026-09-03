@@ -26,20 +26,20 @@ const c = (x: number) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(2)}c`;
 const tot = db.prepare("SELECT COUNT(*) n FROM markets").get() as { n: number };
 
 const rows: [string, string, string][] = [
-  ["markets total", String(tot.n), "6,906"],
-  ["resolved", String(br.n), "6,902"],
-  ["base rate", `${(br.rate * 100).toFixed(2)}%`, "50.58%"],
-  ["base rate CI", wilson(br.up, br.n).map((x) => `${(x * 100).toFixed(2)}%`).join("-"), "49.40%-51.76%"],
-  ["traded markets", String(markets.length), "1,200"],
-  ["fills", String(fills.length), "2,683"],
-  ["brier skill", cal.brierSkill.toFixed(3), "0.474"],
-  ["naive", `${c(e.naive.mean)} [${e.naive.ci95.map(c).join(", ")}] t=${e.naive.t.toFixed(2)}`, "-3.10c [-4.59c, -1.61c] t=-4.08"],
-  ["clustered", `${c(e.clustered.mean)} [${e.clustered.ci95.map(c).join(", ")}] t=${e.clustered.t.toFixed(2)}`, "-2.59c [-4.63c, -0.54c] t=-2.48"],
-  ["bootstrap", `${c(e.bootstrap.mean)} [${e.bootstrap.ci95.map(c).join(", ")}] crossesZero=${e.bootstrap.crossesZero}`, "-2.59c [-5.06c, +2.12c] true"],
-  ["weekly means", e.weekly.filter((w) => w.n >= 20).map((w) => c(w.mean)).join(" "), "-0.46c +0.81c -6.64c -4.00c +18.47c"],
-  ["coverage", `${(cov.overall.coverage * 100).toFixed(1)}%`, "17.4%"],
-  ["maker/taker ROI", `${(mv.maker.roi * 100).toFixed(2)}% / ${(mv.taker.roi * 100).toFixed(2)}%`, "+1.34% / -2.18%"],
-  ["takers/top/HHI", `${cc.distinctTakers} ${(cc.topTakerShare * 100).toFixed(0)}% ${cc.takerHHI.toFixed(3)}`, "129 16% 0.073"],
+  ["markets total", String(tot.n), "9,040"],
+  ["resolved", String(br.n), "9,027"],
+  ["base rate", `${(br.rate * 100).toFixed(2)}%`, "50.30%"],
+  ["base rate CI", wilson(br.up, br.n).map((x) => `${(x * 100).toFixed(2)}%`).join("-"), "49.27%-51.34%"],
+  ["traded markets", String(markets.length), "1,627"],
+  ["fills", String(fills.length), "3,696"],
+  ["brier skill", cal.brierSkill.toFixed(3), "0.514"],
+  ["naive", `${c(e.naive.mean)} [${e.naive.ci95.map(c).join(", ")}] t=${e.naive.t.toFixed(2)}`, "-3.88c [-5.15c, -2.62c] t=-6.03"],
+  ["clustered", `${c(e.clustered.mean)} [${e.clustered.ci95.map(c).join(", ")}] t=${e.clustered.t.toFixed(2)}`, "-2.06c [-3.76c, -0.37c] t=-2.39"],
+  ["bootstrap", `${c(e.bootstrap.mean)} [${e.bootstrap.ci95.map(c).join(", ")}] crossesZero=${e.bootstrap.crossesZero}`, "-2.06c [-4.92c, +0.66c] true"],
+  ["weekly means", e.weekly.filter((w) => w.n >= 20).map((w) => c(w.mean)).join(" "), "-0.46c +0.81c -6.64c -4.00c +0.82c"],
+  ["coverage", `${(cov.overall.coverage * 100).toFixed(1)}%`, "18.0%"],
+  ["maker/taker ROI", `${(mv.maker.roi * 100).toFixed(2)}% / ${(mv.taker.roi * 100).toFixed(2)}%`, "+0.11% / -0.17%"],
+  ["takers/top/HHI", `${cc.distinctTakers} ${(cc.topTakerShare * 100).toFixed(0)}% ${cc.takerHHI.toFixed(3)}`, "133 15% 0.077"],
 ];
 
 console.log(`${"metric".padEnd(17)}${"computed".padEnd(46)}README`);

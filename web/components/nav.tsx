@@ -7,10 +7,10 @@ import { useWallet } from "./wallet/WalletProvider";
 import { AccountMenu } from "./wallet/AccountMenu";
 
 const LINKS = [
-  { href: "/", label: "Overview" },
   { href: "/research", label: "Research" },
+  { href: "/agent", label: "Agent" },
   { href: "/terminal", label: "Terminal" },
-  { href: "/api-docs", label: "API" },
+  { href: "/developers", label: "Developers" },
 ];
 
 export function Nav() {
@@ -27,9 +27,9 @@ export function Nav() {
 
       <div className="nav-links">
         {LINKS.map((l) => {
-          // Every route is a prefix of "/", so the root needs an exact match or
-          // it would light up on every page.
-          const active = l.href === "/" ? path === "/" : path.startsWith(l.href);
+          // The landing is not in this list - the wordmark is the way home - so a
+          // prefix match is safe here and keeps nested routes lighting up their parent.
+          const active = path.startsWith(l.href);
           return (
             <Link key={l.href} href={l.href} aria-current={active ? "page" : undefined}>
               {l.label}

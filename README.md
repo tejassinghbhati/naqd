@@ -36,18 +36,18 @@ and then refused to stop at the first answer.
 
 ## What we found
 
-Measured on **6,906 binary markets** from the mainnet venue `0x458b30c2…`, of which 6,902 resolved
-and 1,200 traded, carrying 2,683 fills.
+Measured on **9,040 binary markets** from the mainnet venue `0x458b30c2…`, of which 9,027 resolved
+and 1,627 traded, carrying 3,696 fills.
 
 ### 1. The underlying is a coin flip
 
-The window closed up **50.58%** of the time, 95% CI **[49.40%, 51.76%]** - indistinguishable from
+The window closed up **50.30%** of the time, 95% CI **[49.27%, 51.34%]** - indistinguishable from
 50%, and consistent across both assets and both cadences. There is no drift to harvest, so any edge
 has to come from the *price* being wrong.
 
 ### 2. Prices are informative, but miscalibrated
 
-Brier skill of **0.474** against an always-50% forecaster, so the prices carry real information.
+Brier skill of **0.514** against an always-50% forecaster, so the prices carry real information.
 But the calibration curve bends away from the diagonal at both ends.
 
 ![Calibration curve](docs/calibration.png)
@@ -65,17 +65,17 @@ difference between a real finding and an artifact of aggregation.**
 
 | Estimator | Mean error | 95% interval | Reading |
 |---|---:|---:|---|
-| Per fill (naive) | −3.10¢ | [−4.59¢, −1.61¢] | t = −4.08 · "obviously real" |
-| Clustered by market | −2.59¢ | [−4.63¢, −0.54¢] | t = −2.48 · worth a look |
-| Week-block bootstrap | −2.59¢ | **[−5.06¢, +2.12¢]** | **straddles zero** |
+| Per fill (naive) | −3.88¢ | [−5.15¢, −2.62¢] | t = −6.03 · "obviously real" |
+| Clustered by market | −2.06¢ | [−3.76¢, −0.37¢] | t = −2.39 · worth a look |
+| Week-block bootstrap | −2.06¢ | **[−4.92¢, +0.66¢]** | **straddles zero** |
 
-The naive estimate counts 2,683 fills as independent observations when they are really 1,200 coin
+The naive estimate counts 3,696 fills as independent observations when they are really 1,627 coin
 flips - every fill inside one window shares a single outcome. That alone moves the t-statistic from
-−4.08 to −2.48. And the errors are correlated in *time* as well:
+−6.03 to −2.39. And the errors are correlated in *time* as well:
 
 ![Weekly pricing error](docs/weekly-edge.png)
 
-Weekly means run −0.5¢, +0.8¢, −6.6¢, −4.0¢, +18.5¢. **They change sign.** Resample whole weeks and
+Weekly means run −0.5¢, +0.8¢, −6.6¢, −4.0¢, +0.8¢. **They change sign.** Resample whole weeks and
 the interval covers zero.
 
 > **A bot that hard-codes "always fade UP" is fitting last month's weather.** What the data supports
@@ -83,13 +83,15 @@ the interval covers zero.
 
 ### 5. Most markets never trade at all
 
-Only **17.4%** of settled markets saw a single trade. The venue's bottleneck is emptiness, not
+Only **18.0%** of settled markets saw a single trade. The venue's bottleneck is emptiness, not
 signal quality - which is why the agent's job is to *provide* liquidity, not take it.
 
 ### 6. Makers get paid, takers do not
 
-Settled PnL splits **+1.34% ROI** to the passive side and **−2.18%** to the aggressive side, on a
-venue that charges zero fees. So every order this project places is post-only.
+Settled PnL splits **+0.11% ROI** to the passive side and **−0.17%** to the aggressive side, on a
+venue that charges zero fees, so the entire difference is the spread changing hands. It is a thin
+edge rather than a dramatic one, but it points consistently one way and it is free, so every order
+this project places is post-only.
 
 ---
 
@@ -198,6 +200,8 @@ flowchart TD
   class Q,P good
 ```
 
+![The agent's gate, evaluated live](docs/site-agent.png)
+
 Condition 4 is the one that matters. Condition 2 alone fires by chance about one window in twenty;
 requiring the long-run estimate to point the same way is what separates a regime from a run of luck,
 and it is what would have kept the agent flat through week 33 when the weekly mean briefly flipped.
@@ -224,12 +228,13 @@ everything structural is ink, hairline and glass. Three rules hold it together:
 
 | Route | What it is |
 |---|---|
-| `/` | Overview, with the live verdict rendered server-side |
-| `/research` | The full finding: base rate, calibration curve, three estimators, weekly sign flips, coverage, concentration, leaderboard |
-| `/terminal` | The trading client |
-| `/api-docs` | The public API surface, with a live example response |
+| `/` | Landing - the argument as a scroll narrative, with a live window in the hero |
+| `/research` | The full report: base rate, calibration curve, three estimators, weekly sign flips, coverage, concentration, leaderboard |
+| `/agent` | The agent: its four-condition gate, evaluated live, and how it behaves when it does quote |
+| `/terminal` | The trading desk |
+| `/developers` | The public API, with a live example response |
 
-`/`, `/research` and `/api-docs` are **server components**: they fetch the measurement on the server
+`/`, `/research`, `/agent` and `/developers` are **server components**: they fetch the measurement on the server
 and ship it inside the HTML, revalidating every 60 seconds. Only `/terminal` runs on the client,
 because it holds a wallet and reads live chain state. Theme resolves before first paint via a small
 inline script, so navigating never flashes the wrong one.
@@ -403,13 +408,12 @@ are ten slices of one coin flip, so a wallet can post a 200% ROI over "10 trades
 exactly one position. Ranking without that filter puts single-bet wallets on top - the same artifact
 this project exists to catch elsewhere.
 
-**Concentration is reported next to the edge.** 129 distinct takers, largest holding 16% of flow,
-Herfindahl 0.073. A real market rather than one bot talking to itself, but a *small* one, and every
+**Concentration is reported next to the edge.** 133 distinct takers, largest holding 15% of flow, Herfindahl 0.077. A real market rather than one bot talking to itself, but a *small* one, and every
 number here should be read with that in mind.
 
 ### Known limits
 
-- The edge is estimated from ~1,200 traded markets over about three weeks. Enough to reject a
+- The edge is estimated from ~1,627 traded markets over about three weeks. Enough to reject a
   constant bias; not enough to characterise the regimes that replace it.
 - Settled PnL counts unredeemed winnings and does not model open inventory. It measures trading
   skill, not wallet balance.

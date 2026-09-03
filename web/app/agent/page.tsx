@@ -1,0 +1,211 @@
+import type { Metadata } from "next";
+import { getSummary } from "@/lib/stats-server";
+import { EdgeGauge } from "@/components/charts";
+import { OfflineNotice } from "@/components/offline-notice";
+import { Section, SectionHead, SiteFooter, TextCta } from "@/components/site/parts";
+
+export const metadata: Metadata = {
+  title: "The agent",
+  description:
+    "A market-making agent whose default state is flat. Four conditions must hold before it quotes anything, and it stands down when the measurement says nothing.",
+};
+
+const cents = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(2)}¢`;
+const num = (n: number) => n.toLocaleString("en-US");
+
+/**
+ * The agent page.
+ *
+ * This pillar was previously one paragraph in a card, which undersold the only
+ * component that ACTS on the measurement. The point worth making at length is
+ * that its default is to do nothing: most trading bots are sold on what they do
+ * when they fire, and the interesting engineering here is the four conditions
+ * that keep it flat.
+ */
+export default async function AgentPage() {
+  const s = await getSummary();
+
+  const gate = [
+    {
+      n: "01",
+      h: "Enough resolved markets in the window",
+      p: "Below about sixty settled markets in the lookback, the interval is so wide that any point estimate is noise wearing a number. The agent refuses to estimate rather than estimating badly.",
+      pass: s ? s.live.sampleMarkets >= 60 : null,
+      detail: s ? `${num(s.live.sampleMarkets)} markets in the last ${s.live.windowDays}d` : null,
+    },
+    {
+      n: "02",
+      h: "The interval excludes zero",
+      p: "Not the point estimate - the interval. A mean of three cents with a band from minus five to plus two is not a three-cent edge, it is an absence of evidence with a centre.",
+      pass: s ? !(s.live.recent.ci95[0] <= 0 && s.live.recent.ci95[1] >= 0) : null,
+      detail: s ? `[${cents(s.live.recent.ci95[0])}, ${cents(s.live.recent.ci95[1])}]` : null,
+    },
+    {
+      n: "03",
+      h: "It clears the minimum edge",
+      p: "A statistically real half-cent is still smaller than the spread it would have to cross. The floor exists so the agent does not pay the venue for the privilege of being technically correct.",
+      pass: s ? Math.abs(s.live.edge) >= 0.02 : null,
+      detail: s ? `${cents(s.live.edge)} against a 2.00¢ floor` : null,
+    },
+    {
+      n: "04",
+      h: "Its sign agrees with the long run",
+      p: "Condition two alone fires by chance about one window in twenty. Requiring the lifetime estimate to point the same way is what separates a regime from a run of luck - and it is what would have kept the agent flat through the week the weekly mean briefly flipped positive.",
+      pass: s ? Math.sign(s.live.edge) === Math.sign(s.live.lifetime.mean) : null,
+      detail: s ? `recent ${cents(s.live.edge)} vs lifetime ${cents(s.live.lifetime.mean)}` : null,
+    },
+  ];
+
+  return (
+    <>
+      <Section>
+        <div className="page-head">
+          <span className="eyebrow">The agent</span>
+          <h1 className="display page-title">
+            Its default state
+            <br />
+            is to do nothing.
+          </h1>
+          <p className="prose" style={{ fontSize: 17 }}>
+            Most trading bots are sold on what they do when they fire. The interesting engineering
+            here is the opposite: four conditions that must all hold before this one places a single
+            order, and a measurement it re-reads on every pass to check whether they still do.
+          </p>
+        </div>
+      </Section>
+
+      <Section tone="sunk">
+        <SectionHead eyebrow="Right now" title="What the gate says" />
+
+        {s ? (
+          <div className="agent-live">
+            <div className="panel panel-bd stack" style={{ gap: 16 }}>
+              <div className="verdict">
+                <span className={`dot ${s.live.verdict === "trade" ? "live" : "warn"}`} />
+                <span
+                  className="verdict-word"
+                  style={{ color: s.live.verdict === "trade" ? "var(--ok)" : "var(--warn)" }}
+                >
+                  {s.live.verdict === "trade" ? "Quoting" : "Standing down"}
+                </span>
+              </div>
+              <EdgeGauge estimate={s.live.recent} point={s.live.edge} />
+              <p className="sm dim" style={{ lineHeight: 1.6 }}>
+                {s.live.reason}
+              </p>
+              <div className="agent-size">
+                <span className="lbl">Size multiplier</span>
+                <span className="mono" style={{ fontSize: 22 }}>
+                  {s.live.confidence.toFixed(2)}
+                </span>
+              </div>
+              <p className="xs dimmer" style={{ lineHeight: 1.55 }}>
+                Sizing scales with how far the <em>near bound</em> of the interval sits from zero,
+                not with the point estimate. A wide, uncertain band sizes small even when its centre
+                looks attractive. At zero, the correct position is none.
+              </p>
+            </div>
+
+            <ol className="gate">
+              {gate.map((g) => (
+                <li key={g.n} className={`gate-row ${g.pass === false ? "gate-fail" : g.pass ? "gate-pass" : ""}`}>
+                  <span className="gate-n mono">{g.n}</span>
+                  <div className="gate-body">
+                    <div className="between" style={{ alignItems: "baseline", gap: 10 }}>
+                      <h3 className="gate-h">{g.h}</h3>
+                      {g.pass !== null && (
+                        <span className={`tag ${g.pass ? "ok" : "warn"}`}>{g.pass ? "PASS" : "BLOCKS"}</span>
+                      )}
+                    </div>
+                    {g.detail && <div className="mono xs dimmer" style={{ marginTop: 3 }}>{g.detail}</div>}
+                    <p className="sm dim" style={{ marginTop: 7, lineHeight: 1.6 }}>
+                      {g.p}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : (
+          <OfflineNotice />
+        )}
+      </Section>
+
+      <Section>
+        <SectionHead
+          eyebrow="When it does quote"
+          title="How it behaves"
+          lede="Every one of these is a decision the measurement made for us, not a preference."
+        />
+        <div className="grid-2">
+          {[
+            {
+              h: "Post-only, both sides",
+              p: "Settled PnL favours the passive side, +0.11% against -0.17% for takers, on a book with no fees at all - so the entire gap is the spread changing hands. Thin, but free and consistent, so an order that would cross is one we want rejected rather than filled.",
+            },
+            {
+              h: "Sized to the near bound",
+              p: "Position size scales with the conservative end of the interval. That makes a wide band size small automatically, without a separate risk rule to remember.",
+            },
+            {
+              h: "Seeds empty books",
+              p: "About five markets in six on this venue settle without a single trade. Being the first quote in a window is the normal case here, not an edge case, so the policy treats an empty book as a prior of 0.5 rather than as an error.",
+            },
+            {
+              h: "Refuses the late window",
+              p: "In the last stretch before expiry the price is dominated by information we do not have, and a resting quote is most likely to be taken by someone who does. The threshold scales with the series cadence rather than being a fixed number of seconds.",
+            },
+            {
+              h: "Expires its own orders",
+              p: "Every order carries an expiry just past the requote interval, capped at the market's own. A crashed agent's orders age off the book by themselves instead of resting with escrow locked.",
+            },
+            {
+              h: "Claims as it goes",
+              p: "A settled market pays out only when someone asks it to. An agent that trades for a week without redeeming has its balance spread across dozens of finalised markets while its wallet reads near zero, so the claim sweep runs inside the loop.",
+            },
+          ].map((c) => (
+            <div key={c.h} className="panel panel-bd stack" style={{ gap: 8 }}>
+              <h3 className="display" style={{ fontSize: 19 }}>
+                {c.h}
+              </h3>
+              <p className="sm dim" style={{ lineHeight: 1.65 }}>
+                {c.p}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section tone="sunk">
+        <div className="split">
+          <SectionHead
+            eyebrow="Run it"
+            title={<>Dry run by default.</>}
+            lede="It logs exactly what it would place and sends nothing until you turn that off deliberately."
+          />
+          <div className="stack" style={{ gap: 16 }}>
+            <div className="panel panel-bd">
+              <pre className="mono code-block">{`npm run backfill        # pull the venue's history
+npm run doctor          # preflight, read-only
+
+ONCE=1 npm run agent    # one pass, sends nothing
+
+# a window where the edge does clear zero
+ONCE=1 EDGE_WINDOW_DAYS=30 npm run agent`}</pre>
+            </div>
+            <p className="sm dimmer" style={{ lineHeight: 1.6 }}>
+              The agent has been exercised end to end against live testnet books, including the
+              on-chain status gate. It has not yet signed a transaction with real capital, and the
+              figures here are a measurement of the venue rather than a backtest of its PnL.
+            </p>
+            <TextCta href="/terminal" size="md">
+              Trade it by hand instead
+            </TextCta>
+          </div>
+        </div>
+      </Section>
+
+      <SiteFooter asOf={s?.dataAsOf} />
+    </>
+  );
+}

@@ -12,9 +12,11 @@
  *      able from 50%. So the prior is 0.5 and there is no directional drift to
  *      harvest. Any edge has to come from the PRICE being wrong, not the asset.
  *
- *   2. Makers get paid; takers do not. Settled PnL splits +1.34% ROI to the
- *      passive side and -2.18% to the aggressive side. So this agent is
- *      post-only. It never crosses a spread to express a view.
+ *   2. The passive side is the one that wins, though thinly. Settled PnL splits
+ *      +0.11% ROI to makers and -0.17% to takers on a book that charges no fees
+ *      at all, so the whole difference is the spread changing hands. It is a
+ *      small edge, but it is the only free one available and it points one way,
+ *      so this agent is post-only and never crosses to express a view.
  *
  *   3. The mispricing is real but not constant. Week-block bootstrap puts the
  *      pricing error at [-5.1c, +2.2c] - straddling zero. So the agent asks

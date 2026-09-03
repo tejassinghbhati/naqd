@@ -123,7 +123,13 @@ const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x
  *   - the measured interval covers zero (no detectable mispricing right now)
  *   - the market has no price yet, so there is nothing to correct
  */
-export function fairValue(stats: AssayStats | null, impliedUp: number | null | undefined): FairValue {
+export function fairValue(
+  // Narrowed to the one field this actually reads. The server's `Summary` and
+  // the client's `AssayStats` carry different extras; both satisfy this, so
+  // neither caller needs a cast.
+  stats: { live: LiveEdge } | null,
+  impliedUp: number | null | undefined,
+): FairValue {
   const implied = impliedUp ?? null;
 
   if (!stats) {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getSummary, getTraders } from "@/lib/stats-server";
 import { CalibrationCurve, ForestPlot, WeeklyBars, CoverageBars, type ForestRow } from "@/components/charts";
 import { OfflineNotice } from "@/components/offline-notice";
+import { SiteFooter } from "@/components/site/parts";
 
 export const metadata: Metadata = {
   title: "Research",
@@ -410,16 +411,7 @@ export default async function Research() {
         </div>
       </section>
 
-      <footer className="footer">
-        <div className="wrap between">
-          <span>
-            Reproduce it: <code>npm run backfill</code> then <code>npm run analyze</code>.
-          </span>
-          <span className="dimmer">
-            Data as of {new Date(s.dataAsOf * 1000).toISOString().slice(0, 16).replace("T", " ")} UTC
-          </span>
-        </div>
-      </footer>
+      <SiteFooter asOf={s.dataAsOf} />
     </>
   );
 }

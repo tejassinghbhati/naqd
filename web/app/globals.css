@@ -802,3 +802,146 @@ svg { display: block; max-width: 100%; height: auto; }
   transition: border-color 0.15s ease;
 }
 .instrument-link:hover { border-bottom-color: var(--accent); }
+
+/* ===================== Page furniture ===================== */
+
+.section-sunk { background: color-mix(in srgb, var(--bg-2) 70%, transparent); }
+.section-sunk + .section::before,
+.section + .section-sunk::before { display: none; }
+
+.page-head { display: flex; flex-direction: column; gap: 18px; max-width: 66ch; }
+.page-title { font-size: clamp(34px, 5.4vw, 58px); letter-spacing: -0.02em; }
+
+.sec-head { display: flex; flex-direction: column; gap: 14px; margin-bottom: 34px; max-width: 62ch; }
+.sec-head-c { align-items: center; text-align: center; margin-left: auto; margin-right: auto; }
+.sec-title { font-size: clamp(27px, 3.6vw, 42px); }
+.sec-lede { margin-top: 2px; }
+
+/* Two columns where the heading sits beside its body rather than above it.
+   Used for sections that argue a point rather than list things. */
+.split { display: grid; gap: 30px; grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 900px) { .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; } }
+.split .sec-head { margin-bottom: 0; }
+
+/* ===================== The finding ===================== */
+
+.finding-grid { display: grid; gap: 28px; grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 980px) { .finding-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 44px; } }
+
+.beat { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 14px; align-items: start; }
+.beat-n { font-size: 10px; letter-spacing: 0.18em; color: var(--ink-4); padding-top: 4px; }
+.beat-h { font-family: var(--serif); font-size: 19px; margin-bottom: 5px; }
+
+/* ===================== Instrument cards ===================== */
+
+.instrument-card {
+  text-decoration: none;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.instrument-card:hover { border-color: var(--glass-line-2); transform: translateY(-2px); }
+.instrument-card:hover .instrument-link { border-bottom-color: var(--accent); }
+
+/* ===================== Agent gate ===================== */
+
+.agent-live { display: grid; gap: 28px; grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 980px) { .agent-live { grid-template-columns: minmax(300px, 0.8fr) minmax(0, 1.2fr); gap: 40px; } }
+
+.agent-size {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  padding-top: 14px; border-top: 1px solid var(--glass-line);
+}
+
+ol.gate { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.gate-row {
+  display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px;
+  padding: 18px 0; border-top: 1px solid var(--glass-line);
+}
+.gate-row:last-child { border-bottom: 1px solid var(--glass-line); }
+.gate-n { font-size: 10px; letter-spacing: 0.18em; color: var(--ink-4); padding-top: 4px; }
+.gate-h { font-family: var(--serif); font-size: 19px; }
+/* A blocking condition is the reason the agent is flat, so it gets a marker in
+   the rail rather than only a tag - the eye should find it while scanning. */
+.gate-fail { box-shadow: inset 2px 0 0 var(--warn); padding-left: 12px; }
+.gate-pass { box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ok) 45%, transparent); padding-left: 12px; }
+
+/* ===================== Site footer ===================== */
+
+.site-footer { border-top: 1px solid var(--glass-line); margin-top: 20px; padding: 52px 0 44px; }
+.footer-grid { display: grid; gap: 34px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .footer-grid { grid-template-columns: minmax(0, 1.6fr) repeat(2, minmax(0, 1fr)); gap: 44px; } }
+.footer-col { display: flex; flex-direction: column; gap: 11px; }
+.footer-col a { color: var(--ink-2); text-decoration: none; font-size: 13.5px; }
+.footer-col a:hover { color: var(--ink); }
+.footer-base {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--glass-line);
+}
+
+/* ===================== Live hero window ===================== */
+
+/*
+  The kinetic half of the hero. A static claim is weaker than the thing running,
+  and on a venue where a window opens every fifteen minutes there is always
+  something moving to show.
+*/
+.live-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  background: var(--sunk);
+  border: 1px solid var(--glass-line);
+  border-radius: 8px;
+}
+
+.live-top { display: flex; align-items: center; gap: 16px; }
+.live-clock { position: relative; flex: none; width: 58px; height: 58px; }
+.live-time {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+  color: var(--ink-2);
+}
+.live-time.urgent { color: var(--warn); }
+.live-id { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.live-q { font-size: 14px; color: var(--ink); line-height: 1.35; }
+
+.live-sides {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid var(--glass-line);
+  border-bottom: 1px solid var(--glass-line);
+}
+.live-side { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.live-side-r { align-items: flex-end; text-align: right; }
+.live-px { font-size: 26px; line-height: 1; letter-spacing: -0.02em; color: var(--ink-2); }
+
+/* The middle column is the differentiator, so it is visually the centre of the
+   card: bracketed by rules, brighter type, and the signal tag beneath. */
+.live-fair {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  border-left: 1px solid var(--glass-line);
+  border-right: 1px solid var(--glass-line);
+}
+
+.live-note { color: var(--ink-3); line-height: 1.55; min-height: 2.4em; }
+.live-cta { justify-content: center; }
+
+.hero-verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid var(--glass-line);
+}

@@ -163,9 +163,10 @@ export class Agent {
         price,
         quantity: size,
         expireTimestampNs: expireNs,
-        // Post-only. Settled PnL on this venue pays the passive side (+1.34%
-        // ROI) and charges the aggressive one (-2.18%), so an order that would
-        // cross is an order we want rejected, not filled.
+        // Post-only. Settled PnL favours the passive side (+0.11% ROI against
+        // -0.17% for takers) on a zero-fee book, so the whole gap is the spread
+        // changing hands - and an order that would cross is one we want
+        // rejected, not filled.
         orderType: ORDER_TYPE.PostOnly,
       });
       assertTxOk(res, `placeOrder(${label})`);
