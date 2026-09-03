@@ -18,7 +18,7 @@
 
 import { useEffect, useRef } from "react";
 import type { LiveMarket, Book } from "@/lib/markets";
-import { fairValue, type CalibraStats } from "@/lib/calibra";
+import { fairValue, type AssayStats } from "@/lib/assay";
 
 const fmtLeft = (s: number): string => {
   if (s <= 0) return "closed";
@@ -59,7 +59,7 @@ function Row({
 }: {
   market: LiveMarket;
   book: Book | undefined;
-  stats: CalibraStats | null;
+  stats: AssayStats | null;
   now: number;
   selected: boolean;
   onSelect: () => void;
@@ -106,7 +106,7 @@ export function MarketList({
 }: {
   markets: LiveMarket[];
   books: Map<string, Book>;
-  stats: CalibraStats | null;
+  stats: AssayStats | null;
   now: number;
   selectedId: string | null;
   onSelect: (id: string) => void;

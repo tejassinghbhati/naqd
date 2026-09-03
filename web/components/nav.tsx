@@ -16,8 +16,8 @@ export function Nav() {
   return (
     <nav className="nav">
       <Link href="/" className="brand">
-        <span className="n">CALIBRA</span>
-        <span className="t">EVENT CONTRACTS</span>
+        <span className="n">ASSAY</span>
+        <span className="t">ASSAY OFFICE</span>
       </Link>
       <div className="nav-links">
         {LINKS.map((l) => {

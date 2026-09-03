@@ -11,7 +11,7 @@
  * grey reserved for "this interval touches zero, so it says nothing".
  */
 
-import type { CalibrationBin } from "@/lib/calibra";
+import type { CalibrationBin } from "@/lib/assay";
 import type { Estimate, WeeklyEdge, SeriesRow } from "@/lib/stats-server";
 
 const cents = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(2)}¢`;

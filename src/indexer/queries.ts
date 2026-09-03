@@ -1,5 +1,5 @@
 /**
- * Calibra - the specific reads we make against the indexer.
+ * Assay - the specific reads we make against the indexer.
  *
  * Field selection is deliberate. `Market` exposes ~70 columns, most of which
  * belong to perps or spot; pulling them all across 8k+ rows is wasted bandwidth

@@ -1,5 +1,5 @@
 /**
- * Calibra app - injected wallet connection.
+ * Assay app - injected wallet connection.
  *
  * Deliberately thin: an EIP-1193 provider, a viem wallet client, and the chain
  * switch. No wallet-connect modal library, no adapter framework - this app

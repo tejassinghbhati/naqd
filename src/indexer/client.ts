@@ -1,10 +1,10 @@
 /**
- * Calibra - GraphQL client for the Somnia markets indexer.
+ * Assay - GraphQL client for the Somnia markets indexer.
  *
  * The indexer is public and unauthenticated, which is the only reason a project
  * like this can exist: DreamDEX's HTTP API covers spot only, so every
  * event-contract consumer has to come through here or through the TS SDK. This
- * module is the thin, typed layer we build the rest of Calibra on.
+ * module is the thin, typed layer we build the rest of Assay on.
  *
  * Two things to know about the shape of the data:
  *
@@ -27,7 +27,7 @@ export const INDEXER_URL: Record<Network, string> = {
 };
 
 /** Venue ids move - both networks changed theirs three times in one week. These
- *  are a starting point; `calibra doctor` reads the live value off a market row
+ *  are a starting point; `assay doctor` reads the live value off a market row
  *  and tells you when this constant has drifted. */
 export const KNOWN_VENUE: Record<Network, string> = {
   testnet: "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c",

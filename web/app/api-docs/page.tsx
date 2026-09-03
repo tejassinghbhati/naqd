@@ -65,7 +65,7 @@ export default async function ApiDocs() {
             DreamDEX&rsquo;s own documentation is explicit that{" "}
             <em>&ldquo;the HTTP API covers spot only &mdash; no event-contract endpoints&rdquo;</em>.
             Anything wanting this data today has to run the TypeScript SDK and hold a viem client,
-            which rules out a Python notebook, a Grafana panel, or a phone. Calibra serves it as plain
+            which rules out a Python notebook, a Grafana panel, or a phone. Assay serves it as plain
             JSON over HTTP: no key, permissive CORS, and every figure recomputed from the
             venue&rsquo;s own settled history.
           </p>

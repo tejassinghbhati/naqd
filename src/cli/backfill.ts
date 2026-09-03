@@ -6,7 +6,7 @@ import { backfill } from "../ingest/backfill.js";
 import { observedVenues } from "../indexer/queries.js";
 
 const network = ((process.env.NETWORK ?? "mainnet").toLowerCase() === "testnet" ? "testnet" : "mainnet") as Network;
-const dbPath = process.env.CALIBRA_DB ?? `data/calibra-${network}.db`;
+const dbPath = process.env.ASSAY_DB ?? `data/assay-${network}.db`;
 
 const main = async () => {
   const ix = new Indexer({ network });
@@ -24,7 +24,7 @@ const main = async () => {
     console.log(`note: ${venues.length} venues seen in recent markets; scoping to ${venueId}`);
   }
 
-  console.log(`calibra backfill - ${network} - venue ${venueId.slice(0, 10)}... -> ${dbPath}`);
+  console.log(`assay backfill - ${network} - venue ${venueId.slice(0, 10)}... -> ${dbPath}`);
   const db = openDb(dbPath);
 
   let lastLine = "";

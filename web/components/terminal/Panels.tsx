@@ -11,7 +11,7 @@
  */
 
 import type { LiveMarket, Book } from "@/lib/markets";
-import { cents, type CalibraStats, type FairValue } from "@/lib/calibra";
+import { cents, type AssayStats, type FairValue } from "@/lib/assay";
 
 const fmtLeft = (s: number): string => {
   if (s <= 0) return "CLOSED";
@@ -55,7 +55,7 @@ export function QuoteHeader({
       </div>
 
       <div className="q-stat">
-        <span className="lbl">Calibra fair</span>
+        <span className="lbl">Assay fair</span>
         <span className="v sm">
           {fair.fair !== null ? fair.fair.toFixed(3) : <span className="v muted">no edge</span>}
         </span>
@@ -92,7 +92,7 @@ export function QuoteHeader({
  * turns amber and says there is no measurable mispricing - which is the honest
  * state most of the time.
  */
-export function EdgeStrip({ stats }: { stats: CalibraStats | null }) {
+export function EdgeStrip({ stats }: { stats: AssayStats | null }) {
   if (!stats) {
     return (
       <div className="edge-strip">
@@ -225,7 +225,7 @@ export function Claims({
 }
 
 /** Venue-level context, so the numbers above are read with the right discount. */
-export function VenueStats({ stats }: { stats: CalibraStats | null }) {
+export function VenueStats({ stats }: { stats: AssayStats | null }) {
   if (!stats) return null;
   return (
     <div className="pane">

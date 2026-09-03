@@ -13,7 +13,7 @@ import { makerVsTaker } from "../analytics/traders.js";
 import { coverage, concentration } from "../analytics/liquidity.js";
 import { wilson } from "../analytics/stats.js";
 
-const db = openDb(process.env.CALIBRA_DB ?? "data/calibra-mainnet.db");
+const db = openDb(process.env.ASSAY_DB ?? "data/assay-mainnet.db");
 const fills = scoredFills(db);
 const markets = scoredMarkets(db);
 const br = baseRate(db);

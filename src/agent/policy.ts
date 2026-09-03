@@ -1,5 +1,5 @@
 /**
- * Calibra agent - what to quote, and whether to quote at all.
+ * Assay agent - what to quote, and whether to quote at all.
  *
  * Kept free of any SDK or network dependency so the policy can be unit-tested
  * and replayed against history without a wallet. Everything here is a pure

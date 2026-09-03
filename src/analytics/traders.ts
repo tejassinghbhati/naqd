@@ -1,5 +1,5 @@
 /**
- * Calibra - per-wallet realized PnL on event contracts.
+ * Assay - per-wallet realized PnL on event contracts.
  *
  * Binary PnL is simple once you fix the convention. Every fill prints at a YES
  * probability `p` for `q` shares:
@@ -126,7 +126,7 @@ export function traderLeaderboard(
  * On a zero-fee book with no rebate, the maker's only compensation is the
  * spread and the taker's only cost is crossing it - so this comparison is a
  * direct read on whether liquidity provision is currently paid or punished.
- * It is the number that decides whether Calibra's agent should quote passively
+ * It is the number that decides whether Assay's agent should quote passively
  * or cross, and the agent consults it before choosing a mode.
  */
 export function makerVsTaker(fills: ScoredFill[]): {

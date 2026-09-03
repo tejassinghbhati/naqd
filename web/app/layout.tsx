@@ -20,17 +20,17 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://calibra.local"),
+  metadataBase: new URL("https://assay.local"),
   title: {
-    default: "Calibra",
-    template: "%s · Calibra",
+    default: "Assay",
+    template: "%s · Assay",
   },
   description:
-    "Measuring whether DreamDEX event-contract prices are calibrated, and trading against the answer. A research terminal for Somnia.",
+    "An assay office for prediction market prices. We test what DreamDEX event-contract prices are actually made of, and trade only when the assay says there is something there.",
   openGraph: {
-    title: "Calibra",
+    title: "Assay",
     description:
-      "When this venue says 70%, does it happen 70% of the time? A measurement engine and trading terminal for DreamDEX event contracts.",
+      "When this venue says 70%, does it happen 70% of the time? An assay office for DreamDEX event-contract prices.",
     type: "website",
   },
 };
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
  */
 const THEME_INIT = `
 try {
-  var t = localStorage.getItem("calibra-theme");
+  var t = localStorage.getItem("assay-theme");
   if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
 } catch (e) {}
 `;

@@ -1,5 +1,5 @@
 /**
- * Calibra - historical backfill.
+ * Assay - historical backfill.
  *
  * Pulls the venue's entire binary-market history into the local store: markets,
  * fills, oracle answers, candles. Idempotent - every write is an upsert keyed on

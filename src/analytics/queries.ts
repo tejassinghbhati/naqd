@@ -1,5 +1,5 @@
 /**
- * Calibra - the one place that reads scored trades out of the store.
+ * Assay - the one place that reads scored trades out of the store.
  *
  * Every analysis in this project is a view over the same join: a fill, the
  * market it printed on, and how that market actually resolved. Centralising it

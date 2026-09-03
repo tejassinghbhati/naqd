@@ -1,8 +1,12 @@
 <div align="center">
 
-# Calibra
+# Assay
 
-**A trading terminal, a measurement engine, and a market-making agent for DreamDEX event contracts on Somnia.**
+**An assay office for prediction market prices.**
+
+We take DreamDEX event-contract prices, test what they are actually made of, and publish the result -
+as an API, a research site, a trading terminal, and an agent that only trades when the assay says
+there is something there.
 
 Built for the [Somnia × DreamDEX Event Contracts Hackathon](https://dorahacks.io/hackathon/event-contracts/detail)
 
@@ -10,7 +14,7 @@ Built for the [Somnia × DreamDEX Event Contracts Hackathon](https://dorahacks.i
 
 </div>
 
-![Calibra Terminal](docs/web-terminal-dark.png)
+![Assay Terminal](docs/web-terminal-dark.png)
 
 ---
 
@@ -94,7 +98,7 @@ flowchart LR
     RPC[("RPC<br/>on-chain state")]
   end
 
-  subgraph calibra["Calibra"]
+  subgraph assay["Assay"]
     ING["Ingest<br/>idempotent backfill"]
     DB[("SQLite<br/>markets · fills · oracle")]
     AN["Analytics<br/>calibration · edge · PnL"]
@@ -215,10 +219,10 @@ inline script, so navigating never flashes the wrong one.
 ### The terminal
 
 A trading client that puts the measurement next to the money. Connect a wallet, browse the
-open windows with live countdowns and books, and trade - with Calibra's fair value and a
+open windows with live countdowns and books, and trade - with Assay's fair value and a
 **RICH / CHEAP / IN LINE** badge beside every price.
 
-![Calibra Terminal, light theme](docs/web-terminal-light.png)
+![Assay Terminal, light theme](docs/web-terminal-light.png)
 
 | Panel | What it does |
 |---|---|
@@ -266,7 +270,7 @@ sequenceDiagram
 
 DreamDEX's own docs are explicit that *"the HTTP API covers spot only - no event-contract
 endpoints,"* so anything wanting this data today has to run the TypeScript SDK and hold a viem
-client. Calibra serves it as plain JSON, no key, permissive CORS.
+client. Assay serves it as plain JSON, no key, permissive CORS.
 
 | Route | Returns |
 |---|---|

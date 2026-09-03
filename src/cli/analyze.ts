@@ -12,7 +12,7 @@ import { edgeReport, liveEdge } from "../analytics/edge.js";
 import { wilson } from "../analytics/stats.js";
 
 const network = (process.env.NETWORK ?? "mainnet").toLowerCase() === "testnet" ? "testnet" : "mainnet";
-const dbPath = process.env.CALIBRA_DB ?? `data/calibra-${network}.db`;
+const dbPath = process.env.ASSAY_DB ?? `data/assay-${network}.db`;
 
 const pct = (x: number) => `${(x * 100).toFixed(2)}%`;
 const cents = (x: number) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(2)}c`;
@@ -27,7 +27,7 @@ if (markets.length === 0) {
   process.exit(1);
 }
 
-console.log(`calibra analyze - ${network} - ${dbPath}`);
+console.log(`assay analyze - ${network} - ${dbPath}`);
 
 rule("1. BASE RATE  (every resolved market, traded or not)");
 const br = baseRate(db);

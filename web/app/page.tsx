@@ -23,8 +23,12 @@ export default async function Overview() {
               DreamDEX settles a BTC and an ETH event contract every 15 minutes. That cadence makes
               something possible no other prediction market allows: you can measure whether the
               venue&rsquo;s prices are <em>actually calibrated</em>, continuously, across thousands of
-              resolved outcomes. Calibra measures it, publishes it as an API, and trades against the
+              resolved outcomes. Assay measures it, publishes it as an API, and trades against the
               answer &mdash; standing down when there is nothing to trade.
+            </p>
+            <p className="sm dim measure">
+              An assay office tests metal for what it is actually made of, and certifies the result.
+              This does the same for prices.
             </p>
             <div className="row" style={{ marginTop: 4 }}>
               <Link href="/research" className="btn btn-primary btn-lg">
@@ -141,7 +145,7 @@ export default async function Overview() {
               },
               {
                 h: "Public event-contract API",
-                p: "DreamDEX's own HTTP API covers spot only, so anything wanting this data has to run the TypeScript SDK. Calibra serves it as plain JSON, no key, permissive CORS.",
+                p: "DreamDEX's own HTTP API covers spot only, so anything wanting this data has to run the TypeScript SDK. Assay serves it as plain JSON, no key, permissive CORS.",
                 href: "/api-docs",
                 cta: "Browse the routes",
               },

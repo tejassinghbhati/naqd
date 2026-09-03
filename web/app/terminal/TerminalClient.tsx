@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Calibra Terminal.
+ * Assay Terminal.
  *
  * A trading client for DreamDEX event contracts that shows, beside every price,
  * what that price has historically been wrong by. No other frontend can render
@@ -30,7 +30,7 @@ import {
   type Book,
   type LiveMarket,
 } from "@/lib/markets";
-import { fairValue, fetchStats, type CalibraStats } from "@/lib/calibra";
+import { fairValue, fetchStats, type AssayStats } from "@/lib/assay";
 import { OrderBook } from "@/components/terminal/OrderBook";
 import { Ticket } from "@/components/terminal/Ticket";
 import { MarketList } from "@/components/terminal/MarketList";
@@ -53,7 +53,7 @@ export default function TerminalClient() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [books, setBooks] = useState<Map<string, Book>>(new Map());
   const [onchain, setOnchain] = useState<MarketOnchain | null>(null);
-  const [stats, setStats] = useState<CalibraStats | null>(null);
+  const [stats, setStats] = useState<AssayStats | null>(null);
   const [claims, setClaims] = useState<ClaimRow[]>([]);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -246,7 +246,7 @@ export default function TerminalClient() {
     <div className="terminal">
       <header className="topbar">
         <div className="wordmark">
-          <span className="name">CALIBRA</span>
+          <span className="name">ASSAY</span>
           <span className="tag">EVENT CONTRACTS</span>
         </div>
 

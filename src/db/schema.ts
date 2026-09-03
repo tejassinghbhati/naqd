@@ -1,5 +1,5 @@
 /**
- * Calibra - local analytical store.
+ * Assay - local analytical store.
  *
  * SQLite rather than a server database, on purpose: the whole point of this
  * project is that anyone can reproduce the numbers. `npm run backfill` writes a

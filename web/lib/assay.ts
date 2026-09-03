@@ -1,5 +1,5 @@
 /**
- * Calibra app - the fair-value feed.
+ * Assay app - the fair-value feed.
  *
  * This is the file that makes this app different from any other DreamDEX
  * frontend. Everyone can show you the price. Only this one can tell you what
@@ -46,7 +46,7 @@ export interface CalibrationBin {
   significant: boolean;
 }
 
-export interface CalibraStats {
+export interface AssayStats {
   live: LiveEdge;
   calibration: CalibrationBin[];
   makerRoi: number;
@@ -67,7 +67,7 @@ const API = "/api/stats";
  * has to stay usable as a plain trading client without it. Every consumer here
  * treats a null as "we have no measurement", never as "the edge is zero".
  */
-export async function fetchStats(signal?: AbortSignal): Promise<CalibraStats | null> {
+export async function fetchStats(signal?: AbortSignal): Promise<AssayStats | null> {
   try {
     const res = await fetch(`${API}/v1/summary`, { signal, cache: "no-store" });
     if (!res.ok) return null;
@@ -123,11 +123,11 @@ const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x
  *   - the measured interval covers zero (no detectable mispricing right now)
  *   - the market has no price yet, so there is nothing to correct
  */
-export function fairValue(stats: CalibraStats | null, impliedUp: number | null | undefined): FairValue {
+export function fairValue(stats: AssayStats | null, impliedUp: number | null | undefined): FairValue {
   const implied = impliedUp ?? null;
 
   if (!stats) {
-    return { fair: null, implied, edge: null, signal: "unknown", explain: "Edge data unavailable - start the Calibra API to see fair value." };
+    return { fair: null, implied, edge: null, signal: "unknown", explain: "Edge data unavailable - start the Assay API to see fair value." };
   }
   if (stats.live.verdict === "stand-down") {
     return {

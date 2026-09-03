@@ -1,5 +1,5 @@
 /**
- * Calibra agent - SDK bootstrap and the guards that keep writes honest.
+ * Assay agent - SDK bootstrap and the guards that keep writes honest.
  *
  * The DreamDEX event-contract SDK has a handful of edges that fail silently
  * rather than loudly, and every one of them is handled here rather than in the

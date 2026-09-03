@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark" | "system";
 
-const KEY = "calibra-theme";
+const KEY = "assay-theme";
 
 /**
  * Three states, not two.
