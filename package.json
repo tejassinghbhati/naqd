@@ -9,16 +9,15 @@
   },
   "scripts": {
     "backfill": "tsx src/cli/backfill.ts",
+    "doctor": "tsx src/cli/doctor.ts",
     "analyze": "tsx src/cli/analyze.ts",
     "api": "tsx src/api/server.ts",
+    "web": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build",
     "agent": "tsx src/cli/agent.ts",
-    "doctor": "tsx src/cli/doctor.ts",
-    "build": "tsc -p tsconfig.json",
     "test": "tsx --test src/**/*.test.ts",
-    "dashboard": "tsx src/cli/dashboard.ts",
     "verify": "tsx src/cli/verify.ts",
-    "app": "npm --prefix app run dev",
-    "app:build": "npm --prefix app run build"
+    "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@somnia-chain/markets-sdk": "^0.28.0",
