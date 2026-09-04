@@ -3,34 +3,75 @@
  *
  * Everything here is a read. Writes live in exchange.ts, so a component that
  * only displays data cannot accidentally reach a signer.
+ *
+ * All of it goes through the SDK's BINARY tier (`client.listLiveBinaryMarkets`,
+ * `getBinaryOrderBook`, `getFills`) rather than the unified tier, and that is
+ * not a style preference. `exchange.loadMarkets()` walks every venue on the
+ * chain and builds a viem client per venue: measured against mainnet it takes
+ * over five minutes to return, cached or forced. A terminal built on it sits on
+ * "connecting" until the user leaves. The binary tier answers the same question
+ * with one indexer query in under two seconds, so that is what the desk reads.
+ *
+ * The consequence is that markets are keyed by `marketId` and books by
+ * `poolAddress`, never by a unified symbol string. That is the right identity
+ * anyway: a binary pool is RECYCLED across successive markets, so a pool
+ * address does not name a market for longer than one window.
  */
 
-import type { SomniaMarkets, UnifiedMarket, MarketOnchain } from "@somnia-chain/markets-sdk";
-import type { Hex } from "viem";
+import type { SomniaMarkets, MarketOnchain } from "@somnia-chain/markets-sdk";
+import type { Address, Hex } from "viem";
 import type { NetworkConfig } from "./chain";
 
 export interface LiveMarket {
   marketId: Hex;
-  symbol: string;
+  /** The pool the book rests on. Time-varying: pools are recycled. */
+  pool: Address;
   asset: string;
   question: string;
   intervalSec: number;
   expiry: number;
+  /** When the window opened. Bounds the tape and the price track. */
+  tradingStart: number;
   venueId: string;
-  /** YES outcome symbol, for order-book reads. */
-  yesSymbol: string;
-  raw: UnifiedMarket;
 }
 
-interface BinaryInfo {
-  marketType?: string;
+/** One row as the binary tier returns it. Every scalar arrives as a string. */
+interface BinaryRow {
   marketId?: string;
+  poolAddress?: string;
   asset?: string;
   question?: string;
   intervalSec?: number | string;
   expiry?: number | string;
+  tradingStart?: number | string;
+  createdAtTimestamp?: number | string;
   venueId?: string;
+  status?: string;
 }
+
+const num = (v: unknown): number => Number(v ?? 0);
+
+function shape(r: BinaryRow): LiveMarket | null {
+  if (!r.marketId || !r.poolAddress) return null;
+  const expiry = num(r.expiry);
+  const intervalSec = num(r.intervalSec);
+  if (!(expiry > 0) || !(intervalSec > 0)) return null;
+  return {
+    marketId: r.marketId as Hex,
+    pool: r.poolAddress as Address,
+    asset: r.asset ?? "?",
+    // Never parse the question text for meaning - its wording has changed
+    // several times. It is display copy only; `asset` and `intervalSec` are
+    // the fields that carry the actual semantics.
+    question: r.question ?? `${r.asset ?? "?"} closes at or above its opening price`,
+    intervalSec,
+    expiry,
+    tradingStart: num(r.tradingStart ?? r.createdAtTimestamp) || expiry - intervalSec,
+    venueId: String(r.venueId ?? ""),
+  };
+}
+
+const sortByExpiry = (ms: LiveMarket[]) => [...ms].sort((a, b) => a.expiry - b.expiry);
 
 /**
  * Every currently-tradable binary market, soonest expiry first.
@@ -46,42 +87,24 @@ export async function loadLiveMarkets(
   exchange: SomniaMarkets,
   cfg: NetworkConfig,
 ): Promise<{ markets: LiveMarket[]; venueId: string; usedFallback: boolean }> {
-  const all = Object.values(await exchange.loadMarkets(true)) as UnifiedMarket[];
-  const now = Math.floor(Date.now() / 1000);
-
-  const shape = (m: UnifiedMarket): LiveMarket | null => {
-    const info = m.info as BinaryInfo;
-    if (info.marketType !== "BINARY" || !info.marketId) return null;
-    const expiry = Number(info.expiry ?? 0);
-    const intervalSec = Number(info.intervalSec ?? 0);
-    if (!(expiry > now) || !(intervalSec > 0)) return null;
-    const outs = m.outcomes ?? [];
-    return {
-      marketId: info.marketId as Hex,
-      symbol: m.symbol,
-      asset: info.asset ?? "?",
-      // Never parse the question text for meaning - its wording has changed
-      // several times. It is display copy only; `asset` and `intervalSec` are
-      // the fields that carry the actual semantics.
-      question: info.question ?? `${info.asset ?? "?"} closes at or above its opening price`,
-      intervalSec,
-      expiry,
-      venueId: String(info.venueId ?? ""),
-      yesSymbol: outs[0]?.symbol ?? `${m.symbol}#YES`,
-      raw: m,
-    };
+  const list = async (venueId?: string): Promise<LiveMarket[]> => {
+    const rows = (await exchange.client.listLiveBinaryMarkets({
+      ...(venueId ? { venueId } : {}),
+      status: "Trading",
+      limit: 50,
+    })) as BinaryRow[];
+    return rows.map(shape).filter((m): m is LiveMarket => m !== null);
   };
 
-  const live = all.filter((m) => m.type === "binary" && m.active).map(shape).filter((m): m is LiveMarket => m !== null);
-
-  const onConfigured = live.filter((m) => m.venueId.toLowerCase() === cfg.venueId.toLowerCase());
+  const onConfigured = await list(cfg.venueId);
   if (onConfigured.length > 0) {
     return { markets: sortByExpiry(onConfigured), venueId: cfg.venueId, usedFallback: false };
   }
 
-  // Configured venue is empty. Pick the venue carrying the most live markets.
+  // Configured venue is empty. Take whichever venue is carrying the most.
+  const all = await list();
   const byVenue = new Map<string, LiveMarket[]>();
-  for (const m of live) {
+  for (const m of all) {
     const k = m.venueId.toLowerCase();
     const arr = byVenue.get(k);
     if (arr) arr.push(m);
@@ -92,11 +115,19 @@ export async function loadLiveMarkets(
   return { markets: sortByExpiry(best[1]), venueId: best[0], usedFallback: true };
 }
 
-const sortByExpiry = (ms: LiveMarket[]) => [...ms].sort((a, b) => a.expiry - b.expiry);
-
 export interface BookLevel {
   price: number;
   size: number;
+}
+
+/** One print on the tape. Mirrors the shape the Tape component renders. */
+export interface Print {
+  id: string;
+  price: number;
+  amount: number;
+  side?: "buy" | "sell";
+  /** Milliseconds, to match Date. */
+  timestamp: number;
 }
 
 export interface Book {
@@ -112,11 +143,28 @@ export interface Book {
 
 const EMPTY_BOOK: Book = { bids: [], asks: [], empty: true };
 
-export async function loadBook(exchange: SomniaMarkets, yesSymbol: string, depth = 8): Promise<Book> {
+/**
+ * A market's resting book, in UP-probability terms.
+ *
+ * The chain read returns raw collateral units per whole outcome token, so a
+ * price of 0.63 arrives as 630000000000000000n on an 18-decimal venue. Scaling
+ * happens here, once, against the network's own decimals - doing it in a
+ * component is how a book ends up rendering 6.3e17 on one chain and 630000 on
+ * the other.
+ */
+export async function loadBook(
+  exchange: SomniaMarkets,
+  cfg: NetworkConfig,
+  pool: Address,
+  depth = 8,
+): Promise<Book> {
   try {
-    const ob = await exchange.fetchOrderBook(yesSymbol, depth);
-    const bids = (ob.bids ?? []).map(([price, size]) => ({ price, size }));
-    const asks = (ob.asks ?? []).map(([price, size]) => ({ price, size }));
+    const one = 10 ** cfg.decimals;
+    const ob = await exchange.client.getBinaryOrderBook(pool, { depth, decimals: cfg.decimals });
+    const lvl = (ls: { price: bigint; quantity: bigint }[]): BookLevel[] =>
+      ls.map((l) => ({ price: Number(l.price) / one, size: Number(l.quantity) / one }));
+    const bids = lvl(ob.yesBids ?? []);
+    const asks = lvl(ob.yesAsks ?? []);
     const bestBid = bids[0]?.price;
     const bestAsk = asks[0]?.price;
     const mid = bestBid !== undefined && bestAsk !== undefined ? (bestBid + bestAsk) / 2 : bestBid ?? bestAsk;
@@ -126,6 +174,36 @@ export async function loadBook(exchange: SomniaMarkets, yesSymbol: string, depth
     // markets on this venue never trade at all.
     return EMPTY_BOOK;
   }
+}
+
+/**
+ * Top of book for many markets in one round-trip.
+ *
+ * The market list needs an implied probability per row, and asking the chain
+ * per pool is an N+1 that scales with however many windows happen to be open.
+ * Keyed on marketId rather than pool, which is what makes it recycle-safe.
+ */
+export async function loadBookTops(
+  exchange: SomniaMarkets,
+  cfg: NetworkConfig,
+  marketIds: string[],
+): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  if (marketIds.length === 0) return out;
+  try {
+    const one = 10 ** cfg.decimals;
+    const tops = await exchange.client.getBookTops(marketIds);
+    for (const [id, t] of Object.entries(tops)) {
+      const bid = t.bestBid === null ? undefined : Number(t.bestBid) / one;
+      const ask = t.bestAsk === null ? undefined : Number(t.bestAsk) / one;
+      const mid = bid !== undefined && ask !== undefined ? (bid + ask) / 2 : bid ?? ask;
+      if (mid !== undefined) out.set(id.toLowerCase(), mid);
+    }
+  } catch {
+    // Fall through to an empty map: the list renders without an implied price
+    // rather than not rendering.
+  }
+  return out;
 }
 
 export async function loadOnchain(exchange: SomniaMarkets, marketId: Hex): Promise<MarketOnchain> {
@@ -185,12 +263,37 @@ export async function loadSettledMarkets(
 /**
  * Recent prints on a market, newest last.
  *
+ * Scoped to the window rather than to the pool. A binary pool is recycled
+ * across successive markets, so asking a pool for its fills returns prints
+ * belonging to windows that closed hours ago - which is exactly how a tape ends
+ * up showing stale trades stacked against the left edge of a fresh chart.
+ *
  * Returns [] rather than throwing when a market has never traded, which is the
- * majority case here - an empty tape is a fact about the venue, not a failure.
+ * majority case here: an empty tape is a fact about the venue, not a failure.
  */
-export async function loadTrades(exchange: SomniaMarkets, yesSymbol: string, limit = 40) {
+export async function loadTrades(
+  exchange: SomniaMarkets,
+  cfg: NetworkConfig,
+  market: LiveMarket,
+  limit = 40,
+): Promise<Print[]> {
   try {
-    return await exchange.fetchTrades(yesSymbol, undefined, limit);
+    const one = 10 ** cfg.decimals;
+    const rows = await exchange.client.getFills(market.pool, {
+      limit,
+      since: market.tradingStart,
+      until: market.expiry,
+    });
+    return rows
+      .filter((f) => String(f.market).toLowerCase() === market.marketId.toLowerCase())
+      .map((f) => ({
+        id: f.id,
+        price: Number(f.fillPrice) / one,
+        amount: Number(f.quantity) / one,
+        side: f.takerIsBid === null ? undefined : f.takerIsBid ? ("buy" as const) : ("sell" as const),
+        timestamp: Number(f.timestamp ?? 0) * 1000,
+      }))
+      .reverse();
   } catch {
     return [];
   }

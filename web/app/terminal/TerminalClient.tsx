@@ -25,6 +25,7 @@ import { useWallet } from "@/components/wallet/WalletProvider";
 import { OpenOrders } from "@/components/terminal/OpenOrders";
 import {
   loadBook,
+  loadBookTops,
   loadLiveMarkets,
   loadOnchain,
   loadSettledMarkets,
@@ -37,7 +38,8 @@ import { OrderBook } from "@/components/terminal/OrderBook";
 import { Ticket } from "@/components/terminal/Ticket";
 import { MarketList } from "@/components/terminal/MarketList";
 import { QuoteHeader, EdgeStrip, Claims, VenueStats, type ClaimRow } from "@/components/terminal/Panels";
-import { PriceTrack, Tape, toPrint, type Print } from "@/components/terminal/Tape";
+import { PriceTrack, Tape } from "@/components/terminal/Tape";
+import type { Print } from "@/lib/markets";
 
 const BOOK_MS = 5_000;
 const MARKETS_MS = 15_000;
@@ -53,7 +55,8 @@ export default function TerminalClient() {
   const [markets, setMarkets] = useState<LiveMarket[]>([]);
   const [venue, setVenue] = useState<{ venueId: string; fallback: boolean } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [books, setBooks] = useState<Map<string, Book>>(new Map());
+  const [tops, setTops] = useState<Map<string, number>>(new Map());
+  const [book, setBook] = useState<Book>(EMPTY_BOOK);
   const [onchain, setOnchain] = useState<MarketOnchain | null>(null);
   const [stats, setStats] = useState<AssayStats | null>(null);
   const [claims, setClaims] = useState<ClaimRow[]>([]);
@@ -72,7 +75,6 @@ export default function TerminalClient() {
     () => markets.find((m) => m.marketId === selectedId) ?? markets[0] ?? null,
     [markets, selectedId],
   );
-  const book = (selected && books.get(selected.marketId)) || EMPTY_BOOK;
   const fair = fairValue(stats, book.mid ?? null);
 
   useEffect(() => {
@@ -110,28 +112,32 @@ export default function TerminalClient() {
   useEffect(() => {
     setLoading(true);
     setMarkets([]);
-    setBooks(new Map());
+    setTops(new Map());
+    setBook(EMPTY_BOOK);
     refreshMarkets();
     const id = setInterval(refreshMarkets, MARKETS_MS);
     return () => clearInterval(id);
   }, [refreshMarkets]);
 
-  // ---- books for every open market ----
+  // ---- books ----
   //
-  // One read per visible market rather than only the selected one. With ~10 open
-  // windows that is ten cheap calls a cycle, and it is the difference between a
-  // list that prices the venue at a glance and one where every row says "select
-  // to load". Round-trip time is sampled here and shown in the status bar.
+  // Top of book for every visible row in ONE indexer round-trip, and the full
+  // depth only for the market actually being traded. The obvious version asks
+  // the chain per pool, which is an N+1 that grows with however many windows
+  // happen to be open; the list only ever shows a mid, so it does not need
+  // depth. Round-trip time is sampled here and shown in the status bar.
   const refreshBooks = useCallback(async () => {
     if (markets.length === 0) return;
     const t0 = performance.now();
-    const entries = await Promise.all(
-      markets.map(async (m) => [m.marketId, await loadBook(read, m.yesSymbol)] as const),
-    );
+    const [t, b] = await Promise.all([
+      loadBookTops(read, cfg, markets.map((m) => m.marketId)),
+      selected ? loadBook(read, cfg, selected.pool) : Promise.resolve(EMPTY_BOOK),
+    ]);
     setLatency(Math.round(performance.now() - t0));
-    setBooks(new Map(entries));
+    setTops(t);
+    setBook(b);
     setLastTick(Date.now());
-  }, [read, markets]);
+  }, [read, cfg, markets, selected]);
 
   useEffect(() => {
     refreshBooks();
@@ -146,18 +152,11 @@ export default function TerminalClient() {
     if (!selected) return;
     const [oc, tr] = await Promise.all([
       loadOnchain(read, selected.marketId).catch(() => null),
-      loadTrades(read, selected.yesSymbol, 40),
+      loadTrades(read, cfg, selected, 40),
     ]);
     setOnchain(oc);
-    // fetchTrades answers for the tradable SYMBOL, and a symbol outlives any one
-    // window - so the raw list mixes in prints from windows that already
-    // settled. Plotting those against this window's clock stacks them all on the
-    // left edge and makes an unrelated hour of history look like the open. Keep
-    // only what actually printed inside this window.
-    const openedAt = (selected.expiry - selected.intervalSec) * 1000;
-    const closesAt = selected.expiry * 1000;
-    setPrints(tr.map(toPrint).filter((p) => p.timestamp >= openedAt && p.timestamp <= closesAt));
-  }, [read, selected]);
+    setPrints(tr);
+  }, [read, cfg, selected]);
 
   useEffect(() => {
     setOnchain(null);
@@ -249,7 +248,7 @@ export default function TerminalClient() {
 
         <div className="readout opt">
           <span className="k">Venue</span>
-          <span className="v">{venue ? `${venue.venueId.slice(0, 10)}…` : "—"}</span>
+          <span className="v">{venue ? `${venue.venueId.slice(0, 10)}…` : "–"}</span>
         </div>
         <div className="readout opt">
           <span className="k">Open</span>
@@ -258,7 +257,7 @@ export default function TerminalClient() {
         <div className="readout opt">
           <span className="k">Latency</span>
           <span className={`v ${latency !== null && latency < 800 ? "good" : latency !== null ? "warn" : ""}`}>
-            {latency !== null ? `${latency}ms` : "—"}
+            {latency !== null ? `${latency}ms` : "–"}
           </span>
         </div>
         <div className="readout">
@@ -310,7 +309,7 @@ export default function TerminalClient() {
             </div>
             <MarketList
               markets={markets}
-              books={books}
+              tops={tops}
               stats={stats}
               now={now}
               selectedId={selected?.marketId ?? null}
@@ -423,10 +422,10 @@ export default function TerminalClient() {
           {age !== null ? `updated ${age}s ago` : "connecting"}
         </span>
         <span className="seg-i">
-          {onchain ? `STATUS ${onchain.status === 1 ? "TRADING" : onchain.status}` : "STATUS —"}
+          {onchain ? `STATUS ${onchain.status === 1 ? "TRADING" : onchain.status}` : "STATUS –"}
         </span>
         <span className="seg-i">
-          {stats ? `EDGE DATA ${new Date(stats.dataAsOf * 1000).toISOString().slice(0, 10)}` : "EDGE DATA —"}
+          {stats ? `EDGE DATA ${new Date(stats.dataAsOf * 1000).toISOString().slice(0, 10)}` : "EDGE DATA –"}
         </span>
         <span className="spacer" />
         <span className="seg-i">

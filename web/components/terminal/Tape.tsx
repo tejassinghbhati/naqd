@@ -14,23 +14,11 @@
  * all, an honest empty state here is doing more work than the table usually is.
  */
 
-import type { UnifiedTrade } from "@somnia-chain/markets-sdk";
+// A print is shaped where it is read, in lib/markets, so the tape and the
+// reader cannot drift apart.
+import type { Print } from "@/lib/markets";
 
-export interface Print {
-  id: string;
-  price: number;
-  amount: number;
-  side?: "buy" | "sell";
-  timestamp: number;
-}
-
-export const toPrint = (t: UnifiedTrade): Print => ({
-  id: t.id,
-  price: t.price,
-  amount: t.amount,
-  side: t.side,
-  timestamp: t.timestamp,
-});
+export type { Print };
 
 const hhmmss = (ms: number) => new Date(ms).toISOString().slice(11, 19);
 

@@ -26,7 +26,7 @@
  *      someone asks, so the app has to surface claiming as a real action.
  */
 
-import { SomniaMarkets, type MarketOnchain, type UnifiedMarket } from "@somnia-chain/markets-sdk";
+import { SomniaMarkets, type MarketOnchain } from "@somnia-chain/markets-sdk";
 import type { Hex, WalletClient } from "viem";
 import { MARKET_STATUS, ORDER_TYPE, type NetworkConfig } from "./chain";
 
@@ -113,7 +113,6 @@ export function orderExpiryNs(marketExpirySec: number): bigint {
 export interface PlaceArgs {
   cfg: NetworkConfig;
   exchange: SomniaMarkets;
-  market: UnifiedMarket;
   onchain: MarketOnchain;
   outcome: Outcome;
   /** Probability for the side being bought, in (0,1). */

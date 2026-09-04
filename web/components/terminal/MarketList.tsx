@@ -51,20 +51,20 @@ function useFlash(value: number | undefined): string {
 
 function Row({
   market,
-  book,
+  mid,
   stats,
   now,
   selected,
   onSelect,
 }: {
   market: LiveMarket;
-  book: Book | undefined;
+  /** Book mid in UP-probability terms, or undefined when nothing rests. */
+  mid: number | undefined;
   stats: AssayStats | null;
   now: number;
   selected: boolean;
   onSelect: () => void;
 }) {
-  const mid = book?.mid;
   const flash = useFlash(mid);
   const fv = fairValue(stats, mid ?? null);
   const left = market.expiry - now;
@@ -97,7 +97,7 @@ function Row({
 
 export function MarketList({
   markets,
-  books,
+  tops,
   stats,
   now,
   selectedId,
@@ -105,7 +105,8 @@ export function MarketList({
   loading,
 }: {
   markets: LiveMarket[];
-  books: Map<string, Book>;
+  /** Book mid per marketId, lowercased keys. */
+  tops: Map<string, number>;
   stats: AssayStats | null;
   now: number;
   selectedId: string | null;
@@ -135,7 +136,7 @@ export function MarketList({
         <Row
           key={m.marketId}
           market={m}
-          book={books.get(m.marketId)}
+          mid={tops.get(m.marketId.toLowerCase())}
           stats={stats}
           now={now}
           selected={m.marketId === selectedId}

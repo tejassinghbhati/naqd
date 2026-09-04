@@ -73,7 +73,7 @@ export function HeroLive({ stats }: { stats: { live: LiveEdge } | null }) {
     if (!market) return;
     let alive = true;
     const run = () => {
-      loadBook(exchange, market.yesSymbol).then((b) => alive && setBook(b));
+      loadBook(exchange, cfg, market.pool).then((b) => alive && setBook(b));
     };
     run();
     const id = setInterval(run, BOOK_MS);
@@ -153,14 +153,14 @@ export function HeroLive({ stats }: { stats: { live: LiveEdge } | null }) {
           <span className="eyebrow" style={{ color: "var(--up)" }}>
             Up
           </span>
-          <span className="live-px mono">{up === undefined ? "—" : up.toFixed(2)}</span>
+          <span className="live-px mono">{up === undefined ? "–" : up.toFixed(2)}</span>
         </div>
 
         {/* The column nobody else has. */}
         <div className="live-fair">
           <span className="eyebrow">Assay fair</span>
           <span className="live-px mono" style={{ color: "var(--ink)" }}>
-            {fair.fair === null ? "—" : fair.fair.toFixed(2)}
+            {fair.fair === null ? "–" : fair.fair.toFixed(2)}
           </span>
           <span className={`tag ${fair.signal === "unknown" ? "none" : fair.signal === "fair" ? "flat" : fair.signal}`}>
             {fair.signal === "rich"
@@ -177,7 +177,7 @@ export function HeroLive({ stats }: { stats: { live: LiveEdge } | null }) {
           <span className="eyebrow" style={{ color: "var(--down)" }}>
             Down
           </span>
-          <span className="live-px mono">{down === undefined ? "—" : down.toFixed(2)}</span>
+          <span className="live-px mono">{down === undefined ? "–" : down.toFixed(2)}</span>
         </div>
       </div>
 
