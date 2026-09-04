@@ -251,6 +251,20 @@ A trading client that puts the measurement next to the money. Connect a wallet, 
 open windows with live countdowns and books, and trade - with Assay's fair value and a
 **RICH / CHEAP / IN LINE** badge beside every price.
 
+It opens on **mainnet**, because that is where the markets are: the testnet indexer carries no
+populated binary markets, so a desk that defaulted there opened empty. Reading is not trading, and
+the ticket names the chain it is about to sign against directly above the button. `?network=testnet`
+opens the desk where the faucet works.
+
+> **The one SDK edge that is a performance bug, not a correctness bug.**
+> `exchange.loadMarkets()` walks every venue on the chain and builds a viem client per venue.
+> Measured against mainnet it takes **over five minutes** to return, cached or forced - so a UI
+> built on it never finishes connecting. The whole read path goes through the binary tier instead
+> (`listLiveBinaryMarkets`, `getBinaryOrderBook`, `getFills`), which answers the same question in
+> **under two seconds**. Markets are keyed by `marketId` and books by `poolAddress`, never by a
+> unified symbol: a binary pool is *recycled* across successive markets, so a pool address does not
+> name a market for longer than one window.
+
 ![The trading desk](docs/web-terminal.png)
 
 ![Connecting a wallet](docs/wallet-modal.png)
@@ -425,6 +439,8 @@ number here should be read with that in mind.
   skill, not wallet balance.
 - Venue ids move - both networks changed theirs three times in one week. `npm run doctor` reads the
   live venue off a market row and tells you when the bundled constant has drifted.
+- The testnet indexer carries no populated binary markets. The desk therefore reads mainnet by
+  default, and testnet is where signing is exercised.
 - The agent and the terminal are verified end-to-end against live testnet books, including the
   on-chain status gate. Neither has yet signed a transaction with real capital, and the numbers here
   are not a backtest of their PnL.
