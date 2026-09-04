@@ -1,67 +1,79 @@
 /**
- * Shared page furniture.
+ * Page furniture.
  *
- * These exist so the marketing surfaces cannot drift apart. Before this, every
- * page hand-rolled its own section header with slightly different gaps and
- * heading sizes, which is exactly how a site starts looking assembled rather
- * than designed.
+ * Every page composes from these, so a heading on the landing page and a
+ * heading on the research page are the same object rather than two similar
+ * ones. That is the difference between a site with a system and a site with a
+ * house style someone remembers most of the time.
  *
- * Server components throughout: none of this needs state, and keeping it on the
- * server means the page arrives whole.
+ * All of them lay out on the shared twelve-column grid from system.css.
  */
 
 import Link from "next/link";
+import { Mark } from "./mark";
 
-export function Section({
+/** A full-width horizontal band. Vertical rhythm comes from the space scale. */
+export function Band({
   children,
   id,
-  tone = "plain",
+  rule = true,
+  fill = false,
+  size = "md",
 }: {
   children: React.ReactNode;
   id?: string;
-  /** `sunk` gives a section a faint recessed ground, for rhythm across a long page. */
-  tone?: "plain" | "sunk";
+  /** Hairline above the band. Off for the first band on a page. */
+  rule?: boolean;
+  fill?: boolean;
+  size?: "sm" | "md" | "lg";
 }) {
+  const cls = size === "sm" ? "band-sm" : size === "lg" ? "band-lg" : "band";
   return (
-    <section id={id} className={`section ${tone === "sunk" ? "section-sunk" : ""}`}>
-      <div className="wrap">{children}</div>
+    <section id={id} className={`${cls} ${rule ? "band-rule" : ""} ${fill ? "band-fill" : ""}`}>
+      <div className="grid">{children}</div>
     </section>
   );
 }
 
-export function SectionHead({
+/**
+ * A section heading.
+ *
+ * Spans columns 1-5 by default so the body beside it starts on column 7 - a
+ * consistent relationship the reader learns after one section.
+ */
+export function Head({
   eyebrow,
   title,
   lede,
-  align = "left",
+  span = "col-5",
 }: {
   eyebrow: string;
   title: React.ReactNode;
   lede?: React.ReactNode;
-  align?: "left" | "center";
+  span?: string;
 }) {
   return (
-    <header className={`sec-head ${align === "center" ? "sec-head-c" : ""}`}>
+    <header className={`${span} v4`}>
       <span className="eyebrow">{eyebrow}</span>
-      <h2 className="display sec-title">{title}</h2>
-      {lede && <p className="prose sec-lede">{lede}</p>}
+      <h2 className="h2">{title}</h2>
+      {lede && <p className="prose">{lede}</p>}
     </header>
   );
 }
 
-/** A wide band of headline figures. Used once per page at most. */
-export function StatBand({
+/** A ruled row of headline figures. At most one per page. */
+export function Figures({
   items,
 }: {
   items: { k: string; v: string; s?: string; tone?: "ok" | "bad" }[];
 }) {
   return (
-    <div className="tiles">
+    <div className="figures col-12">
       {items.map((i) => (
-        <div key={i.k} className="tile">
+        <div key={i.k} className="figure">
           <div className="k">{i.k}</div>
           <div
-            className={`v ${i.v.length > 7 ? "md" : ""}`}
+            className={`v ${i.v.length > 7 ? "sm" : ""}`}
             style={i.tone ? { color: i.tone === "ok" ? "var(--ok)" : "var(--bad)" } : undefined}
           >
             {i.v}
@@ -73,78 +85,71 @@ export function StatBand({
   );
 }
 
-/**
- * The site footer.
- *
- * Columns rather than a single line, because the site now has five destinations
- * and a one-line footer stops being navigation at about three.
- */
-export function SiteFooter({ asOf }: { asOf?: number }) {
-  return (
-    <footer className="site-footer">
-      <div className="wrap">
-        <div className="footer-grid">
-          <div className="footer-brand">
-            <span className="display" style={{ fontSize: 26 }}>
-              Assay
-            </span>
-            <p className="sm dim" style={{ marginTop: 10, maxWidth: "34ch", lineHeight: 1.6 }}>
-              An assay office for prediction market prices. We test what DreamDEX event-contract
-              prices are actually made of, and act only when the assay says there is something there.
-            </p>
-          </div>
-
-          <nav className="footer-col" aria-label="Product">
-            <span className="lbl">Product</span>
-            <Link href="/research">Research</Link>
-            <Link href="/agent">The agent</Link>
-            <Link href="/terminal">Terminal</Link>
-            <Link href="/developers">Developers</Link>
-          </nav>
-
-          <nav className="footer-col" aria-label="External">
-            <span className="lbl">Built on</span>
-            <a href="https://docs.dreamdex.io/developers/event-contracts" target="_blank" rel="noreferrer">
-              DreamDEX docs
-            </a>
-            <a href="https://somnia.network" target="_blank" rel="noreferrer">
-              Somnia
-            </a>
-            <a href="https://dorahacks.io/hackathon/event-contracts/detail" target="_blank" rel="noreferrer">
-              The hackathon
-            </a>
-          </nav>
-        </div>
-
-        <div className="footer-base">
-          <span className="xs dimmer">
-            Not financial advice. Event contracts can lose their entire stake.
-          </span>
-          <span className="xs dimmer mono">
-            {asOf ? `Assayed ${new Date(asOf * 1000).toISOString().slice(0, 16).replace("T", " ")} UTC` : "Stats API offline"}
-          </span>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-/** A large underlined text link. The primary call to action across the site. */
-export function TextCta({
+/** The oversized underlined link. The publication's primary call to action. */
+export function Cta({
   href,
   children,
-  size = "lg",
+  small = false,
 }: {
   href: string;
   children: React.ReactNode;
-  size?: "lg" | "md";
+  small?: boolean;
 }) {
   return (
-    <Link href={href} className="cta-text" style={size === "md" ? { fontSize: "clamp(19px, 2.2vw, 24px)" } : undefined}>
+    <Link href={href} className={`cta ${small ? "cta-sm" : ""}`}>
       {children}
       <span className="arw" aria-hidden="true">
         &rarr;
       </span>
     </Link>
+  );
+}
+
+export function Footer({ asOf }: { asOf?: number }) {
+  return (
+    <footer className="footer">
+      <div className="grid">
+        <div className="col-5 v4">
+          <Link href="/" className="brand" aria-label="Assay, home">
+            <Mark size={20} />
+            <span className="brand-name">Assay</span>
+          </Link>
+          <p className="body-sm" style={{ maxWidth: "38ch" }}>
+            An assay office for prediction market prices. We test what DreamDEX event-contract prices
+            are actually made of, and act only when the assay says there is something there.
+          </p>
+        </div>
+
+        <nav className="col-3 start-7 footer-col" aria-label="Product">
+          <span className="eyebrow">Product</span>
+          <Link href="/research">Research</Link>
+          <Link href="/agent">The agent</Link>
+          <Link href="/terminal">Terminal</Link>
+          <Link href="/developers">Developers</Link>
+        </nav>
+
+        <nav className="col-3 footer-col" aria-label="External links">
+          <span className="eyebrow">Built on</span>
+          <a href="https://docs.dreamdex.io/developers/event-contracts" target="_blank" rel="noreferrer">
+            DreamDEX docs
+          </a>
+          <a href="https://somnia.network" target="_blank" rel="noreferrer">
+            Somnia
+          </a>
+          <a href="https://dorahacks.io/hackathon/event-contracts/detail" target="_blank" rel="noreferrer">
+            The hackathon
+          </a>
+        </nav>
+
+        <div className="col-12 footer-base">
+          <span>Not financial advice. Event contracts can lose their entire stake.</span>
+          <span className="mono">
+            {asOf
+              ? `Assayed ${new Date(asOf * 1000).toISOString().slice(0, 16).replace("T", " ")} UTC`
+              : "Stats API offline"}
+          </span>
+        </div>
+      </div>
+    </footer>
   );
 }

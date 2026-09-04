@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { getSummary } from "@/lib/stats-server";
 import { EdgeGauge, ForestPlot, type ForestRow } from "@/components/charts";
-import { CalibrationField } from "@/components/hero";
 import { HeroLive } from "@/components/hero-live";
 import { OfflineNotice } from "@/components/offline-notice";
-import { Section, SectionHead, StatBand, SiteFooter, TextCta } from "@/components/site/parts";
+import { Band, Head, Figures, Cta, Footer } from "@/components/site/parts";
 
 const cents = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(2)}¢`;
 const pct = (x: number, d = 2) => `${(x * 100).toFixed(d)}%`;
@@ -13,10 +12,9 @@ const num = (n: number) => n.toLocaleString("en-US");
 /**
  * The landing page.
  *
- * Structured as an argument rather than a feature list, because the argument is
- * the product: the venue's prices are unaudited, we audited them, and the
- * result is more interesting than "we found an edge". The four instruments come
- * AFTER the finding, since without it they are just four things.
+ * An argument, not a feature list. The venue's prices are unaudited; we audited
+ * them; the result is more interesting than "we found an edge". The instruments
+ * come last, because without the finding they are just four things.
  */
 export default async function Landing() {
   const s = await getSummary();
@@ -49,253 +47,244 @@ export default async function Landing() {
 
   return (
     <>
-      {/* ---------------------------------------------------------------- Hero */}
+      {/* ------------------------------------------------------------- Hero */}
       <section className="hero">
-        {s && <CalibrationField bins={s.calibration.byMarket} />}
-
-        <div className="wrap hero-inner">
-          <div className="glass hero-card">
-            <div className="hero-col">
+        <div className="grid">
+          <div className="col-6 v6">
+            <div className="v5">
               <span className="eyebrow">Assay office · DreamDEX event contracts</span>
-              <h1 className="display hero-title">Trust,
-                <br />
-                but assay.</h1>
-              <p className="prose hero-lede">
+              <h1 className="display hero-title">Trust, but assay.</h1>
+              <p className="prose">
                 An assay office tests metal for what it is genuinely made of. We do that to prices.
-                DreamDEX settles a BTC and an ETH contract every fifteen minutes, which makes this
-                the one venue where you can measure whether a quote is <em>truly calibrated</em> -
+                DreamDEX settles a BTC and an ETH contract every fifteen minutes, which makes this the
+                one venue where you can measure whether a quote is <em>truly calibrated</em> &mdash;
                 continuously, across thousands of resolved outcomes.
               </p>
-              <div className="hero-cta">
-                <TextCta href="/research">Read the assay</TextCta>
-              </div>
             </div>
+            <Cta href="/research">Read the assay</Cta>
+          </div>
 
-            <div className="hero-col hero-col-right">
-              <HeroLive stats={s} />
+          <div className="col-5 start-8 v5">
+            <HeroLive stats={s} />
 
-              {s ? (
-                <div className="hero-verdict">
-                  <div className="row" style={{ gap: 9, justifyContent: "space-between" }}>
-                    <span className="lbl">Standing reading</span>
-                    <span className="row" style={{ gap: 7 }}>
-                      <span className={`dot ${s.live.verdict === "trade" ? "live" : "warn"}`} />
-                      <span
-                        className="mono"
-                        style={{ fontSize: 12, color: s.live.verdict === "trade" ? "var(--ok)" : "var(--warn)" }}
-                      >
-                        {s.live.verdict === "trade" ? "EDGE PRESENT" : "NO EDGE"}
-                      </span>
+            {s ? (
+              <div className="reading">
+                <div className="between">
+                  <span className="eyebrow">Standing reading</span>
+                  <span className="h2f">
+                    <span className={`dot ${s.live.verdict === "trade" ? "live" : "warn"}`} />
+                    <span
+                      className="mono micro"
+                      style={{ color: s.live.verdict === "trade" ? "var(--ok)" : "var(--warn)" }}
+                    >
+                      {s.live.verdict === "trade" ? "EDGE PRESENT" : "NO EDGE"}
                     </span>
-                  </div>
-                  <EdgeGauge estimate={s.live.recent} point={s.live.edge} />
-                  <dl className="hero-facts">
-                    <div>
-                      <dt className="lbl">Assayed</dt>
-                      <dd className="mono">{num(s.baseRate.n)}</dd>
-                    </div>
-                    <div>
-                      <dt className="lbl">Window</dt>
-                      <dd className="mono">{s.live.windowDays}d</dd>
-                    </div>
-                    <div>
-                      <dt className="lbl">Brier skill</dt>
-                      <dd className="mono">{s.calibration.brierSkill.toFixed(3)}</dd>
-                    </div>
-                  </dl>
+                  </span>
                 </div>
-              ) : (
-                <OfflineNotice />
-              )}
-            </div>
+                <EdgeGauge estimate={s.live.recent} point={s.live.edge} />
+                <dl className="reading-facts">
+                  <div>
+                    <dt className="eyebrow">Assayed</dt>
+                    <dd>{num(s.baseRate.n)}</dd>
+                  </div>
+                  <div>
+                    <dt className="eyebrow">Window</dt>
+                    <dd>{s.live.windowDays}d</dd>
+                  </div>
+                  <div>
+                    <dt className="eyebrow">Brier</dt>
+                    <dd>{s.calibration.brierSkill.toFixed(3)}</dd>
+                  </div>
+                </dl>
+              </div>
+            ) : (
+              <OfflineNotice />
+            )}
           </div>
         </div>
       </section>
 
-      {/* ------------------------------------------------------------ Problem */}
-      <Section tone="sunk">
-        <div className="split">
-          <SectionHead
-            eyebrow="The problem"
-            title={<>Nobody checks whether a prediction market is telling the truth.</>}
-          />
-          <div className="stack" style={{ gap: 18 }}>
-            <p className="prose">
-              A venue quotes 70% and you either take it or you do not. There is no assay office for
-              prices: no independent party asking whether markets priced at 70% actually resolve that
-              way, and no way to know whether the number you are paying is well-calibrated or merely
-              confident.
-            </p>
-            <p className="prose">
-              Everywhere else that question is impractical, because outcomes take months to arrive.
-              Here they arrive every fifteen minutes. Which makes this the one venue where the
-              question can actually be answered.
-            </p>
-          </div>
+      {/* ---------------------------------------------------------- Problem */}
+      <Band fill>
+        <Head
+          eyebrow="The problem"
+          title="Nobody checks whether a prediction market is telling the truth."
+        />
+        <div className="col-5 start-7 v4">
+          <p className="prose">
+            A venue quotes 70% and you either take it or you do not. There is no assay office for
+            prices: no independent party asking whether markets priced at 70% actually resolve that
+            way, and no way to know whether the number you are paying is well-calibrated or merely
+            confident.
+          </p>
+          <p className="prose">
+            Everywhere else that question is impractical, because outcomes take months to arrive.
+            Here they arrive every fifteen minutes. Which makes this the one venue where the question
+            can actually be answered.
+          </p>
         </div>
-      </Section>
+      </Band>
 
-      {/* ------------------------------------------------------------ Finding */}
-      <Section id="finding">
-        <SectionHead
+      {/* ---------------------------------------------------------- Finding */}
+      <Band id="finding">
+        <Head
           eyebrow="What we found"
-          title={
-            <>
-              The edge is real. It is also
-              <br />
-              not constant.
-            </>
-          }
+          title={<>The edge is real. It is also not constant.</>}
           lede="Measure the same average pricing error three ways and you get three different answers, ranging from obviously real to indistinguishable from noise. Only the last one is honest."
+          span="col-6"
         />
 
         {s && forest ? (
-          <div className="finding-grid">
-            <div className="panel panel-bd">
-              <ForestPlot rows={forest} />
+          <>
+            <div className="col-7 v5" style={{ marginTop: "var(--s7)" }}>
+              <figure>
+                <ForestPlot rows={forest} />
+                <figcaption>
+                  The point estimate barely moves. The <em>interval</em> is what changes, and the
+                  interval is what decides whether there is anything to trade.
+                </figcaption>
+              </figure>
             </div>
 
-            <div className="stack" style={{ gap: 20 }}>
-              <div className="beat">
-                <span className="beat-n mono">01</span>
-                <div>
-                  <h3 className="beat-h">It looks obvious</h3>
-                  <p className="sm dim">
-                    Pooled across every fill, UP is overpriced by {cents(Math.abs(s.edge.naive.mean))}{" "}
-                    at t = {s.edge.naive.t.toFixed(2)}. Publishable, on the face of it.
-                  </p>
-                </div>
-              </div>
-              <div className="beat">
-                <span className="beat-n mono">02</span>
-                <div>
-                  <h3 className="beat-h">The sample is a fiction</h3>
-                  <p className="sm dim">
-                    Every fill inside one fifteen-minute window shares a single outcome. Those{" "}
-                    {num(s.edge.naive.n)} observations are really {num(s.edge.clustered.n)} coin
-                    flips, which drops t to {s.edge.clustered.t.toFixed(2)}.
-                  </p>
-                </div>
-              </div>
-              <div className="beat">
-                <span className="beat-n mono">03</span>
-                <div>
-                  <h3 className="beat-h">And it moves</h3>
-                  <p className="sm dim">
-                    Whole weeks run rich, then cheap. Resample entire weeks and the interval lands at
-                    [{cents(s.edge.bootstrap.ci95[0])}, {cents(s.edge.bootstrap.ci95[1])}]
-                    {s.edge.bootstrap.crossesZero ? ", straddling zero." : "."}
-                  </p>
-                </div>
-              </div>
+            <div className="col-4 start-9 v5" style={{ marginTop: "var(--s7)" }}>
+              <ol className="seq">
+                {[
+                  {
+                    n: "01",
+                    h: "It looks obvious",
+                    p: `Pooled across every fill, UP is overpriced by ${cents(Math.abs(s.edge.naive.mean))} at t = ${s.edge.naive.t.toFixed(2)}. Publishable, on the face of it.`,
+                  },
+                  {
+                    n: "02",
+                    h: "The sample is a fiction",
+                    p: `Every fill inside one fifteen-minute window shares a single outcome. Those ${num(s.edge.naive.n)} observations are really ${num(s.edge.clustered.n)} coin flips, which drops t to ${s.edge.clustered.t.toFixed(2)}.`,
+                  },
+                  {
+                    n: "03",
+                    h: "And it moves",
+                    p: `Whole weeks run rich, then cheap. Resample entire weeks and the interval lands at [${cents(s.edge.bootstrap.ci95[0])}, ${cents(s.edge.bootstrap.ci95[1])}]${s.edge.bootstrap.crossesZero ? ", straddling zero." : "."}`,
+                  },
+                ].map((b) => (
+                  <li key={b.n} className="seq-item">
+                    <span className="seq-n">{b.n}</span>
+                    <div className="v2">
+                      <h3 className="h4">{b.h}</h3>
+                      <p className="body-sm">{b.p}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
 
-              <div className="callout" style={{ marginTop: 4 }}>
+              <p className="pull">
                 A bot that hard-codes &ldquo;always fade UP&rdquo; is fitting last month&rsquo;s
                 weather. What the data supports is measuring continuously and standing down when the
                 measurement says nothing.
-              </div>
+              </p>
 
-              <TextCta href="/research" size="md">
+              <Cta href="/research" small>
                 See the full method
-              </TextCta>
+              </Cta>
             </div>
-          </div>
+          </>
         ) : (
-          <OfflineNotice />
+          <div className="col-12">
+            <OfflineNotice />
+          </div>
         )}
-      </Section>
+      </Band>
 
-      {/* ------------------------------------------------------------- Proof */}
+      {/* ------------------------------------------------------------ Proof */}
       {s && (
-        <Section tone="sunk">
-          <SectionHead
-            eyebrow="Measured, not assumed"
-            title="What the venue's own history says"
-          />
-          <StatBand
-            items={[
-              { k: "Markets settled", v: num(s.baseRate.n), s: "BTC and ETH" },
-              { k: "Closed up", v: pct(s.baseRate.rate), s: "a fair coin" },
-              { k: "Ever traded", v: pct(s.coverage.coverage, 1), s: `${num(s.coverage.markets - s.coverage.traded)} never quoted` },
-              { k: "Brier skill", v: s.calibration.brierSkill.toFixed(3), s: "vs a coin flip" },
-              { k: "Maker ROI", v: `+${pct(s.makerVsTaker.maker.roi)}`, s: "passive side", tone: "ok" },
-              { k: "Taker ROI", v: pct(s.makerVsTaker.taker.roi), s: "aggressive side", tone: "bad" },
-            ]}
-          />
-          <p className="sm dimmer" style={{ marginTop: 18, maxWidth: "68ch", lineHeight: 1.6 }}>
-            Two of these shape everything we built. The underlying is a coin flip, so any edge has to
-            come from the price being wrong rather than the asset moving. And makers get paid while
-            takers do not, on a venue that charges no fees at all, so every order we place is
-            post-only.
+        <Band fill>
+          <Head eyebrow="Measured, not assumed" title="What the venue's own history says" span="col-6" />
+          <div className="col-12" style={{ marginTop: "var(--s6)" }}>
+            <Figures
+              items={[
+                { k: "Markets settled", v: num(s.baseRate.n), s: "BTC and ETH" },
+                { k: "Closed up", v: pct(s.baseRate.rate), s: "a fair coin" },
+                {
+                  k: "Ever traded",
+                  v: pct(s.coverage.coverage, 1),
+                  s: `${num(s.coverage.markets - s.coverage.traded)} never quoted`,
+                },
+                { k: "Brier skill", v: s.calibration.brierSkill.toFixed(3), s: "vs a coin flip" },
+                { k: "Maker ROI", v: `+${pct(s.makerVsTaker.maker.roi)}`, s: "passive side", tone: "ok" },
+                { k: "Taker ROI", v: pct(s.makerVsTaker.taker.roi), s: "aggressive side", tone: "bad" },
+              ]}
+            />
+          </div>
+          <p className="col-6 body-sm" style={{ marginTop: "var(--s5)" }}>
+            Two of these shaped everything we built. The underlying is a coin flip, so any edge has to
+            come from the price being wrong rather than the asset moving. And the passive side is the
+            one that wins, thinly, on a venue that charges no fees at all &mdash; so every order we
+            place is post-only.
           </p>
-        </Section>
+        </Band>
       )}
 
-      {/* ------------------------------------------------------- Instruments */}
-      <Section id="instruments">
-        <SectionHead
+      {/* ------------------------------------------------------ Instruments */}
+      <Band id="instruments">
+        <Head
           eyebrow="Four instruments"
           title="What that measurement buys you"
-          lede="Each of these exists because of a finding above. None of them is a feature we thought sounded good."
+          lede="Each exists because of a finding above. None of them is a feature we thought sounded good."
+          span="col-6"
         />
-        <div className="grid-2x2">
-          {[
-            {
-              n: "01",
-              h: "Measurement engine",
-              p: "Pulls the venue's entire binary-market history into a local store, then computes calibration curves, cluster-robust and block-bootstrapped edge estimates, settled per-wallet PnL and liquidity coverage. The database is a plain file you can open and check the arithmetic against.",
-              href: "/research",
-              cta: "Read the report",
-            },
-            {
-              n: "02",
-              h: "Public event-contract API",
-              p: "DreamDEX's own HTTP API covers spot only, so anything wanting this data has to run the TypeScript SDK and hold a viem client. Assay serves it as plain JSON: no key, permissive CORS, every figure recomputed from settled history.",
-              href: "/developers",
-              cta: "Browse the routes",
-            },
-            {
-              n: "03",
-              h: "Trading terminal",
-              p: "Live books, countdowns, depth and tape, with the measured fair value beside every price and a RICH / CHEAP / IN LINE read on each market. Post-only by default, because settled PnL pays the passive side and charges the aggressive one.",
-              href: "/terminal",
-              cta: "Open the desk",
-            },
-            {
-              n: "04",
-              h: "Market-making agent",
-              p: "Quotes both sides around an edge-corrected fair value, sized to the near bound of the interval rather than its centre. Its default state is flat: four conditions must hold before it places anything at all.",
-              href: "/agent",
-              cta: "See the gate",
-            },
-          ].map((c) => (
-            <Link key={c.h} href={c.href} className="panel panel-bd instrument instrument-card">
-              <span className="instrument-n mono">{c.n}</span>
-              <h3 className="display" style={{ fontSize: 22 }}>
-                {c.h}
-              </h3>
-              <p className="sm dim" style={{ lineHeight: 1.65 }}>
-                {c.p}
-              </p>
-              <span className="sm instrument-link">
-                {c.cta} <span aria-hidden="true">&rarr;</span>
-              </span>
-            </Link>
-          ))}
+        <div className="col-12" style={{ marginTop: "var(--s6)" }}>
+          <div className="grid" style={{ padding: 0, maxWidth: "none", columnGap: "var(--s7)" }}>
+            {[
+              {
+                n: "01",
+                h: "Measurement engine",
+                p: "Pulls the venue's entire binary-market history into a local store, then computes calibration curves, cluster-robust and block-bootstrapped edge estimates, settled per-wallet PnL and liquidity coverage. The database is a plain file you can open and check the arithmetic against.",
+                href: "/research",
+                cta: "Read the report",
+              },
+              {
+                n: "02",
+                h: "Public event-contract API",
+                p: "DreamDEX's own HTTP API covers spot only, so anything wanting this data has to run the TypeScript SDK and hold a viem client. Assay serves it as plain JSON: no key, permissive CORS, every figure recomputed from settled history.",
+                href: "/developers",
+                cta: "Browse the routes",
+              },
+              {
+                n: "03",
+                h: "Trading terminal",
+                p: "Live books, countdowns, depth and tape, with the measured fair value beside every price and a rich / cheap / in-line read on each market. Post-only by default, because settled PnL favours the passive side.",
+                href: "/terminal",
+                cta: "Open the desk",
+              },
+              {
+                n: "04",
+                h: "Market-making agent",
+                p: "Quotes both sides around an edge-corrected fair value, sized to the near bound of the interval rather than its centre. Its default state is flat: four conditions must hold before it places anything at all.",
+                href: "/agent",
+                cta: "See the gate",
+              },
+            ].map((c) => (
+              <Link key={c.h} href={c.href} className="col-6 instrument">
+                <span className="instrument-n">{c.n}</span>
+                <h3 className="h3">{c.h}</h3>
+                <p className="body-sm">{c.p}</p>
+                <span className="instrument-cta">
+                  {c.cta} <span aria-hidden="true">&rarr;</span>
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
-      </Section>
+      </Band>
 
-      {/* -------------------------------------------------------- Developers */}
-      <Section tone="sunk">
-        <div className="split">
-          <SectionHead
-            eyebrow="For developers"
-            title={<>The event-contract API that did not exist.</>}
-            lede="Plain JSON over HTTP. No key, permissive CORS, usable from a notebook, a Grafana panel or a phone."
-          />
-          <div className="stack" style={{ gap: 16 }}>
-            <div className="panel panel-bd">
-              <pre className="mono code-block">{`GET /v1/edge/live
+      {/* ------------------------------------------------------- Developers */}
+      <Band fill>
+        <Head
+          eyebrow="For developers"
+          title="The event-contract API that did not exist."
+          lede="Plain JSON over HTTP. No key, permissive CORS, usable from a notebook, a Grafana panel or a phone."
+        />
+        <div className="col-6 start-7 v5">
+          <div className="card card-bd">
+            <pre>{`GET /v1/edge/live
 
 {
   "verdict": "${s?.live.verdict ?? "stand-down"}",
@@ -306,15 +295,14 @@ export default async function Landing() {
   },
   "confidence": ${s ? s.live.confidence.toFixed(2) : "0.00"}
 }`}</pre>
-            </div>
-            <TextCta href="/developers" size="md">
-              Full reference
-            </TextCta>
           </div>
+          <Cta href="/developers" small>
+            Full reference
+          </Cta>
         </div>
-      </Section>
+      </Band>
 
-      <SiteFooter asOf={s?.dataAsOf} />
+      <Footer asOf={s?.dataAsOf} />
     </>
   );
 }

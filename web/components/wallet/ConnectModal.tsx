@@ -90,14 +90,14 @@ export function ConnectModal({ open, wallets, connecting, error, onPick, onClose
       >
         <div className="modal-hd">
           <h2 id="connect-title">Connect a wallet</h2>
-          <button type="button" className="mini" onClick={onClose} aria-label="Close">
+          <button type="button" className="btn-sm" onClick={onClose} aria-label="Close">
             ESC
           </button>
         </div>
 
         <div className="modal-bd">
           {wallets.length === 0 ? (
-            <div className="stack" style={{ gap: 10 }}>
+            <div className="v3">
               <div className="notice info">
                 <span className="ic">i</span>
                 <span>
@@ -143,13 +143,13 @@ export function ConnectModal({ open, wallets, connecting, error, onPick, onClose
           )}
 
           {error && (
-            <div className="notice err" style={{ marginTop: 10 }}>
+            <div className="notice err" style={{ marginTop: "var(--s3)" }}>
               <span className="ic">!</span>
               <span>{error}</span>
             </div>
           )}
 
-          <p className="xs dimmer" style={{ marginTop: 12, lineHeight: 1.55 }}>
+          <p className="small ink-4" style={{ marginTop: "var(--s3)" }}>
             Assay never holds your funds. Orders are signed in your wallet and settle directly
             against the DreamDEX pool.
           </p>

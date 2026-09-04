@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 import { useWallet } from "./wallet/WalletProvider";
 import { AccountMenu } from "./wallet/AccountMenu";
+import { Mark } from "./site/mark";
 
 const LINKS = [
   { href: "/research", label: "Research" },
@@ -20,9 +21,10 @@ export function Nav() {
 
   return (
     <nav className="nav">
-      <Link href="/" className="brand">
-        <span className="n">ASSAY</span>
-        <span className="t">ASSAY OFFICE</span>
+      <div className="nav-inner">
+      <Link href="/" className="brand" aria-label="Assay, home">
+        <Mark />
+        <span className="brand-name">Assay</span>
       </Link>
 
       <div className="nav-links">
@@ -58,6 +60,7 @@ export function Nav() {
       )}
 
       <ThemeToggle />
+      </div>
     </nav>
   );
 }

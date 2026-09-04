@@ -12,6 +12,7 @@
 
 import type { LiveMarket, Book } from "@/lib/markets";
 import { cents, type AssayStats, type FairValue } from "@/lib/assay";
+import { cadence } from "@/lib/format";
 
 const fmtLeft = (s: number): string => {
   if (s <= 0) return "CLOSED";
@@ -41,7 +42,7 @@ export function QuoteHeader({
         <div className="q-asset">
           {market.asset}
           <span className="lbl" style={{ letterSpacing: "0.1em" }}>
-            {market.intervalSec >= 3600 ? `${market.intervalSec / 3600}H` : `${market.intervalSec / 60}M`}
+            {cadence(market.intervalSec, true)}
           </span>
         </div>
         <div className="q-sub">{market.question}</div>
@@ -135,9 +136,9 @@ export function EdgeStrip({ stats }: { stats: AssayStats | null }) {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
         <span className="gauge-cap">{cents(lo)}</span>
         <div className="gauge" title={`95% CI [${cents(lo)}, ${cents(hi)}], point ${cents(live.edge)}`}>
-          <span className="zero" style={{ left: `${pos(0)}%` }} />
+          <span className="g-zero" style={{ left: `${pos(0)}%` }} />
           <span
-            className="band"
+            className="g-band"
             style={{
               left: `${pos(lo)}%`,
               width: `${pos(hi) - pos(lo)}%`,
@@ -145,7 +146,7 @@ export function EdgeStrip({ stats }: { stats: AssayStats | null }) {
               borderColor: color,
             }}
           />
-          <span className="pt" style={{ left: `${pos(live.edge)}%`, background: color }} />
+          <span className="g-pt" style={{ left: `${pos(live.edge)}%`, background: color }} />
         </div>
         <span className="gauge-cap">{cents(hi)}</span>
       </div>

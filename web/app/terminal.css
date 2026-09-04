@@ -22,8 +22,8 @@
   gap: 16px;
   padding: 0 14px;
   height: 42px;
-  background: var(--panel);
-  border-bottom: 1px solid var(--glass-line-2);
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule-2);
 }
 /* The site nav already carries the wordmark; a second one is noise. */
 .terminal .wordmark { display: none; }
@@ -34,7 +34,7 @@
   flex-direction: column;
   gap: 1px;
   padding: 0 12px;
-  border-left: 1px solid var(--glass-line);
+  border-left: 1px solid var(--rule);
   flex: none;
 }
 .readout .k {
@@ -56,18 +56,18 @@
   align-items: stretch;
 }
 .col { display: flex; flex-direction: column; min-width: 0; }
-.col.left { border-right: 1px solid var(--glass-line-2); }
-.col.right { border-left: 1px solid var(--glass-line-2); }
+.col.left { border-right: 1px solid var(--rule-2); }
+.col.right { border-left: 1px solid var(--rule-2); }
 @media (max-width: 1180px) {
   .workspace { grid-template-columns: 236px minmax(0, 1fr); }
-  .col.right { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--glass-line-2); }
+  .col.right { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--rule-2); }
 }
 @media (max-width: 820px) {
   .workspace { grid-template-columns: 1fr; }
-  .col.left { border-right: 0; border-bottom: 1px solid var(--glass-line-2); }
+  .col.left { border-right: 0; border-bottom: 1px solid var(--rule-2); }
 }
 
-.pane { background: var(--panel); border-bottom: 1px solid var(--glass-line); }
+.pane { background: var(--paper); border-bottom: 1px solid var(--rule); }
 .pane:last-child { border-bottom: 0; }
 .pane.grow { flex: 1 1 auto; }
 /* Base rules, not just overrides.
@@ -81,8 +81,8 @@
   gap: 10px;
   height: 30px;
   padding: 0 12px;
-  border-bottom: 1px solid var(--glass-line);
-  background: var(--panel-2);
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper-2);
 }
 .pane-hd h3 {
   font-family: var(--mono);
@@ -105,14 +105,14 @@
   padding: 8px 12px;
   background: none;
   border: 0;
-  border-bottom: 1px solid var(--glass-line);
+  border-bottom: 1px solid var(--rule);
   border-left: 2px solid transparent;
   border-radius: 0;
   cursor: pointer;
   color: inherit;
 }
-.mkt:hover { background: var(--panel-2); }
-.mkt[aria-selected="true"] { background: var(--panel-2); border-left-color: var(--accent); }
+.mkt:hover { background: var(--paper-2); }
+.mkt[aria-selected="true"] { background: var(--paper-2); border-left-color: var(--accent); }
 .mkt-top { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
 .mkt-asset { font-family: var(--mono); font-size: 13px; font-weight: 600; }
 .mkt-win { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
@@ -140,7 +140,7 @@
 
 .quote {
   display: flex; align-items: flex-end; gap: 22px; flex-wrap: wrap;
-  padding: 14px 16px; border-bottom: 1px solid var(--glass-line); background: var(--panel);
+  padding: 14px 16px; border-bottom: 1px solid var(--rule); background: var(--paper);
 }
 .quote-id { min-width: 0; }
 .quote-id .q-asset {
@@ -160,16 +160,16 @@
 
 .book-spread {
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  padding: 5px 12px; background: var(--sunk);
-  border-top: 1px solid var(--glass-line); border-bottom: 1px solid var(--glass-line);
+  padding: 5px 12px; background: var(--paper-3);
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
   font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); letter-spacing: 0.04em;
 }
 .book-grid { display: grid; grid-template-columns: 1fr 1fr; }
 .book-col { min-width: 0; }
-.book-col + .book-col { border-left: 1px solid var(--glass-line); }
+.book-col + .book-col { border-left: 1px solid var(--rule); }
 .book-hd {
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-  padding: 5px 12px; border-bottom: 1px solid var(--glass-line);
+  padding: 5px 12px; border-bottom: 1px solid var(--rule);
 }
 .book-hd span {
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
@@ -183,7 +183,7 @@
   font-variant-numeric: tabular-nums; cursor: pointer; border: 0; background: none;
   width: 100%; text-align: left; color: inherit; border-radius: 0;
 }
-.lvl:hover { background: var(--panel-2); }
+.lvl:hover { background: var(--paper-2); }
 .lvl .depth { position: absolute; top: 1px; bottom: 1px; z-index: 0; pointer-events: none; }
 .lvl.bid .depth { background: var(--up-a); }
 .lvl.ask .depth { background: var(--down-a); }
@@ -197,12 +197,12 @@
 .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .seg-btn {
   display: flex; flex-direction: column; gap: 1px; align-items: flex-start;
-  padding: 8px 10px; border: 1px solid var(--glass-line-2); border-radius: var(--r);
-  background: var(--sunk); cursor: pointer; transition: all .1s ease;
+  padding: 8px 10px; border: 1px solid var(--rule-2); border-radius: var(--radius);
+  background: var(--paper-3); cursor: pointer; transition: all .1s ease;
 }
 .seg-btn .t { font-family: var(--mono); font-size: 12.5px; font-weight: 600; letter-spacing: 0.03em; }
 .seg-btn .d { font-size: 10px; color: var(--ink-3); }
-.seg-btn:hover { border-color: var(--ink-4); background: var(--sunk); }
+.seg-btn:hover { border-color: var(--ink-4); background: var(--paper-3); }
 .seg-btn[aria-pressed="true"][data-side="UP"] { border-color: var(--up); background: var(--up-a); }
 .seg-btn[aria-pressed="true"][data-side="UP"] .t { color: var(--up); }
 .seg-btn[aria-pressed="true"][data-side="DOWN"] { border-color: var(--down); background: var(--down-a); }
@@ -210,7 +210,7 @@
 
 .tabs { display: flex; gap: 4px; }
 .tabs button { flex: 1; font-size: 11px; padding: 4px 6px; justify-content: center; }
-.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
 .field { display: flex; flex-direction: column; gap: 4px; }
 .field > label {
@@ -220,22 +220,22 @@
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
 .stepper { display: flex; }
-.stepper input { border-radius: var(--r) 0 0 var(--r); border-right: 0; }
+.stepper input { border-radius: var(--radius) 0 0 var(--radius); border-right: 0; }
 .stepper .btns { display: flex; flex-direction: column; }
 .stepper .btns button {
   border-radius: 0; padding: 0 6px; height: 50%; font-size: 9px; line-height: 1;
-  border-left: 1px solid var(--glass-line-2); border-bottom: 0;
-  background: var(--panel-2); justify-content: center;
+  border-left: 1px solid var(--rule-2); border-bottom: 0;
+  background: var(--paper-2); justify-content: center;
 }
-.stepper .btns button:first-child { border-top-right-radius: var(--r); border-bottom: 1px solid var(--glass-line-2); }
-.stepper .btns button:last-child { border-bottom-right-radius: var(--r); }
+.stepper .btns button:first-child { border-top-right-radius: var(--radius); border-bottom: 1px solid var(--rule-2); }
+.stepper .btns button:last-child { border-bottom-right-radius: var(--radius); }
 
 .chips { display: flex; gap: 4px; }
 .chips button { flex: 1; font-size: 10.5px; padding: 3px 4px; font-family: var(--mono); justify-content: center; }
 
 .payoff {
   display: flex; flex-direction: column; gap: 5px; padding: 9px 10px;
-  background: var(--sunk); border: 1px solid var(--glass-line); border-radius: var(--r);
+  background: var(--paper-3); border: 1px solid var(--rule); border-radius: var(--radius);
 }
 .payoff .r {
   display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
@@ -246,14 +246,14 @@
 /* Renamed from `.hero`: that is the page-level hero section in globals.css,
    and a payoff row carrying it inherited the section padding and glow. */
 .payoff .r.lead .v { font-size: 14px; font-weight: 600; }
-.payoff .sep { height: 1px; background: var(--glass-line); margin: 2px 0; }
+.payoff .sep { height: 1px; background: var(--rule); margin: 2px 0; }
 
 button.cta {
-  background: var(--ink); color: var(--bg); border-color: var(--ink);
+  background: var(--ink); color: var(--paper); border-color: var(--ink);
   font-weight: 600; font-size: 12.5px; padding: 9px 12px; width: 100%;
   justify-content: center; letter-spacing: 0.01em;
 }
-button.cta:hover:not(:disabled) { background: var(--ink); color: var(--bg); opacity: .88; }
+button.cta:hover:not(:disabled) { background: var(--ink); color: var(--paper); opacity: .88; }
 button.cta.buy-up { background: var(--up); border-color: var(--up); color: #fff; }
 button.cta.buy-down { background: var(--down); border-color: var(--down); color: #fff; }
 button.mini { font-size: 11px; padding: 3px 7px; }
@@ -266,21 +266,24 @@ button.link {
 
 .edge-strip {
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  padding: 9px 16px; border-bottom: 1px solid var(--glass-line);
-  background: var(--panel-2); font-size: 11.5px;
+  padding: 9px 16px; border-bottom: 1px solid var(--rule);
+  background: var(--paper-2); font-size: 11.5px;
 }
 .edge-strip.standing { background: var(--warn-a); }
 .edge-strip .txt { color: var(--ink-2); min-width: 0; }
 .edge-strip .txt b { color: var(--ink); font-weight: 600; }
 
-/* The measured interval against zero: the project's whole argument, 22px tall. */
+/* The measured interval against zero: the project's whole argument, 22px tall.
+   Children are namespaced `g-*` because `.band` is a layout primitive in
+   system.css - an unnamespaced `.band` here inherited 96px of section padding
+   and stretched the strip down over the ticket. */
 .gauge {
   position: relative; height: 22px; width: 190px; flex: none;
-  background: var(--sunk); border: 1px solid var(--glass-line); border-radius: 2px;
+  background: var(--paper-3); border: 1px solid var(--rule); border-radius: 2px;
 }
-.gauge .zero { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--ink-4); }
-.gauge .band { position: absolute; top: 5px; height: 10px; border-radius: 1px; border: 1px solid; }
-.gauge .pt { position: absolute; top: 2px; width: 2px; height: 16px; }
+.gauge .g-zero { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--ink-4); }
+.gauge .g-band { position: absolute; top: 5px; height: 10px; border-radius: 1px; border: 1px solid; }
+.gauge .g-pt { position: absolute; top: 2px; width: 2px; height: 16px; }
 .gauge-cap { font-family: var(--mono); font-size: 9.5px; color: var(--ink-3); letter-spacing: 0.06em; }
 
 /* ---------------- Status bar ---------------- */
@@ -288,14 +291,14 @@ button.link {
 .statusbar {
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
   height: 26px; padding: 0 14px;
-  background: var(--panel); border-top: 1px solid var(--glass-line-2);
+  background: var(--paper); border-top: 1px solid var(--rule-2);
   font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.05em;
 }
 .statusbar .seg-i { display: flex; align-items: center; gap: 5px; }
 .statusbar .spacer { flex: 1 1 auto; }
 .kbd {
   font-family: var(--mono); font-size: 9.5px; padding: 0 4px; border-radius: 2px;
-  border: 1px solid var(--glass-line-2); background: var(--panel-2); color: var(--ink-3);
+  border: 1px solid var(--rule-2); background: var(--paper-2); color: var(--ink-3);
 }
 
 /* ---------------- Tables, empties, skeletons ---------------- */
@@ -309,7 +312,7 @@ button.link {
   letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;
 }
 
-.sk { background: var(--panel-2); border-radius: 2px; position: relative; overflow: hidden; }
+.sk { background: var(--paper-2); border-radius: 2px; position: relative; overflow: hidden; }
 .sk::after {
   content: "";
   position: absolute;
@@ -320,3 +323,23 @@ button.link {
 @keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 
 .rowf { display: flex; align-items: center; gap: 8px; }
+
+/* ---------------- Desk utilities ----------------
+   The publication dropped these short helpers when it moved onto the type ramp,
+   but the desk still speaks them and its scale is genuinely tighter. Redefined
+   from the same tokens and scoped to `.terminal`, so there is one source of
+   truth for the values and no chance of them leaking back into a page. */
+
+.terminal .lbl {
+  font-family: var(--mono);
+  font-size: var(--t1);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.terminal .sm { font-size: var(--t2); line-height: 1.5; }
+.terminal .xs { font-size: var(--t1); line-height: 1.5; }
+.terminal .dim { color: var(--ink-3); }
+.terminal .dimmer { color: var(--ink-4); }
+.terminal .rowf { display: flex; align-items: center; gap: var(--s2); }

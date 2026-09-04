@@ -22,6 +22,7 @@ import type { NetworkConfig } from "@/lib/chain";
 import type { LiveMarket, Book } from "@/lib/markets";
 import { placeOrder, explainError, minSize, tickStep, type Outcome, type OrderMode } from "@/lib/exchange";
 import type { FairValue } from "@/lib/assay";
+import { cadence } from "@/lib/format";
 
 interface Props {
   cfg: NetworkConfig;
@@ -142,7 +143,7 @@ export function Ticket({
       <div className="pane-hd">
         <h3>Ticket</h3>
         <span className="lbl">
-          {market.asset} {market.intervalSec / 60}M
+          {market.asset} {cadence(market.intervalSec, true)}
         </span>
       </div>
 

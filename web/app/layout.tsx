@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Instrument_Sans, Instrument_Serif, IBM_Plex_Mono } from "next/font/google";
 import { Nav } from "@/components/nav";
 import { WalletProvider } from "@/components/wallet/WalletProvider";
+import "./system.css";
 import "./globals.css";
 import "./terminal.css";
 import "./wallet.css";
@@ -67,7 +68,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
       </head>
       <body>
-        <div className="lightfield" aria-hidden="true" />
         <a href="#main" className="skip">
           Skip to content
         </a>

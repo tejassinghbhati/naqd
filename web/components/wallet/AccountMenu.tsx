@@ -96,26 +96,26 @@ export function AccountMenu({
       {open && (
         <div className="acct-menu" role="menu">
           <div className="acct-hd">
-            <div className="row" style={{ gap: 8, minWidth: 0 }}>
+            <div className="h2f" style={{ minWidth: 0 }}>
               {conn.wallet.icon ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={conn.wallet.icon} alt="" width={18} height={18} style={{ borderRadius: 3 }} />
               ) : null}
-              <span className="sm" style={{ fontWeight: 600 }}>
+              <span className="body-sm" style={{ fontWeight: 600 }}>
                 {conn.wallet.name}
               </span>
             </div>
-            <span className="lbl">{cfg.chain.name}</span>
+            <span className="eyebrow">{cfg.chain.name}</span>
           </div>
 
           <div className="acct-addr">
-            <code className="mono xs">{conn.address}</code>
-            <div className="row" style={{ gap: 4 }}>
-              <button type="button" className="mini" onClick={copy}>
+            <code className="mono small">{conn.address}</code>
+            <div className="h2f">
+              <button type="button" className="btn-sm" onClick={copy}>
                 {copied ? "COPIED" : "COPY"}
               </button>
               {explorer && (
-                <a className="btn mini" href={explorer} target="_blank" rel="noreferrer">
+                <a className="btn btn-sm" href={explorer} target="_blank" rel="noreferrer">
                   EXPLORER
                 </a>
               )}
@@ -123,14 +123,14 @@ export function AccountMenu({
           </div>
 
           {wrongChain ? (
-            <div style={{ padding: 12 }}>
-              <div className="notice err" style={{ marginBottom: 8 }}>
+            <div style={{ padding: "var(--s3)" }}>
+              <div className="notice err" style={{ marginBottom: "var(--s2)" }}>
                 <span className="ic">!</span>
                 <span>
                   Wallet is on chain {conn.chainId}. Switch to {cfg.chain.name} to trade.
                 </span>
               </div>
-              <button type="button" className="cta" onClick={onSwitchChain}>
+              <button type="button" className="btn btn-solid" style={{ width: "100%" }} onClick={onSwitchChain}>
                 SWITCH NETWORK
               </button>
             </div>
@@ -138,12 +138,12 @@ export function AccountMenu({
             <>
               <div className="acct-bals">
                 <div className="acct-bal-row">
-                  <span className="lbl">{cfg.collateralSymbol}</span>
+                  <span className="eyebrow">{cfg.collateralSymbol}</span>
                   <span className="mono">{balances ? fmt(balances.collateral) : "—"}</span>
                 </div>
                 <div className="acct-bal-row">
-                  <span className="lbl">
-                    {cfg.chain.nativeCurrency.symbol} <span className="dimmer">gas</span>
+                  <span className="eyebrow">
+                    {cfg.chain.nativeCurrency.symbol} <span className="ink-4">gas</span>
                   </span>
                   <span className="mono" style={{ color: balances?.lowGas ? "var(--warn)" : undefined }}>
                     {balances ? fmt(balances.native, 4) : "—"}
@@ -152,7 +152,7 @@ export function AccountMenu({
               </div>
 
               {balances?.lowGas && (
-                <div style={{ padding: "0 12px 10px" }}>
+                <div style={{ padding: "0 var(--s3) var(--s3)" }}>
                   <div className="notice warn">
                     <span className="ic">!</span>
                     <span>
@@ -166,22 +166,22 @@ export function AccountMenu({
 
               {balances && balances.outcomes.length > 0 && (
                 <div className="acct-positions">
-                  <div className="lbl" style={{ padding: "0 0 6px" }}>
+                  <div className="eyebrow" style={{ paddingBottom: "var(--s2)" }}>
                     Positions
                   </div>
                   {balances.outcomes.slice(0, 5).map((o) => (
                     <div key={o.symbol} className="acct-bal-row">
-                      <span className="xs mono dim" style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <span className="mono small ink-3" style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
                         {o.symbol.replace(/\/.*?#/, " ")}
                       </span>
-                      <span className="mono xs">{fmt(o.amount)}</span>
+                      <span className="mono small">{fmt(o.amount)}</span>
                     </div>
                   ))}
                 </div>
               )}
 
               {cfg.network === "testnet" && (
-                <div style={{ padding: "0 12px 10px" }}>
+                <div style={{ padding: "0 var(--s3) var(--s3)" }}>
                   <button type="button" onClick={onFaucet} disabled={faucetBusy} style={{ width: "100%", justifyContent: "center" }}>
                     {faucetBusy ? "Minting…" : `Get 1,000 test ${cfg.collateralSymbol}`}
                   </button>
@@ -194,7 +194,7 @@ export function AccountMenu({
             <button type="button" className="link" onClick={onDisconnect}>
               Disconnect
             </button>
-            <span className="xs dimmer">stops this site using the account</span>
+            <span className="small ink-4">stops this site using the account</span>
           </div>
         </div>
       )}

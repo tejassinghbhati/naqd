@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { getSummary, getTraders } from "@/lib/stats-server";
 import { CalibrationCurve, ForestPlot, WeeklyBars, CoverageBars, type ForestRow } from "@/components/charts";
 import { OfflineNotice } from "@/components/offline-notice";
-import { SiteFooter } from "@/components/site/parts";
+import { Band, Footer } from "@/components/site/parts";
+import { cadence } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "Research",
@@ -16,10 +17,10 @@ const num = (n: number) => n.toLocaleString("en-US");
 
 function Finding({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="finding">
-      <div className="idx">{n}</div>
-      <div className="stack" style={{ gap: 14 }}>
-        <h2 style={{ fontSize: 21 }}>{title}</h2>
+    <div className="seq-item col-12">
+      <span className="seq-n">{n}</span>
+      <div className="v5">
+        <h2 className="h2">{title}</h2>
         {children}
       </div>
     </div>
@@ -31,12 +32,12 @@ export default async function Research() {
 
   if (!s) {
     return (
-      <section className="section">
-        <div className="wrap stack">
+      <Band rule={false}>
+        <div className="col-8 v5">
           <h1 style={{ fontSize: 30 }}>Research</h1>
           <OfflineNotice />
         </div>
-      </section>
+      </Band>
     );
   }
 
@@ -68,10 +69,10 @@ export default async function Research() {
 
   return (
     <>
-      <section className="section" style={{ paddingBottom: 28 }}>
-        <div className="wrap stack" style={{ gap: 14, maxWidth: "72ch" }}>
+      <Band rule={false} size="lg">
+        <div className="col-8 v5">
           <span className="eyebrow">Research</span>
-          <h1 style={{ fontSize: "clamp(26px, 4.4vw, 38px)", lineHeight: 1.14 }}>
+          <h1 >
             The edge is real. It is also not constant, which changes what you can build on it.
           </h1>
           <p className="prose">
@@ -81,10 +82,10 @@ export default async function Research() {
             on each request &mdash; nothing here is a screenshot or a stored claim.
           </p>
         </div>
-      </section>
+      </Band>
 
-      <section className="section">
-        <div className="wrap">
+      <Band>
+        <div className="col-12 seq">
           <Finding n="01" title="The underlying is a coin flip">
             <p className="prose">
               Every market asks the same question: does the asset close at or above where the window
@@ -92,23 +93,23 @@ export default async function Research() {
               time. There is no drift to harvest here, so any edge has to come from the{" "}
               <em>price</em> being wrong, not from the asset going up.
             </p>
-            <div className="tiles">
-              <div className="tile">
+            <div className="figures">
+              <div className="figure">
                 <div className="k">Resolved</div>
                 <div className="v">{num(s.baseRate.n)}</div>
               </div>
-              <div className="tile">
+              <div className="figure">
                 <div className="k">Closed up</div>
                 <div className="v">{pct(s.baseRate.rate)}</div>
                 <div className="s">{num(s.baseRate.up)} markets</div>
               </div>
-              <div className="tile">
+              <div className="figure">
                 <div className="k">Verdict</div>
-                <div className="v md dim">fair coin</div>
+                <div className="v md ink-3">fair coin</div>
                 <div className="s">50% inside the interval</div>
               </div>
             </div>
-            <div className="panel scroll-x">
+            <div className="card scroll-x">
               <table>
                 <thead>
                   <tr>
@@ -121,7 +122,7 @@ export default async function Research() {
                   {s.baseRate.byAsset.map((r) => (
                     <tr key={`${r.asset}-${r.intervalSec}`}>
                       <td>
-                        {r.asset} {r.intervalSec >= 3600 ? `${r.intervalSec / 3600}h` : `${r.intervalSec / 60}m`}
+                        {r.asset} {cadence(r.intervalSec)}
                       </td>
                       <td>{num(r.n)}</td>
                       <td>{pct(r.rate)}</td>
@@ -139,7 +140,7 @@ export default async function Research() {
               &mdash; Brier skill <strong>{s.calibration.brierSkill.toFixed(3)}</strong> against an
               always-50% forecaster &mdash; but it bends away from the diagonal at both ends.
             </p>
-            <div className="panel panel-bd">
+            <div className="card card-bd">
               <figure>
                 <CalibrationCurve bins={s.calibration.byMarket} />
                 <div className="legend">
@@ -169,12 +170,12 @@ export default async function Research() {
               dramatic S-shape flattens out. <strong>This check is the difference between a real
               finding and an artifact of aggregation.</strong>
             </p>
-            <div className="grid-3">
+            <div className="grid" style={{ padding: 0, maxWidth: "none" }}>
               {s.calibration.byTimeToExpiry.map((ph) => (
-                <div key={ph.phase} className="panel">
-                  <div className="panel-hd">
+                <div key={ph.phase} className="card">
+                  <div className="card-hd">
                     <h3>{ph.phase}</h3>
-                    <span className="lbl">{num(ph.n)} fills</span>
+                    <span className="eyebrow">{num(ph.n)} fills</span>
                   </div>
                   <table>
                     <thead>
@@ -203,7 +204,7 @@ export default async function Research() {
                 </div>
               ))}
             </div>
-            <p className="xs dimmer">
+            <p className="small ink-4">
               &ldquo;Early&rdquo; is the first third of the window, when a resting quote is actually
               tradeable. That is the column that matters.
             </p>
@@ -215,7 +216,7 @@ export default async function Research() {
               ranging from &ldquo;obviously real&rdquo; to &ldquo;indistinguishable from noise&rdquo;.
               Only the last one is honest.
             </p>
-            <div className="panel panel-bd">
+            <div className="card card-bd">
               <figure>
                 <ForestPlot rows={forest} />
                 <figcaption>
@@ -225,7 +226,7 @@ export default async function Research() {
               </figure>
             </div>
 
-            <div className="callout">
+            <div className="pull">
               Treating each fill as independent counts <strong>{num(s.edge.naive.n)}</strong> data
               points where there are really <strong>{num(s.edge.clustered.n)}</strong> coin flips.
               That alone moves the t-statistic from <strong>{s.edge.naive.t.toFixed(2)}</strong> to{" "}
@@ -239,7 +240,7 @@ export default async function Research() {
               weather.
             </div>
 
-            <div className="panel panel-bd">
+            <div className="card card-bd">
               <figure>
                 <div className="scroll-x">
                   <WeeklyBars weeks={weeks} />
@@ -268,7 +269,7 @@ export default async function Research() {
               That is where a quote is worth the most, and it is why the agent&rsquo;s job is to
               provide liquidity rather than take it.
             </p>
-            <div className="panel panel-bd">
+            <div className="card card-bd">
               <CoverageBars series={s.bySeries} />
             </div>
           </Finding>
@@ -280,8 +281,8 @@ export default async function Research() {
               whether liquidity provision is currently rewarded. It is.
             </p>
             <div className="grid-2">
-              <div className="panel">
-                <div className="panel-hd">
+              <div className="card">
+                <div className="card-hd">
                   <h3>Who gets paid</h3>
                 </div>
                 <table>
@@ -306,8 +307,8 @@ export default async function Research() {
                   </tbody>
                 </table>
               </div>
-              <div className="panel">
-                <div className="panel-hd">
+              <div className="card">
+                <div className="card-hd">
                   <h3>Is this a market, or a few bots?</h3>
                 </div>
                 <table>
@@ -332,16 +333,16 @@ export default async function Research() {
                 </table>
               </div>
             </div>
-            <p className="xs dimmer measure">
+            <p className="small ink-4 measure">
               Reported next to the edge on purpose: it is the main reason to discount everything
               above. A real market rather than one bot talking to itself, but a small one.
             </p>
 
             {traders && traders.length > 0 && (
-              <div className="panel scroll-x">
-                <div className="panel-hd">
+              <div className="card scroll-x">
+                <div className="card-hd">
                   <h3>Settled PnL leaderboard</h3>
-                  <span className="lbl">min 5 trades across 3 markets</span>
+                  <span className="eyebrow">min 5 trades across 3 markets</span>
                 </div>
                 <table>
                   <thead>
@@ -376,10 +377,10 @@ export default async function Research() {
             )}
           </Finding>
         </div>
-      </section>
+      </Band>
 
-      <section className="section">
-        <div className="wrap stack" style={{ gap: 16 }}>
+      <Band fill>
+        <div className="col-12 v5">
           <h2 style={{ fontSize: 20 }}>Notes on method</h2>
           <div className="grid-2x2">
             {[
@@ -400,18 +401,18 @@ export default async function Research() {
                 p: "The edge is estimated over about three weeks of traded markets. Enough to reject a constant bias; not enough to characterise the regimes that replace it. Settled PnL counts unredeemed winnings and does not model open inventory.",
               },
             ].map((c) => (
-              <div key={c.h} className="panel panel-bd stack" style={{ gap: 6 }}>
+              <div key={c.h} className="card card-bd stack" style={{ gap: 6 }}>
                 <h3 style={{ fontSize: 14 }}>{c.h}</h3>
-                <p className="sm dim" style={{ lineHeight: 1.6 }}>
+                <p className="body-sm ink-3" style={{ lineHeight: 1.6 }}>
                   {c.p}
                 </p>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </Band>
 
-      <SiteFooter asOf={s.dataAsOf} />
+      <Footer asOf={s.dataAsOf} />
     </>
   );
 }

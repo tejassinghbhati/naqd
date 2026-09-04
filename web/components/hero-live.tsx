@@ -23,6 +23,7 @@ import { NETWORKS } from "@/lib/chain";
 import { createExchange } from "@/lib/exchange";
 import { loadBook, loadLiveMarkets, type Book, type LiveMarket } from "@/lib/markets";
 import { fairValue, type LiveEdge } from "@/lib/assay";
+import { cadence } from "@/lib/format";
 
 const MARKETS_MS = 20_000;
 const BOOK_MS = 5_000;
@@ -96,17 +97,17 @@ export function HeroLive({ stats }: { stats: { live: LiveEdge } | null }) {
 
   if (!ready) {
     return (
-      <div className="live-card" aria-busy="true">
-        <div className="sk" style={{ height: 178, borderRadius: 8 }} />
+      <div className="live" aria-busy="true">
+        <div className="sk" style={{ height: 196 }} />
       </div>
     );
   }
 
   if (!market) {
     return (
-      <div className="live-card">
+      <div className="live">
         <span className="eyebrow">Live window</span>
-        <p className="sm dim" style={{ marginTop: 12, lineHeight: 1.6 }}>
+        <p className="body-sm" style={{ marginTop: "var(--s3)" }}>
           No window is open on the venue right now. New markets are created on a rolling schedule,
           usually within a few minutes.
         </p>
@@ -115,17 +116,17 @@ export function HeroLive({ stats }: { stats: { live: LiveEdge } | null }) {
   }
 
   return (
-    <div className="live-card">
+    <div className="live">
       <div className="live-top">
         <div className="live-clock">
           <svg viewBox="0 0 64 64" width="58" height="58" aria-hidden="true">
-            <circle cx="32" cy="32" r={R} fill="none" stroke="var(--glass-line-2)" strokeWidth="3" />
+            <circle cx="32" cy="32" r={R} fill="none" stroke="var(--rule-2)" strokeWidth="3" />
             <circle
               cx="32"
               cy="32"
               r={R}
               fill="none"
-              stroke={left < 60 ? "var(--warn)" : "var(--lf-4)"}
+              stroke={left < 60 ? "var(--warn)" : "var(--ink-3)"}
               strokeWidth="3"
               strokeLinecap="round"
               strokeDasharray={C}
@@ -140,8 +141,8 @@ export function HeroLive({ stats }: { stats: { live: LiveEdge } | null }) {
         </div>
 
         <div className="live-id">
-          <span className="eyebrow bare">
-            {market.asset} · {market.intervalSec >= 3600 ? `${market.intervalSec / 3600}h` : `${market.intervalSec / 60}m`} window
+          <span className="eyebrow">
+            {market.asset} · {cadence(market.intervalSec)} window
           </span>
           <p className="live-q">{market.question}</p>
         </div>
@@ -149,7 +150,7 @@ export function HeroLive({ stats }: { stats: { live: LiveEdge } | null }) {
 
       <div className="live-sides">
         <div className="live-side">
-          <span className="lbl" style={{ color: "var(--up)" }}>
+          <span className="eyebrow" style={{ color: "var(--up)" }}>
             Up
           </span>
           <span className="live-px mono">{up === undefined ? "—" : up.toFixed(2)}</span>
@@ -157,7 +158,7 @@ export function HeroLive({ stats }: { stats: { live: LiveEdge } | null }) {
 
         {/* The column nobody else has. */}
         <div className="live-fair">
-          <span className="lbl">Assay fair</span>
+          <span className="eyebrow">Assay fair</span>
           <span className="live-px mono" style={{ color: "var(--ink)" }}>
             {fair.fair === null ? "—" : fair.fair.toFixed(2)}
           </span>
@@ -173,20 +174,20 @@ export function HeroLive({ stats }: { stats: { live: LiveEdge } | null }) {
         </div>
 
         <div className="live-side live-side-r">
-          <span className="lbl" style={{ color: "var(--down)" }}>
+          <span className="eyebrow" style={{ color: "var(--down)" }}>
             Down
           </span>
           <span className="live-px mono">{down === undefined ? "—" : down.toFixed(2)}</span>
         </div>
       </div>
 
-      <p className="live-note xs">
+      <p className="live-note">
         {mid === undefined
           ? "Nobody has quoted this window yet. About five markets in six settle without a single trade."
           : fair.explain}
       </p>
 
-      <Link href="/terminal" className="btn live-cta">
+      <Link href="/terminal" className="btn">
         Open the terminal
       </Link>
     </div>

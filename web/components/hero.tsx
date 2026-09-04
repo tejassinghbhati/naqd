@@ -47,20 +47,20 @@ export function CalibrationField({ bins }: { bins: CalibrationBin[] }) {
     >
       <defs>
         <radialGradient id="node-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="var(--lf-4)" stopOpacity="0.9" />
-          <stop offset="45%" stopColor="var(--lf-3)" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="var(--lf-3)" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--ink-3)" stopOpacity="0.9" />
+          <stop offset="45%" stopColor="var(--ink-4)" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="var(--ink-4)" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="diag" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0%" stopColor="var(--lf-3)" stopOpacity="0.05" />
-          <stop offset="50%" stopColor="var(--lf-4)" stopOpacity="0.42" />
-          <stop offset="100%" stopColor="var(--lf-3)" stopOpacity="0.05" />
+          <stop offset="0%" stopColor="var(--ink-4)" stopOpacity="0.05" />
+          <stop offset="50%" stopColor="var(--ink-3)" stopOpacity="0.42" />
+          <stop offset="100%" stopColor="var(--ink-4)" stopOpacity="0.05" />
         </linearGradient>
         <linearGradient id="curve" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="var(--lf-3)" stopOpacity="0" />
-          <stop offset="18%" stopColor="var(--lf-4)" stopOpacity="0.75" />
-          <stop offset="82%" stopColor="var(--lf-4)" stopOpacity="0.75" />
-          <stop offset="100%" stopColor="var(--lf-3)" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--ink-4)" stopOpacity="0" />
+          <stop offset="18%" stopColor="var(--ink-3)" stopOpacity="0.75" />
+          <stop offset="82%" stopColor="var(--ink-3)" stopOpacity="0.75" />
+          <stop offset="100%" stopColor="var(--ink-4)" stopOpacity="0" />
         </linearGradient>
         {/* Fades the whole field into the ground at every edge, so it reads as
             light in the room rather than as a panel with borders. */}
@@ -77,7 +77,7 @@ export function CalibrationField({ bins }: { bins: CalibrationBin[] }) {
       <g mask="url(#fade)">
         {/* A faint measurement grid. */}
         {[0, 0.25, 0.5, 0.75, 1].map((v) => (
-          <g key={v} stroke="var(--lf-3)" strokeOpacity="0.14" strokeWidth="1">
+          <g key={v} stroke="var(--ink-4)" strokeOpacity="0.14" strokeWidth="1">
             <line x1={x(0)} x2={x(1)} y1={y(v)} y2={y(v)} />
             <line x1={x(v)} x2={x(v)} y1={y(0)} y2={y(1)} />
           </g>
@@ -104,7 +104,7 @@ export function CalibrationField({ bins }: { bins: CalibrationBin[] }) {
                 ...[...pts].reverse().map((b) => `L ${x(b.implied)} ${y(b.realized)}`),
                 "Z",
               ].join(" ")}
-              fill="var(--lf-3)"
+              fill="var(--ink-4)"
               fillOpacity="0.2"
             />
             <polyline
@@ -121,7 +121,7 @@ export function CalibrationField({ bins }: { bins: CalibrationBin[] }) {
         {pts.map((b) => (
           <g key={`${b.lo}-${b.hi}`}>
             <circle cx={x(b.implied)} cy={y(b.realized)} r={58} fill="url(#node-glow)" opacity={0.75} />
-            <circle cx={x(b.implied)} cy={y(b.realized)} r={3.5} fill="var(--lf-4)" opacity={1} />
+            <circle cx={x(b.implied)} cy={y(b.realized)} r={3.5} fill="var(--ink-3)" opacity={1} />
           </g>
         ))}
       </g>

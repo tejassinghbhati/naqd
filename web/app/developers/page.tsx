@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getSummary, API_BASE } from "@/lib/stats-server";
-import { Section, SectionHead, SiteFooter } from "@/components/site/parts";
+import { Band, Head, Footer } from "@/components/site/parts";
 
 export const metadata: Metadata = {
   title: "Developers",
@@ -56,10 +56,10 @@ export default async function ApiDocs() {
 
   return (
     <>
-      <Section>
-        <div className="page-head">
+      <Band rule={false} size="lg">
+        <div className="col-7 v5">
           <span className="eyebrow">Developers</span>
-          <h1 className="display page-title">
+          <h1 className="display">
             The event-contract API
             <br />
             that did not exist.
@@ -72,69 +72,69 @@ export default async function ApiDocs() {
             JSON over HTTP: no key, permissive CORS, and every figure recomputed from the
             venue&rsquo;s own settled history.
           </p>
-          <div className="row" style={{ marginTop: 4 }}>
+          <div className="h3f">
             <span className={`tag ${s ? "ok" : "warn"}`}>{s ? "ONLINE" : "OFFLINE"}</span>
-            <code className="mono xs dim">{API_BASE}</code>
+            <code className="mono small ink-3">{API_BASE}</code>
           </div>
         </div>
-      </Section>
+      </Band>
 
-      <Section tone="sunk">
-        <SectionHead eyebrow="Reference" title="Routes" />
-        <div className="stack" style={{ gap: 16 }}>
-          <div className="panel">
+      <Band fill>
+        <Head eyebrow="Reference" title="Routes" span="col-6" />
+        <div className="col-12" style={{ marginTop: "var(--s6)" }}>
+          <div className="card">
             {ROUTES.map((r, i) => (
               <div
                 key={r.path}
-                className="route-row"
-                style={{ borderTop: i === 0 ? "none" : "1px solid var(--glass-line)" }}
+                className="route"
+                style={{ borderTop: i === 0 ? "none" : "1px solid var(--rule)" }}
               >
                 <code className="mono sm" style={{ color: "var(--accent)" }}>
                   GET {r.path}
                 </code>
-                <span className="sm dim" style={{ lineHeight: 1.55 }}>
+                <span className="body-sm ink-3" style={{ lineHeight: 1.55 }}>
                   {r.what}
                 </span>
               </div>
             ))}
           </div>
-          <p className="xs dimmer measure">
+          <p className="small ink-4 measure">
             Responses are cached for 30 seconds. The statistical routes are memoised server-side
             because the edge report runs a 20,000-resample bootstrap, and the underlying store only
             changes when a backfill runs.
           </p>
         </div>
-      </Section>
+      </Band>
 
-      <Section>
-        <SectionHead eyebrow="Example" title="A single call" />
-        <div className="stack" style={{ gap: 16 }}>
-          <div className="panel panel-bd">
-            <pre className="mono xs code-block">{example}</pre>
+      <Band>
+        <Head eyebrow="Example" title="A single call" span="col-6" />
+        <div className="col-7 v5" style={{ marginTop: "var(--s6)" }}>
+          <div className="card card-bd">
+            <pre>{example}</pre>
           </div>
-          <p className="sm dim measure">
+          <p className="body-sm ink-3 measure">
             <strong>Read confidence as a size multiplier, not a probability.</strong> It scales with
             how far the near bound of the interval sits from zero, so a wide interval sizes small
             even when its centre looks attractive. At zero, the correct position is none.
           </p>
 
-          <div className="panel panel-bd" style={{ marginTop: 8 }}>
-            <pre className="mono code-block">{`git clone https://github.com/tejassinghbhati/event-contracts
+          <div className="card card-bd" style={{ marginTop: 8 }}>
+            <pre>{`git clone https://github.com/tejassinghbhati/event-contracts
 npm install
 
 npm run backfill   # pull the venue's full history  (~3 min)
 npm run api        # http://localhost:8787
 npm run web        # http://localhost:3000`}</pre>
           </div>
-          <p className="sm dimmer" style={{ lineHeight: 1.6 }}>
+          <p className="body-sm ink-4" style={{ lineHeight: 1.6 }}>
             The site rewrites <code>/api/stats/*</code> to the stats service, so the browser stays on
             one origin. Without it running, every price shows <strong>no fair value</strong> rather
             than a wrong one.
           </p>
         </div>
-      </Section>
+      </Band>
 
-      <SiteFooter asOf={s?.dataAsOf} />
+      <Footer asOf={s?.dataAsOf} />
     </>
   );
 }

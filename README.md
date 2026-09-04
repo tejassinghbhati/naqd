@@ -14,7 +14,7 @@ Built for the [Somnia × DreamDEX Event Contracts Hackathon](https://dorahacks.i
 
 </div>
 
-![Assay](docs/web-home-dark.png)
+![Assay](docs/web-home-light.png)
 
 > The hero backdrop is not decoration. It is the venue&rsquo;s real calibration curve rendered as
 > light: the diagonal of perfect pricing, and every price bucket sitting off it by exactly as much
@@ -200,7 +200,7 @@ flowchart TD
   class Q,P good
 ```
 
-![The agent's gate, evaluated live](docs/site-agent.png)
+![The agent gate, evaluated live](docs/web-agent-light.png)
 
 Condition 4 is the one that matters. Condition 2 alone fires by chance about one window in twenty;
 requiring the long-run estimate to point the same way is what separates a regime from a run of luck,
@@ -214,17 +214,20 @@ A Next.js 15 application on the App Router, four routes sharing one design syste
 
 ### Design
 
-A monochrome light field with dark glass over it. One cool hue family carries all the atmosphere;
-everything structural is ink, hairline and glass. Three rules hold it together:
+An assay office publishes reports; a trading desk operates instruments. Those are different jobs, so
+they get different registers - deliberately. The publication surfaces are light, editorial and set
+on a strict grid. The terminal is dark and dense, because that is what a desk is.
 
-- **Colour is nearly absent from the chrome.** The cyan-steel family is *light*, never information.
-  That is what lets the two validated data poles stay legible - they are the only real colour on
-  screen, so a red or blue mark always means something.
-- **Type is split by voice.** An assay office publishes reports, so research and marketing speak in
-  Instrument Serif with editorial weight. The desk trades, so the terminal is mono and sans
-  throughout. Same product, two registers, deliberately.
-- **Panels are glass over the field**, not opaque boxes on a flat ground: one hairline and a faint
-  inner highlight, no stacked shadows.
+Three rules hold it together, and they live in [`web/app/system.css`](web/app/system.css):
+
+- **Nothing is an arbitrary number.** Every space is a step on a 4px scale, every size a step on a
+  major-third type ramp. The component sheet contains zero literal spacing or font-size values; if
+  something needs a value off-scale, the scale changes rather than the component.
+- **Colour belongs to data.** Interaction is ink - near-black, underlined - so the only hues on a
+  page are the two CVD-validated data poles and the reserved status set. A site where the buttons
+  are blue and the charts are blue has taught the reader nothing.
+- **One twelve-column grid, shared by every section.** Sections that each centre their own container
+  look assembled; sections that share a grid look designed.
 
 | Route | What it is |
 |---|---|
@@ -245,7 +248,7 @@ A trading client that puts the measurement next to the money. Connect a wallet, 
 open windows with live countdowns and books, and trade - with Assay's fair value and a
 **RICH / CHEAP / IN LINE** badge beside every price.
 
-![Assay Terminal, light theme](docs/web-terminal-light.png)
+![The trading desk](docs/web-terminal-dark.png)
 
 ![Connecting a wallet](docs/wallet-modal.png)
 

@@ -13,6 +13,7 @@
 
 import type { CalibrationBin } from "@/lib/assay";
 import type { Estimate, WeeklyEdge, SeriesRow } from "@/lib/stats-server";
+import { cadence } from "@/lib/format";
 
 const cents = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(2)}¢`;
 const pct = (x: number, d = 1) => `${(x * 100).toFixed(d)}%`;
@@ -79,7 +80,7 @@ export function CalibrationCurve({ bins }: { bins: CalibrationBin[] }) {
               strokeOpacity={0.45}
               strokeLinecap="round"
             />
-            <circle cx={x(b.implied)} cy={y(b.realized)} r={5.5} fill={color} stroke="var(--panel)" strokeWidth={2}>
+            <circle cx={x(b.implied)} cy={y(b.realized)} r={5.5} fill={color} stroke="var(--paper)" strokeWidth={2}>
               <title>
                 {`${b.lo.toFixed(1)}-${b.hi.toFixed(1)}: ${b.n} markets, implied ${b.implied.toFixed(3)}, realized ${b.realized.toFixed(3)}, error ${cents(b.error)}`}
               </title>
@@ -142,7 +143,7 @@ export function ForestPlot({ rows }: { rows: ForestRow[] }) {
             {r.ci.map((b, j) => (
               <line key={j} x1={x(b)} x2={x(b)} y1={yy - 6} y2={yy + 6} stroke={color} strokeWidth={2} />
             ))}
-            <circle cx={x(r.mean)} cy={yy} r={6} fill={color} stroke="var(--panel)" strokeWidth={2} />
+            <circle cx={x(r.mean)} cy={yy} r={6} fill={color} stroke="var(--paper)" strokeWidth={2} />
             <text className="axis-text" x={10} y={yy - 9} fontWeight={600} fill="var(--ink)">
               {r.label}
             </text>
@@ -233,12 +234,12 @@ export function CoverageBars({ series }: { series: SeriesRow[] }) {
         const yy = m.t + i * rowH + 10;
         return (
           <g key={`${s.asset}-${s.intervalSec}`}>
-            <rect x={m.l} y={yy} width={iw} height={17} rx={2} fill="var(--sunk)" />
+            <rect x={m.l} y={yy} width={iw} height={17} rx={2} fill="var(--paper-3)" />
             <rect x={m.l} y={yy} width={Math.max(2, s.coverage * iw)} height={17} rx={2} fill="var(--accent)">
-              <title>{`${s.asset} ${s.intervalSec / 60}m: ${s.traded} of ${s.markets} traded`}</title>
+              <title>{`${s.asset} ${cadence(s.intervalSec)}: ${s.traded} of ${s.markets} traded`}</title>
             </rect>
             <text className="axis-text" x={10} y={yy + 13} fill="var(--ink)">
-              {s.asset} {s.intervalSec >= 3600 ? `${s.intervalSec / 3600}h` : `${s.intervalSec / 60}m`}
+              {s.asset} {cadence(s.intervalSec)}
             </text>
             <text className="axis-text" x={m.l + iw + 9} y={yy + 13}>
               {pct(s.coverage)}
@@ -263,21 +264,21 @@ export function EdgeGauge({ estimate, point }: { estimate: Estimate; point: numb
   const wash = crosses ? "var(--warn-a)" : point < 0 ? "var(--down-a)" : "var(--up-a)";
 
   return (
-    <div className="row" style={{ gap: 10, flexWrap: "nowrap" }}>
-      <span className="lbl" style={{ letterSpacing: "0.06em" }}>{cents(lo)}</span>
+    <div className="h3f" style={{ flexWrap: "nowrap" }}>
+      <span className="mono small ink-3">{cents(lo)}</span>
       <div
         style={{
           position: "relative",
           height: 26,
           flex: "1 1 auto",
           minWidth: 140,
-          background: "var(--sunk)",
-          border: "1px solid var(--glass-line)",
+          background: "var(--paper-3)",
+          border: "1px solid var(--rule)",
           borderRadius: 2,
         }}
         title={`95% CI [${cents(lo)}, ${cents(hi)}], point ${cents(point)}`}
       >
-        <span style={{ position: "absolute", top: -3, bottom: -3, width: 1, background: "var(--ink-4)", left: `${pos(0)}%` }} />
+        <span style={{ position: "absolute", top: -3, bottom: -3, width: 1, background: "var(--ink-3)", left: `${pos(0)}%` }} />
         <span
           style={{
             position: "absolute",
@@ -292,7 +293,7 @@ export function EdgeGauge({ estimate, point }: { estimate: Estimate; point: numb
         />
         <span style={{ position: "absolute", top: 3, width: 2, height: 18, background: color, left: `${pos(point)}%` }} />
       </div>
-      <span className="lbl" style={{ letterSpacing: "0.06em" }}>{cents(hi)}</span>
+      <span className="mono small ink-3">{cents(hi)}</span>
     </div>
   );
 }
