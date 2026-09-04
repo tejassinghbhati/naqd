@@ -9,6 +9,44 @@
   Tokens all come from globals.css, so the two surfaces cannot drift apart.
 */
 
+/*
+  The desk is always dark, whatever the site theme is set to.
+
+  This is the premise in system.css made real rather than merely described: a
+  publication is a sheet of paper and an instrument is not, and a trading
+  surface you sit in front of for an hour should not be a white page. Redefining
+  the tokens on `.terminal` means every component inside it - including ones
+  shared with the publication - picks up the dark set without a single
+  component needing to know which surface it is on.
+*/
+.terminal {
+  --paper: #0f1114;
+  --paper-2: #15181c;
+  --paper-3: #1b1f24;
+  --ink: #edeeec;
+  --ink-2: #b0b5bb;
+  --ink-3: #7d838b;
+  --ink-4: #575d64;
+  --rule: #23272c;
+  --rule-2: #343a41;
+  --up: #4a97cc;
+  --down: #d2714f;
+  --up-a: rgba(74, 151, 204, 0.14);
+  --down-a: rgba(210, 113, 79, 0.14);
+  --up-flash: rgba(74, 151, 204, 0.28);
+  --down-flash: rgba(210, 113, 79, 0.28);
+  --ok: #5fa37d;
+  --warn: #c79a3e;
+  --warn-a: rgba(199, 154, 62, 0.1);
+  --bad: #e0755c;
+  --bad-a: rgba(224, 117, 92, 0.09);
+  --focus: #6fb3e0;
+
+  background: var(--paper);
+  color: var(--ink);
+}
+
+
 .terminal {
   display: flex;
   flex-direction: column;
@@ -343,3 +381,17 @@ button.link {
 .terminal .dim { color: var(--ink-3); }
 .terminal .dimmer { color: var(--ink-4); }
 .terminal .rowf { display: flex; align-items: center; gap: var(--s2); }
+
+/* The nav belongs to whichever surface is under it. On the desk that is dark,
+   so the route pins it too - otherwise a light bar floats over a dark room. */
+body:has(.terminal) .nav {
+  --paper: #0f1114;
+  --paper-2: #15181c;
+  --ink: #edeeec;
+  --ink-2: #b0b5bb;
+  --ink-3: #7d838b;
+  --rule: #23272c;
+  --rule-2: #343a41;
+  background: var(--paper);
+  border-bottom-color: var(--rule);
+}

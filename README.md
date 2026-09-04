@@ -14,7 +14,7 @@ Built for the [Somnia × DreamDEX Event Contracts Hackathon](https://dorahacks.i
 
 </div>
 
-![Assay](docs/web-home-light.png)
+![Assay](docs/web-home.png)
 
 > The hero backdrop is not decoration. It is the venue&rsquo;s real calibration curve rendered as
 > light: the diagonal of perfect pricing, and every price bucket sitting off it by exactly as much
@@ -200,7 +200,7 @@ flowchart TD
   class Q,P good
 ```
 
-![The agent gate, evaluated live](docs/web-agent-light.png)
+![The agent gate, evaluated live](docs/web-agent.png)
 
 Condition 4 is the one that matters. Condition 2 alone fires by chance about one window in twenty;
 requiring the long-run estimate to point the same way is what separates a regime from a run of luck,
@@ -228,6 +228,9 @@ Three rules hold it together, and they live in [`web/app/system.css`](web/app/sy
   are blue and the charts are blue has taught the reader nothing.
 - **One twelve-column grid, shared by every section.** Sections that each centre their own container
   look assembled; sections that share a grid look designed.
+- **One typeface.** A grotesk carries every level from display to caption, with mono for numbers.
+  There is no display serif, so hierarchy has to come from size, weight and space rather than from
+  decorative contrast, which is the harder and quieter way to do it.
 
 | Route | What it is |
 |---|---|
@@ -248,7 +251,7 @@ A trading client that puts the measurement next to the money. Connect a wallet, 
 open windows with live countdowns and books, and trade - with Assay's fair value and a
 **RICH / CHEAP / IN LINE** badge beside every price.
 
-![The trading desk](docs/web-terminal-dark.png)
+![The trading desk](docs/web-terminal.png)
 
 ![Connecting a wallet](docs/wallet-modal.png)
 

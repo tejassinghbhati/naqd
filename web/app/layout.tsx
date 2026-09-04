@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Sans, Instrument_Serif, IBM_Plex_Mono } from "next/font/google";
+import { Schibsted_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { Nav } from "@/components/nav";
 import { WalletProvider } from "@/components/wallet/WalletProvider";
 import "./system.css";
@@ -9,20 +9,16 @@ import "./wallet.css";
 
 // Self-hosted through next/font: no render-blocking request to a font CDN, and
 // no layout shift while a fallback swaps out.
-const sans = Instrument_Sans({
+// One family for everything. A display serif beside a text sans is a
+// contrast the page has to earn; without it the type system is quieter and
+// there is one voice to get right instead of two. Numbers stay monospaced.
+const sans = Schibsted_Grotesk({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-sans",
   display: "swap",
 });
 
-// The display voice. An assay office publishes reports, so the research
-// surfaces speak in a serif with editorial weight; the terminal stays mono.
-const serif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-serif",
-  display: "swap",
-});
 const mono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
@@ -63,7 +59,7 @@ try {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${serif.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
       </head>
