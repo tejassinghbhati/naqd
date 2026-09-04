@@ -372,6 +372,10 @@ npm run web          # http://localhost:3000  the Next.js app
 Next rewrites `/api/stats/*` to the stats service, so the browser stays on one origin. Without the
 stats service running, every price simply shows **no fair value** rather than a wrong one.
 
+If port 3000 is busy the app moves to the next free one and prints where it went. If 8787 is busy
+the API stops and tells you what to do, because moving it silently would leave the app pointed at
+whatever else is answering there. Run it elsewhere with `PORT=8788 ASSAY_API=http://localhost:8788`.
+
 ```bash
 npm test             # 13 tests over the quoting policy and the statistics
 npm run verify       # re-derive every number quoted in this README

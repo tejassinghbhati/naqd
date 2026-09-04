@@ -233,6 +233,27 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
   }
 });
 
+/*
+  A busy port is the single most common way this fails to start, and the default
+  failure is an EADDRINUSE stack trace that says nothing about what to do. It is
+  almost always a previous run of this same server that was never stopped.
+*/
+server.on("error", (e: NodeJS.ErrnoException) => {
+  if (e.code !== "EADDRINUSE") throw e;
+  console.error(`Port ${port} is already in use, so the API did not start.`);
+  console.error("Something is already listening there - usually an earlier run of this server.");
+  console.error("Stop it, or start this one somewhere else:");
+  console.error(`  PORT=8788 npm run api`);
+  console.error("");
+  console.error("To find what is holding the port:");
+  console.error(
+    process.platform === "win32"
+      ? `  Get-NetTCPConnection -LocalPort ${port} -State Listen | Select-Object OwningProcess`
+      : `  lsof -i :${port}`,
+  );
+  process.exit(1);
+});
+
 server.listen(port, () => {
   console.log(`assay api - ${network} - http://localhost:${port}`);
   console.log(`  store ${dbPath}  venue ${venueId.slice(0, 10)}...`);
