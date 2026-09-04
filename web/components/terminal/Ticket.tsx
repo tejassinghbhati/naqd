@@ -115,7 +115,6 @@ export function Ticket({
       await placeOrder({
         cfg,
         exchange,
-        market: market.raw,
         onchain,
         outcome,
         probability: price,
@@ -295,6 +294,19 @@ export function Ticket({
           <div className="notice ok">
             <span className="ic">✓</span>
             <span>{done}</span>
+          </div>
+        )}
+
+        {/* Which chain this signature lands on, stated before the button rather
+            than in a header the eye has already left. The desk reads mainnet by
+            default because that is where the markets are; signing there spends
+            real collateral, and that should never be inferred. */}
+        {connected && (
+          <div className={`signs-on ${cfg.network}`}>
+            <span className="lbl">Signs on</span>
+            <span className="v">
+              {cfg.network === "mainnet" ? "Somnia mainnet · real USDso" : "Shannon testnet · tUSDC"}
+            </span>
           </div>
         )}
 

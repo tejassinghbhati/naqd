@@ -19,7 +19,17 @@
   shared with the publication - picks up the dark set without a single
   component needing to know which surface it is on.
 */
-.terminal {
+/*
+  The desk palette.
+
+  Declared once and applied to every surface that sits on the desk: the desk
+  itself, the nav above it, and the wallet dialog over it. Each of those used to
+  carry its own copy, which is exactly how the connect dialog ended up rendering
+  a near-white scrim over a black terminal.
+*/
+.terminal,
+body:has(.terminal) .nav,
+body:has(.terminal) .modal-scrim {
   --paper: #0f1114;
   --paper-2: #15181c;
   --paper-3: #1b1f24;
@@ -385,13 +395,36 @@ button.link {
 /* The nav belongs to whichever surface is under it. On the desk that is dark,
    so the route pins it too - otherwise a light bar floats over a dark room. */
 body:has(.terminal) .nav {
-  --paper: #0f1114;
-  --paper-2: #15181c;
-  --ink: #edeeec;
-  --ink-2: #b0b5bb;
-  --ink-3: #7d838b;
-  --rule: #23272c;
-  --rule-2: #343a41;
   background: var(--paper);
   border-bottom-color: var(--rule);
+  /* Redefining the tokens is not enough on its own: the nav sets no colour of
+     its own, so without this it keeps inheriting the light ink computed on
+     body and the wordmark goes black-on-black. */
+  color: var(--ink);
 }
+
+/* The desk is already near-black, so the publication's 72% scrim over it leaves
+   nothing to see behind the dialog. Lighter here, and the blur does the rest. */
+body:has(.terminal) .modal-scrim {
+  color: var(--ink);
+  background: color-mix(in srgb, #05070a 46%, transparent);
+}
+
+/* The network a signature will land on. Stated at the point of action, because
+   a chain name in the header is not something anyone re-reads before pressing
+   a button that spends money. */
+.terminal .signs-on {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--rule);
+  border-left-width: var(--hair-2);
+  font-size: var(--t1);
+}
+.terminal .signs-on .lbl { color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; }
+.terminal .signs-on .v { font-family: var(--mono); color: var(--ink-2); }
+.terminal .signs-on.mainnet { border-left-color: var(--warn); }
+.terminal .signs-on.mainnet .v { color: var(--warn); }
+.terminal .signs-on.testnet { border-left-color: var(--ink-4); }

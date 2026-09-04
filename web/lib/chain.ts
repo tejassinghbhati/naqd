@@ -96,9 +96,18 @@ export const NETWORKS: Record<Network, NetworkConfig> = {
 };
 
 /**
- * Default to testnet: a consumer app that opens straight onto real money is the
- * wrong default, and the hackathon demo runs there anyway. `?network=mainnet`
- * overrides it.
+ * Default to mainnet, because that is where the markets are.
+ *
+ * The instinct is to open a trading surface on testnet, and this did. But the
+ * testnet indexer carries no populated binary markets, so the terminal opened
+ * on an empty desk - which teaches a first-time visitor nothing except that the
+ * thing does not work. Mainnet is also where every figure on this site is
+ * measured from, so reading it here is consistent with the rest.
+ *
+ * Reading is not trading. Placing an order still needs a wallet connected, the
+ * collateral approved and a signature, and the ticket says plainly which
+ * network it is about to sign against. `?network=testnet` opens on the desk
+ * where the faucet works.
  *
  * Guarded against a missing `location` so this module can be imported outside a
  * browser - the data layer below it is plain async functions, and being able to
@@ -106,9 +115,9 @@ export const NETWORKS: Record<Network, NetworkConfig> = {
  */
 export const DEFAULT_NETWORK: Network =
   typeof location !== "undefined" &&
-  new URLSearchParams(location.search).get("network") === "mainnet"
-    ? "mainnet"
-    : "testnet";
+  new URLSearchParams(location.search).get("network") === "testnet"
+    ? "testnet"
+    : "mainnet";
 
 /** On-chain MarketStatus. Only `Trading` accepts orders. */
 export const MARKET_STATUS = {

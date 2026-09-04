@@ -16,7 +16,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: var(--s5);
   background: color-mix(in srgb, var(--paper) 72%, transparent);
   backdrop-filter: blur(6px);
   animation: scrim-in 0.14s ease-out;
