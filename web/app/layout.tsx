@@ -14,7 +14,7 @@ import "./wallet.css";
 // there is one voice to get right instead of two. Numbers stay monospaced.
 const sans = Schibsted_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-sans",
   display: "swap",
 });

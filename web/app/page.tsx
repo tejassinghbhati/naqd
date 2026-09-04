@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSummary } from "@/lib/stats-server";
 import { EdgeGauge, ForestPlot, type ForestRow } from "@/components/charts";
 import { HeroLive } from "@/components/hero-live";
+import { Ribbon } from "@/components/ribbon";
 import { OfflineNotice } from "@/components/offline-notice";
 import { Band, Head, Figures, Cta, Footer } from "@/components/site/parts";
 
@@ -50,59 +51,72 @@ export default async function Landing() {
       {/* ------------------------------------------------------------- Hero */}
       <section className="hero">
         <div className="grid">
-          <div className="col-6 v6">
-            <div className="v5">
-              <span className="eyebrow">Assay office · DreamDEX event contracts</span>
-              <h1 className="display hero-title">Trust, but assay.</h1>
-              <p className="prose">
-                An assay office tests metal for what it is genuinely made of. We do that to prices.
-                DreamDEX settles a BTC and an ETH contract every fifteen minutes, which makes this the
-                one venue where you can measure whether a quote is <em>truly calibrated</em> &mdash;
-                continuously, across thousands of resolved outcomes.
-              </p>
+          <div className="col-12 hero-stack">
+            <span className="eyebrow">Assay office · DreamDEX event contracts</span>
+            <h1 className="display">Trust, but assay.</h1>
+            <p className="prose hero-lede">
+              An assay office tests metal for what it is genuinely made of. We do that to prices,
+              across every event contract this venue settles.
+            </p>
+            <div className="h3f">
+              <Link href="/research" className="btn btn-pill btn-pill-lg">
+                Read the assay
+              </Link>
+              <Link href="/terminal" className="btn btn-ghost btn-lg">
+                Open the terminal
+              </Link>
             </div>
-            <Cta href="/research">Read the assay</Cta>
-          </div>
-
-          <div className="col-5 start-8 v5">
-            <HeroLive stats={s} />
-
-            {s ? (
-              <div className="reading">
-                <div className="between">
-                  <span className="eyebrow">Standing reading</span>
-                  <span className="h2f">
-                    <span className={`dot ${s.live.verdict === "trade" ? "live" : "warn"}`} />
-                    <span
-                      className="mono micro"
-                      style={{ color: s.live.verdict === "trade" ? "var(--ok)" : "var(--warn)" }}
-                    >
-                      {s.live.verdict === "trade" ? "EDGE PRESENT" : "NO EDGE"}
-                    </span>
-                  </span>
-                </div>
-                <EdgeGauge estimate={s.live.recent} point={s.live.edge} />
-                <dl className="reading-facts">
-                  <div>
-                    <dt className="eyebrow">Assayed</dt>
-                    <dd>{num(s.baseRate.n)}</dd>
-                  </div>
-                  <div>
-                    <dt className="eyebrow">Window</dt>
-                    <dd>{s.live.windowDays}d</dd>
-                  </div>
-                  <div>
-                    <dt className="eyebrow">Brier</dt>
-                    <dd>{s.calibration.brierSkill.toFixed(3)}</dd>
-                  </div>
-                </dl>
-              </div>
-            ) : (
-              <OfflineNotice />
-            )}
           </div>
         </div>
+
+        {/* The measurement, swept into a surface. Its bend is the venue's
+            calibration error, exaggerated for scale but true in shape. */}
+        <div className="ribbon-wrap">
+          <Ribbon bins={s?.calibration.byMarket ?? []} />
+        </div>
       </section>
+
+      {/* -------------------------------------------------------- Live strip */}
+      <Band rule={false} size="sm">
+        <div className="col-6 v5">
+          <HeroLive stats={s} />
+        </div>
+        <div className="col-5 start-8 v5">
+          {s ? (
+            <div className="reading">
+              <div className="between">
+                <span className="eyebrow">Standing reading</span>
+                <span className="h2f">
+                  <span className={`dot ${s.live.verdict === "trade" ? "live" : "warn"}`} />
+                  <span
+                    className="mono micro"
+                    style={{ color: s.live.verdict === "trade" ? "var(--ok)" : "var(--warn)" }}
+                  >
+                    {s.live.verdict === "trade" ? "EDGE PRESENT" : "NO EDGE"}
+                  </span>
+                </span>
+              </div>
+              <EdgeGauge estimate={s.live.recent} point={s.live.edge} />
+              <dl className="reading-facts">
+                <div>
+                  <dt className="eyebrow">Assayed</dt>
+                  <dd>{num(s.baseRate.n)}</dd>
+                </div>
+                <div>
+                  <dt className="eyebrow">Window</dt>
+                  <dd>{s.live.windowDays}d</dd>
+                </div>
+                <div>
+                  <dt className="eyebrow">Brier</dt>
+                  <dd>{s.calibration.brierSkill.toFixed(3)}</dd>
+                </div>
+              </dl>
+            </div>
+          ) : (
+            <OfflineNotice />
+          )}
+        </div>
+      </Band>
 
       {/* ---------------------------------------------------------- Problem */}
       <Band fill>
@@ -152,7 +166,7 @@ export default async function Landing() {
                   {
                     n: "01",
                     h: "It looks obvious",
-                    p: `Pooled across every fill, UP is overpriced by ${cents(Math.abs(s.edge.naive.mean))} at t = ${s.edge.naive.t.toFixed(2)}. Publishable, on the face of it.`,
+                    p: `Pooled across every fill, UP is overpriced by ${(Math.abs(s.edge.naive.mean) * 100).toFixed(2)}¢ at t = ${s.edge.naive.t.toFixed(2)}. Publishable, on the face of it.`,
                   },
                   {
                     n: "02",
@@ -216,7 +230,7 @@ export default async function Landing() {
           <p className="col-6 body-sm" style={{ marginTop: "var(--s5)" }}>
             Two of these shaped everything we built. The underlying is a coin flip, so any edge has to
             come from the price being wrong rather than the asset moving. And the passive side is the
-            one that wins, thinly, on a venue that charges no fees at all &mdash; so every order we
+            one that wins, thinly, on a venue that charges no fees at all, so every order we
             place is post-only.
           </p>
         </Band>

@@ -88,7 +88,7 @@ export default async function AgentPage() {
       <Band rule={false} size="lg">
         <div className="col-7 v5">
           <span className="eyebrow">The agent</span>
-          <h1 className="display">Its default state is to do nothing.</h1>
+          <h1 className="display display-sm">Its default state is to do nothing.</h1>
           <p className="prose">
             Most trading bots are sold on what they do when they fire. The interesting engineering
             here is the opposite: four conditions that must all hold before this one places a single

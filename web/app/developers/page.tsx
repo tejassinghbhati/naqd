@@ -59,14 +59,14 @@ export default async function ApiDocs() {
       <Band rule={false} size="lg">
         <div className="col-7 v5">
           <span className="eyebrow">Developers</span>
-          <h1 className="display">
+          <h1 className="display display-sm">
             The event-contract API
             <br />
             that did not exist.
           </h1>
           <p className="prose">
             DreamDEX&rsquo;s own documentation is explicit that{" "}
-            <em>&ldquo;the HTTP API covers spot only &mdash; no event-contract endpoints&rdquo;</em>.
+            <em>&ldquo;the HTTP API covers spot only, with no event-contract endpoints&rdquo;</em>.
             Anything wanting this data today has to run the TypeScript SDK and hold a viem client,
             which rules out a Python notebook, a Grafana panel, or a phone. Assay serves it as plain
             JSON over HTTP: no key, permissive CORS, and every figure recomputed from the
