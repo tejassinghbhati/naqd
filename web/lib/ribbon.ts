@@ -51,8 +51,15 @@ const HALF = norm(add(KEY, VIEW));
 /** Quantised diffuse steps. Index 0 is the brightest facet, 11 the darkest. */
 export const STEPS = 12;
 
-/** How wide the finished object is relative to its height. */
-export const ASPECT = 2.85;
+/**
+ * How wide the finished object is relative to its height.
+ *
+ * This is a layout number, not a drawing one: it decides how much vertical room
+ * the hero has to find. At 2.85 the object was 674px tall on a 1920x1010 screen
+ * and a third of it fell below the fold, which meant none of the material work
+ * was visible without scrolling.
+ */
+export const ASPECT = 3.45;
 
 const N = 100;
 /** Strips across the band's width. See BOW. */
@@ -270,11 +277,17 @@ export function drawFrame(
     return [x, p[1] * cp - z0 * sp, p[1] * sp + z0 * cp];
   };
 
-  const sx = w / geom.vw;
-  const sc = h / geom.vh;
+  // Cover, on a UNIFORM scale. Fitting each axis independently would let a
+  // canvas whose box does not match the geometry's own aspect stretch the
+  // object, and a stretched reflection stops looking like a reflection. Scaling
+  // to the larger of the two and centring lets the sweep bleed further off the
+  // sides instead, which is what it is built to do.
+  const sc = Math.max(w / geom.vw, h / geom.vh);
+  const ox = (w - geom.vw * sc) / 2;
+  const oy = (h - geom.vh * sc) / 2;
   const toPx = (p: V3): [number, number] => {
     const [px, py] = project(p);
-    return [(px - geom.vx) * sx, (py - geom.vy) * sc];
+    return [(px - geom.vx) * sc + ox, (py - geom.vy) * sc + oy];
   };
 
   // Turn every station once, then reuse. Rotating inside the quad loop would

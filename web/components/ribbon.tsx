@@ -53,10 +53,12 @@ export function Ribbon({ bins }: { bins: CalibrationBin[] }) {
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = box.clientWidth;
-      h = Math.round(w / ASPECT);
+      // Read the box back from CSS rather than deriving it, so the responsive
+      // aspect-ratio rule is the single source of truth for how tall the
+      // object is at a given width.
+      h = Math.round(el.getBoundingClientRect().height) || Math.round(w / ASPECT);
       el.width = Math.round(w * dpr);
       el.height = Math.round(h * dpr);
-      el.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
