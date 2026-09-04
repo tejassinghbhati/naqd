@@ -71,9 +71,7 @@ export default async function Landing() {
 
         {/* The measurement, swept into a surface. Its bend is the venue's
             calibration error, exaggerated for scale but true in shape. */}
-        <div className="ribbon-wrap">
-          <Ribbon bins={s?.calibration.byMarket ?? []} />
-        </div>
+        <Ribbon bins={s?.calibration.byMarket ?? []} />
       </section>
 
       {/* -------------------------------------------------------- Live strip */}
