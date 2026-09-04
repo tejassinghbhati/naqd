@@ -79,7 +79,7 @@ export default async function Research() {
             Measured on <strong>{num(s.baseRate.n)} resolved binary markets</strong> from the mainnet
             venue <code>{s.venueId.slice(0, 10)}…</code>, of which {num(s.edge.clustered.n)} traded,
             carrying {num(s.edge.naive.n)} fills. Every number below is recomputed from that history
-            on each request &mdash; nothing here is a screenshot or a stored claim.
+            on each request. Nothing here is a screenshot or a stored claim.
           </p>
         </div>
       </Band>
@@ -137,8 +137,8 @@ export default async function Research() {
             <p className="prose">
               Plotting what the venue charged against what actually happened gives a calibration
               curve. Perfect pricing lies on the diagonal. This venue is well clear of a coin flip
-              &mdash; Brier skill <strong>{s.calibration.brierSkill.toFixed(3)}</strong> against an
-              always-50% forecaster &mdash; but it bends away from the diagonal at both ends.
+              (Brier skill <strong>{s.calibration.brierSkill.toFixed(3)}</strong> against an
+              always-50% forecaster), but it bends away from the diagonal at both ends.
             </p>
             <div className="card card-bd">
               <figure>
@@ -165,7 +165,7 @@ export default async function Research() {
           <Finding n="03" title="Most of that curve is the clock, not skill">
             <p className="prose">
               Scoring a market by its volume-weighted price mixes trades from its whole life
-              together &mdash; including ones placed seconds before expiry, when the outcome is nearly
+              together, including ones placed seconds before expiry, when the outcome is nearly
               decided. Score each fill separately by how much of the window remained and the
               dramatic S-shape flattens out. <strong>This check is the difference between a real
               finding and an artifact of aggregation.</strong>
@@ -220,7 +220,7 @@ export default async function Research() {
               <figure>
                 <ForestPlot rows={forest} />
                 <figcaption>
-                  The point estimate barely moves. The <em>interval</em> is what changes &mdash; and the
+                  The point estimate barely moves. The <em>interval</em> is what changes, and the
                   interval is what decides whether there is anything to trade.
                 </figcaption>
               </figure>
@@ -277,7 +277,7 @@ export default async function Research() {
           <Finding n="06" title="Makers get paid, takers do not">
             <p className="prose">
               Settled PnL split by which side of the trade a wallet was on. The venue charges no
-              fees, so this is purely the spread changing hands &mdash; which makes it a direct read on
+              fees, so this is purely the spread changing hands, which makes it a direct read on
               whether liquidity provision is currently rewarded. It is.
             </p>
             <div className="grid-2">

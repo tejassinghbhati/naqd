@@ -139,14 +139,14 @@ export function AccountMenu({
               <div className="acct-bals">
                 <div className="acct-bal-row">
                   <span className="eyebrow">{cfg.collateralSymbol}</span>
-                  <span className="mono">{balances ? fmt(balances.collateral) : "—"}</span>
+                  <span className="mono">{balances ? fmt(balances.collateral) : "–"}</span>
                 </div>
                 <div className="acct-bal-row">
                   <span className="eyebrow">
                     {cfg.chain.nativeCurrency.symbol} <span className="ink-4">gas</span>
                   </span>
                   <span className="mono" style={{ color: balances?.lowGas ? "var(--warn)" : undefined }}>
-                    {balances ? fmt(balances.native, 4) : "—"}
+                    {balances ? fmt(balances.native, 4) : "–"}
                   </span>
                 </div>
               </div>
