@@ -170,7 +170,7 @@ export default async function Research() {
               dramatic S-shape flattens out. <strong>This check is the difference between a real
               finding and an artifact of aggregation.</strong>
             </p>
-            <div className="grid" style={{ padding: 0, maxWidth: "none" }}>
+            <div className="card-row">
               {s.calibration.byTimeToExpiry.map((ph) => (
                 <div key={ph.phase} className="card">
                   <div className="card-hd">

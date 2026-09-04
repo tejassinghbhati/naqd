@@ -56,8 +56,19 @@
 }
 .nav .spacer { flex: 1 1 auto; }
 @media (max-width: 720px) {
-  .nav-inner { gap: var(--s4); }
-  .nav-links a { padding: var(--s2); font-size: var(--t2); }
+  .nav-inner { gap: var(--s3); }
+  .nav-links { gap: 0; }
+  .nav-links a { padding: var(--s2) var(--s1); font-size: var(--t2); }
+}
+/*
+  Below this the row genuinely cannot hold five links, a wordmark, a wallet
+  button and a theme control. The links go, because they are the only item with
+  a second route to it: every one of them is also a card further down the page.
+  Hiding the wallet button instead would hide the thing the page is for.
+*/
+@media (max-width: 560px) {
+  .nav-links { display: none; }
+  .brand-name { font-size: var(--t4); }
 }
 
 /* =============================================================================
@@ -115,6 +126,11 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   position: relative;
   display: inline-flex;
   align-items: baseline;
+  /* An inline-flex row does not wrap by default, so a long label pushed the
+     trailing arrow past the viewport edge and the whole page scrolled
+     sideways. */
+  flex-wrap: wrap;
+  max-width: 100%;
   gap: var(--s2);
   font-size: var(--t4);
   font-weight: 500;
@@ -264,6 +280,22 @@ input[type=number] { -moz-appearance: textfield; }
    ============================================================================= */
 
 table { border-collapse: collapse; width: 100%; }
+/*
+  Wide content scrolls inside its own box, never by taking the page with it.
+
+  A table's intrinsic minimum is the widest cell it holds, so on a phone one
+  statistics table put the whole document into horizontal scroll - and a page
+  that slides sideways under your thumb reads as broken long before anyone
+  works out which element did it.
+
+  The container does the scrolling, not the table. Setting overflow on the
+  table itself means setting `display: block` too, which drops it out of table
+  layout: half of these collapsed to five pixels wide and the rest still
+  overflowed, because their card had already grown to fit them.
+
+  Scoped away from the desk, whose panels already clip.
+*/
+body:not(:has(.terminal)) .card { overflow-x: auto; min-width: 0; }
 thead th {
   font-family: var(--mono);
   font-size: var(--t1);
@@ -354,7 +386,10 @@ pre code { background: none; border: 0; padding: 0; }
 }
 .seq-item:last-child { border-bottom: 1px solid var(--rule); }
 .seq-n { font-family: var(--mono); font-size: var(--t2); letter-spacing: 0.1em; color: var(--ink-4); padding-top: var(--s1); }
-@media (max-width: 640px) { .seq-item { grid-template-columns: 1fr; gap: var(--s2); } }
+/* minmax(0, 1fr), never a bare 1fr: a 1fr track's automatic minimum is its
+   CONTENT, so one wide child stretches the track past its container and takes
+   the page sideways. Same trap the page grid is built to avoid. */
+@media (max-width: 640px) { .seq-item { grid-template-columns: minmax(0, 1fr); gap: var(--s2); } }
 
 /* =============================================================================
    Charts
@@ -429,39 +464,63 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
    else on the page is left-aligned to the grid, which is what makes this one
    moment read as the opening rather than as more layout. */
 .hero {
-  padding-block: var(--s9) 0;
+  padding-block: var(--s7) 0;
   text-align: center;
   overflow: hidden;
 }
-@media (max-width: 820px) { .hero { padding-block: var(--s7) 0; } }
+@media (max-width: 820px) { .hero { padding-block: var(--s6) 0; } }
 
 .hero-stack {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--s5);
+  gap: var(--s4);
 }
 /* Only the headline is set narrow. Constraining the whole stack would also
    squeeze the eyebrow and the lede, which need different measures. */
 .hero-stack .display { max-width: 15ch; }
-.hero-lede { max-width: 46ch; text-align: center; }
-.hero-stack .h3f { justify-content: center; margin-top: var(--s2); }
+.hero-lede { max-width: 58ch; text-align: center; }
+.hero-stack .h3f { justify-content: center; margin-top: var(--s1); }
 
 /* The ribbon is allowed past the grid on both sides: a sculptural object that
    stops neatly at a container edge stops reading as an object. */
 .ribbon-wrap {
-  margin-top: var(--s6);
+  margin-top: var(--s3);
   width: 100vw;
   margin-inline: calc(50% - 50vw);
   pointer-events: none;
 }
-@media (max-width: 820px) { .ribbon-wrap { margin-top: var(--s6); } }
+@media (max-width: 820px) { .ribbon-wrap { margin-top: var(--s5); } }
 .ribbon {
   width: 100%;
   /* Matches ASPECT in lib/ribbon. Reserved before the first frame paints, so
      nothing below the hero moves when the object appears. */
-  aspect-ratio: 2.85;
+  aspect-ratio: 3.45;
   display: block;
+}
+/* A 3.45 box on a phone is a 110px sliver, which reads as a rule rather than
+   as an object. The box gets taller and the renderer covers it, so the sweep
+   simply runs further off both sides. */
+@media (max-width: 720px) { .ribbon { aspect-ratio: 1.55; } }
+
+/* A row of cards that reflows by itself. Deliberately NOT the twelve-column
+   page grid: nested inside a column, eleven gutters have to fit before any
+   content does, and each track is then a couple of pixels wide. auto-fit with
+   a sensible floor needs no breakpoints and cannot collapse. */
+.card-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--s5);
+}
+
+/* Two up, then one. Same reasoning. */
+.instruments {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--s7);
+}
+@media (max-width: 720px) {
+  .instruments { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* The live window. A bordered block, not a floating card: it belongs to the
@@ -492,7 +551,7 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
 
 .live-sides {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: var(--s3);
   align-items: center;
   padding-block: var(--s4);
@@ -588,4 +647,4 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
 }
 .route:last-child { border-bottom: 1px solid var(--rule); }
 .route code { background: none; border: 0; padding: 0; color: var(--ink); font-size: var(--t2); }
-@media (max-width: 640px) { .route { grid-template-columns: 1fr; gap: var(--s1); } }
+@media (max-width: 640px) { .route { grid-template-columns: minmax(0, 1fr); gap: var(--s1); } }

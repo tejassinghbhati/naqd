@@ -243,7 +243,7 @@ export default async function Landing() {
           span="col-6"
         />
         <div className="col-12" style={{ marginTop: "var(--s6)" }}>
-          <div className="grid" style={{ padding: 0, maxWidth: "none", columnGap: "var(--s7)" }}>
+          <div className="instruments">
             {[
               {
                 n: "01",
@@ -274,7 +274,7 @@ export default async function Landing() {
                 cta: "See the gate",
               },
             ].map((c) => (
-              <Link key={c.h} href={c.href} className="col-6 instrument">
+              <Link key={c.h} href={c.href} className="instrument">
                 <span className="instrument-n">{c.n}</span>
                 <h3 className="h3">{c.h}</h3>
                 <p className="body-sm">{c.p}</p>

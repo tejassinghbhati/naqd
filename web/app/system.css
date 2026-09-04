@@ -276,7 +276,7 @@ img, svg { display: block; max-width: 100%; }
 .display {
   font-family: var(--sans);
   font-weight: 800;
-  font-size: var(--t9);
+  font-size: min(var(--t9), 6.1vw, 10.4vh);
   line-height: 0.94;
   letter-spacing: -0.045em;
   text-transform: uppercase;
@@ -345,6 +345,14 @@ strong { font-weight: 500; color: var(--ink); }
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
+/*
+  A grid item's automatic minimum size is its CONTENT, not zero. So one
+  unbreakable thing inside a column - a `pre` block, a long address - widens the
+  column past its track and takes the whole page sideways with it, no matter
+  that the track was declared minmax(0, 1fr). This is the fix for that, and it
+  belongs here rather than on each offender.
+*/
+.grid > * { min-width: 0; }
 
 /*
   Spans set `grid-column-END`, not the `grid-column` shorthand.
@@ -371,10 +379,22 @@ strong { font-weight: 500; color: var(--ink); }
 .start-8 { grid-column-start: 8; }
 .start-9 { grid-column-start: 9; }
 
+/*
+  Order matters here, and it did not used to.
+
+  `.col-6 { grid-column: 1 / -1 }` sets start AND end. A `.start-7` rule after
+  it, in the same block, then puts the start back to `auto` - so an element
+  carrying both classes got an auto-placed start with an end of -1, and
+  collapsed to whatever tracks were left rather than spanning the row. The
+  content's own width was hiding it; the moment grid items were allowed to
+  shrink to zero, a full-width column rendered seven pixels wide.
+
+  So the reset comes FIRST, and the spans overwrite it.
+*/
 @media (max-width: 1000px) {
+  .start-2, .start-4, .start-5, .start-6, .start-7, .start-8, .start-9 { grid-column-start: auto; }
   .col-3, .col-4, .col-5 { grid-column-end: span 6; }
   .col-6, .col-7, .col-8, .col-9 { grid-column: 1 / -1; }
-  .start-2, .start-4, .start-5, .start-6, .start-7, .start-8, .start-9 { grid-column-start: auto; }
 }
 @media (max-width: 640px) {
   .col-3, .col-4, .col-5 { grid-column: 1 / -1; }
@@ -402,6 +422,10 @@ strong { font-weight: 500; color: var(--ink); }
 .v5 { display: flex; flex-direction: column; gap: var(--s5); }
 .v6 { display: flex; flex-direction: column; gap: var(--s6); }
 .v7 { display: flex; flex-direction: column; gap: var(--s7); }
+/* Same automatic-minimum trap as the grid, one level down: a flex item's
+   minimum is its content too, so an unbreakable `pre` inside a stacked column
+   widens the column rather than scrolling inside it. */
+.v1 > *, .v2 > *, .v3 > *, .v4 > *, .v5 > * { min-width: 0; }
 
 .h2f { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
 .h3f { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; }
