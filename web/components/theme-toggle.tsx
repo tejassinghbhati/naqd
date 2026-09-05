@@ -48,7 +48,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      className="btn-glass"
+      className="btn btn-glass"
       onClick={() => apply(next)}
       aria-label={`Theme: ${label}. Switch to ${next}.`}
       title={`Theme: ${label}`}

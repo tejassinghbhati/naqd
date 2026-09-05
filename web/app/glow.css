@@ -156,7 +156,7 @@
 /* --- The primary action ---------------------------------------------------- */
 
 .btn-pill {
-  --sheen: 32%;
+  --sheen: 22%;
   color: var(--accent-ink);
   border: 1px solid var(--accent-edge);
   background-image: linear-gradient(
@@ -166,14 +166,15 @@
     color-mix(in srgb, var(--accent) 86%, black) 100%
   );
   box-shadow:
-    inset 1px 1px 0 0 rgb(255 255 255 / 42%),
-    inset -1px -1px 0 0 rgb(0 0 0 / 22%),
+    inset 0 1px 0 0 rgb(255 255 255 / 30%),
+    inset 1px 0 0 0 rgb(255 255 255 / 14%),
+    inset 0 -1px 0 0 rgb(0 0 0 / 20%),
     0 1px 0 0 var(--accent-shadow-1),
     0 8px 18px -6px var(--accent-shadow-2),
     0 18px 40px -14px var(--accent-shadow-3);
 }
 .btn-pill:hover {
-  --sheen: 42%;
+  --sheen: 30%;
   transform: translateY(-1px);
   background-image: linear-gradient(
     180deg,
@@ -182,8 +183,9 @@
     color-mix(in srgb, var(--accent) 90%, black) 100%
   );
   box-shadow:
-    inset 1px 1px 0 0 rgb(255 255 255 / 55%),
-    inset -1px -1px 0 0 rgb(0 0 0 / 22%),
+    inset 0 1px 0 0 rgb(255 255 255 / 42%),
+    inset 1px 0 0 0 rgb(255 255 255 / 18%),
+    inset 0 -1px 0 0 rgb(0 0 0 / 20%),
     0 1px 0 0 var(--accent-shadow-1),
     0 12px 26px -6px var(--accent-shadow-2),
     0 28px 56px -16px var(--accent-shadow-3);
@@ -202,24 +204,24 @@
 /* --- The quiet actions ----------------------------------------------------- */
 
 .btn-glass {
-  --sheen: 22%;
+  --sheen: 14%;
   border: 1px solid var(--glass-edge);
   background:
     linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
   box-shadow:
-    inset 1px 1px 0 0 var(--glass-rim),
-    inset -1px -1px 0 0 rgb(0 0 0 / 8%),
+    inset 0 1px 0 0 var(--glass-rim),
+    inset 0 -1px 0 0 rgb(0 0 0 / 8%),
     0 1px 0 0 rgb(0 0 0 / 4%),
     0 6px 16px -8px rgb(0 0 0 / 16%);
   backdrop-filter: blur(12px) saturate(1.4);
 }
 .btn-glass:hover {
-  --sheen: 34%;
+  --sheen: 24%;
   border-color: var(--glass-edge-hi);
   transform: translateY(-1px);
   box-shadow:
-    inset 1px 1px 0 0 var(--glass-rim),
-    inset -1px -1px 0 0 rgb(0 0 0 / 8%),
+    inset 0 1px 0 0 var(--glass-rim),
+    inset 0 -1px 0 0 rgb(0 0 0 / 8%),
     0 2px 0 0 rgb(0 0 0 / 5%),
     0 12px 28px -10px rgb(0 0 0 / 24%);
 }

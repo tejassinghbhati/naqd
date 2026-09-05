@@ -111,7 +111,7 @@ export function AccountMenu({
           <div className="acct-addr">
             <code className="mono small">{conn.address}</code>
             <div className="h2f">
-              <button type="button" className="btn-sm" onClick={copy}>
+              <button type="button" className="btn btn-sm" onClick={copy}>
                 {copied ? "COPIED" : "COPY"}
               </button>
               {explorer && (

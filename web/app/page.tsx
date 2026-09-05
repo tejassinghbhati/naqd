@@ -60,7 +60,7 @@ export default async function Landing() {
               across every event contract this venue settles.
             </p>
             <div className="h3f">
-              <Link href="/research" className="btn btn-pill btn-pill-lg">
+              <Link href="/research" className="btn btn-pill btn-lg">
                 Read the assay
               </Link>
               <Link href="/terminal" className="btn btn-glass btn-lg">

@@ -116,6 +116,28 @@
   --radius: 0px;
   --radius-lg: 0px;
 
+  /* --- Controls ---------------------------------------------------------
+     A control's height is SET, not inherited from whatever its padding and
+     line-height happen to sum to. That is the whole discipline: derive it and
+     you get five heights across a site with no two the same, and a primary
+     and secondary action sitting side by side at 68px and 54px.
+
+     Three steps, all on the 4px grid. Type and inline padding move with the
+     height so the shape of a control is constant across sizes. */
+  --ctl-sm: 32px;
+  --ctl-md: 40px;
+  --ctl-lg: 52px;
+  /* Inline padding tracks height at roughly 0.4x, which is the ratio at which
+     a control reads as proportioned rather than either cramped or slabby.
+     At 48px on a 52px control the large button was nearly as padded as it was
+     tall. */
+  --ctl-px-sm: var(--s3);
+  --ctl-px-md: var(--s4);
+  --ctl-px-lg: var(--s5);
+  --ctl-fs-sm: var(--t2);
+  --ctl-fs-md: var(--t3);
+  --ctl-fs-lg: var(--t4);
+
   --sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
 

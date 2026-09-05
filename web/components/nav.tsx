@@ -62,7 +62,7 @@ export function Nav() {
           onDisconnect={disconnect}
         />
       ) : (
-        <button type="button" className="btn-primary btn-glass" onClick={openConnect}>
+        <button type="button" className="btn btn-glass" onClick={openConnect}>
           Connect wallet
         </button>
       )}

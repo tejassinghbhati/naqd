@@ -90,7 +90,7 @@ export function ConnectModal({ open, wallets, connecting, error, onPick, onClose
       >
         <div className="modal-hd">
           <h2 id="connect-title">Connect a wallet</h2>
-          <button type="button" className="btn-sm" onClick={onClose} aria-label="Close">
+          <button type="button" className="btn btn-sm" onClick={onClose} aria-label="Close">
             ESC
           </button>
         </div>

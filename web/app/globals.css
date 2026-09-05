@@ -179,15 +179,25 @@
    Controls
    ============================================================================= */
 
+/*
+  Every control is one of three sizes, and the size sets the HEIGHT.
+
+  Padding-derived heights are why this site had five of them - 68, 54, 42, 38,
+  28 - none of which anyone chose. Fixing the height instead means a change of
+  type size can never knock two adjacent controls out of alignment, which is
+  exactly what had happened to the pair in the hero.
+*/
 button, .btn {
   font: inherit;
   font-family: var(--sans);
-  font-size: var(--t3);
+  font-size: var(--ctl-fs-md);
+  font-weight: 500;
+  line-height: 1;
   color: var(--ink);
   background: transparent;
   border: 1px solid var(--rule-2);
   border-radius: var(--radius);
-  padding: var(--s2) var(--s4);
+  padding: var(--s2) var(--s3);
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
@@ -200,6 +210,31 @@ button, .btn {
 button:hover:not(:disabled), .btn:hover { border-color: var(--ink); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/*
+  Sizing is opt-in, on `.btn`, not on every `button` on the page.
+
+  The desk is a dense instrument on its own metrics - order-book levels, a
+  price stepper, preset buttons - and putting a 40px floor on the bare element
+  selector inflated all of them to publication size the moment the scale
+  landed. A control gets a height when something asks for one.
+*/
+.btn { height: var(--ctl-md); padding: 0 var(--ctl-px-md); }
+.btn-sm { height: var(--ctl-sm); padding-inline: var(--ctl-px-sm); font-size: var(--ctl-fs-sm); }
+.btn-lg { height: var(--ctl-lg); padding-inline: var(--ctl-px-lg); font-size: var(--ctl-fs-lg); }
+
+/* Square, for a control whose label is a single glyph. */
+.btn-icon { width: var(--ctl-md); padding-inline: 0; }
+.btn-icon.btn-sm { width: var(--ctl-sm); }
+
+/*
+  Coarse pointers get 44px minimum, which is the smallest target a thumb hits
+  reliably. Applied to the two smaller steps only: the large step already
+  clears it.
+*/
+@media (pointer: coarse) {
+  .btn { min-height: 44px; }
+}
+
 .btn-solid { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .btn-solid:hover { background: var(--ink); color: var(--paper); opacity: 0.86; }
 
@@ -208,17 +243,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   color: var(--accent-ink);
   border-color: var(--accent);
   font-weight: 600;
-  padding: var(--s3) var(--s6);
-  font-size: var(--t4);
   transition: transform 0.18s cubic-bezier(0.2, 0, 0.1, 1), filter 0.18s ease;
 }
-.btn-pill:hover { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); filter: brightness(1.08); transform: translateY(-1px); }
-.btn-pill-lg { padding: var(--s4) var(--s7); font-size: var(--t5); }
-
 .btn-ghost { border-color: transparent; color: var(--ink-2); }
 .btn-ghost:hover { border-color: var(--rule-2); color: var(--ink); }
-.btn-lg { padding: var(--s3) var(--s5); font-size: var(--t4); }
-.btn-sm { padding: var(--s1) var(--s2); font-size: var(--t1); }
 
 /*
   The primary call to action across the publication. Ink, underlined, oversized.
@@ -233,9 +261,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
      trailing arrow past the viewport edge and the whole page scrolled
      sideways. */
   flex-wrap: wrap;
+  width: fit-content;
   max-width: 100%;
   gap: var(--s2);
-  font-size: var(--t4);
+  font-size: var(--ctl-fs-md);
   font-weight: 500;
   line-height: 1.3;
   color: var(--ink);
@@ -584,6 +613,12 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
 .hero-stack .display { max-width: 15ch; }
 .hero-lede { max-width: 58ch; text-align: center; }
 .hero-stack .h3f { justify-content: center; margin-top: var(--s1); }
+/* Once the pair wraps it should stack as one block, not as two buttons of
+   different widths centred under each other. */
+@media (max-width: 560px) {
+  .hero-stack .h3f { flex-direction: column; align-items: stretch; width: 100%; max-width: 22rem; }
+  .hero-stack .h3f > .btn { width: 100%; }
+}
 
 /* The ribbon is allowed past the grid on both sides: a sculptural object that
    stops neatly at a container edge stops reading as an object. */
@@ -731,8 +766,9 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
 .instrument-cta {
   align-self: flex-start;
   margin-top: auto;
-  padding-top: var(--s3);
-  font-size: var(--t3);
+  padding-top: var(--s4);
+  font-size: var(--ctl-fs-md);
+  font-weight: 500;
   color: var(--ink);
   border-bottom: 1px solid var(--rule-2);
   padding-bottom: 1px;

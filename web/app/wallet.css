@@ -83,20 +83,24 @@
 
 .acct { position: relative; }
 
+/* On the control scale, because it stands in the bar beside the theme toggle:
+   at 25px against that button's 40px the two read as different systems. */
 .acct-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 10px;
-  background: var(--paper-2);
-  border: 1px solid var(--rule-2);
+  gap: var(--s2);
+  height: var(--ctl-md);
+  padding: 0 var(--ctl-px-md);
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
+  border: 1px solid var(--glass-edge);
   border-radius: var(--radius);
-  font-size: 12.5px;
+  box-shadow: inset 0 1px 0 0 var(--glass-rim);
+  font-size: var(--ctl-fs-sm);
 }
-.acct-trigger:hover { background: var(--paper-3); }
+.acct-trigger:hover { border-color: var(--glass-edge-hi); }
 .acct-bal {
-  padding-left: 8px;
-  border-left: 1px solid var(--rule-2);
+  padding-left: var(--s2);
+  border-left: 1px solid var(--glass-edge);
   color: var(--ink-3);
   font-size: 11.5px;
 }
