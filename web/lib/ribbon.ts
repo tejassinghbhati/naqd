@@ -131,6 +131,34 @@ const project = (p: V3): [number, number] => {
 };
 
 /**
+ * The furthest the object ever turns, pointer included.
+ *
+ * Exported because the frame is solved against these and the animation is
+ * clamped to them. If the two disagree the object leaves its own frame, which
+ * is exactly how it ended up cropped: the box was solved at rest while the
+ * sweep sometimes sat thirty degrees off it.
+ *
+ * They are also a SIZE control, which is not obvious. The frame has to hold
+ * the object at every angle it reaches, so a wider swing means a bigger box
+ * and the same object drawn smaller inside it. At half a radian of yaw the
+ * ribbon was fully visible and half the size it should be. Turning less makes
+ * it bigger, and past a point that trade is worth taking.
+ */
+export const MAX_YAW = 0.5;
+export const MAX_PITCH = 0.2;
+
+/** Rotate a point by yaw then pitch. The renderer and the frame agree on this. */
+export function turn(p: V3, yaw: number, pitch: number): V3 {
+  const cy = Math.cos(yaw);
+  const sy = Math.sin(yaw);
+  const cp = Math.cos(pitch);
+  const sp = Math.sin(pitch);
+  const x = p[0] * cy + p[2] * sy;
+  const z0 = -p[0] * sy + p[2] * cy;
+  return [x, p[1] * cp - z0 * sp, p[1] * sp + z0 * cp];
+}
+
+/**
  * Build the world-space geometry once.
  *
  * The bend amplitude is bisected to land the object on a fixed aspect ratio
@@ -225,20 +253,54 @@ export function buildGeometry(bins: Bin[]): Geometry {
   }
   const stations = build((lo + hi) / 2);
 
-  // Crop in from both ends so the ribbon leaves the frame rather than stopping
-  // inside it. A sweep that terminates on screen shows its cut cross-section
-  // and reads as a shape; one that runs off the edge reads as an object.
-  const pts = stations.flatMap((st) => [project(at(st, 1)), project(at(st, -1))]);
+  /*
+    Frame the whole object, across its whole motion.
+
+    Two separate mistakes lived here. It used to CROP 5.5% off each end so the
+    sweep ran out of frame, on the theory that an object continuing past the
+    edge reads as an object rather than a shape - true, but it also means you
+    never actually see the thing.
+
+    And the box was solved AT REST while the object turns as much as thirty
+    degrees, so even uncropped it swung outside its own frame and clipped at
+    the edges. Sampling the nine corners of the yaw/pitch range and taking the
+    union gives a box that holds it at every point in the loop.
+  */
+  const extremes: V3[] = [];
+  for (const yaw of [-MAX_YAW, 0, MAX_YAW]) {
+    for (const pitch of [-MAX_PITCH, 0, MAX_PITCH]) {
+      for (const st of stations) {
+        extremes.push(turn(at(st, 1), yaw, pitch), turn(at(st, -1), yaw, pitch));
+      }
+    }
+  }
+  const pts = extremes.map(project);
   const xs = pts.map((p) => p[0]);
   const ys = pts.map((p) => p[1]);
   const x0 = Math.min(...xs);
-  const fullW = Math.max(...xs) - x0;
-  const vx = x0 + fullW * 0.055;
-  const vw = fullW * 0.89;
-  const vh = vw / ASPECT;
-  const yMid = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const x1 = Math.max(...xs);
+  const y0 = Math.min(...ys);
+  const y1 = Math.max(...ys);
+  const margin = (x1 - x0) * 0.04;
+  const bw = x1 - x0 + margin * 2;
+  const bh = y1 - y0 + margin * 2;
 
-  return { stations, vx, vy: yMid - vh / 2, vw, vh };
+  /*
+    Expand to the target aspect; never shrink. Taking the width and then
+    setting height = width/ASPECT looks equivalent and is not: when the sweep
+    is taller than that ratio the box ends up smaller than the object, and the
+    frame meant to contain it crops it instead.
+  */
+  const vw = bw / bh > ASPECT ? bw : bh * ASPECT;
+  const vh = vw / ASPECT;
+
+  return {
+    stations,
+    vx: (x0 + x1) / 2 - vw / 2,
+    vy: (y0 + y1) / 2 - vh / 2,
+    vw,
+    vh,
+  };
 }
 
 interface Quad {
@@ -267,22 +329,12 @@ export function drawFrame(
   yaw: number,
   pitch: number,
 ): void {
-  const cy = Math.cos(yaw);
-  const sy = Math.sin(yaw);
-  const cp = Math.cos(pitch);
-  const sp = Math.sin(pitch);
-  const turn = (p: V3): V3 => {
-    const x = p[0] * cy + p[2] * sy;
-    const z0 = -p[0] * sy + p[2] * cy;
-    return [x, p[1] * cp - z0 * sp, p[1] * sp + z0 * cp];
-  };
-
-  // Cover, on a UNIFORM scale. Fitting each axis independently would let a
-  // canvas whose box does not match the geometry's own aspect stretch the
-  // object, and a stretched reflection stops looking like a reflection. Scaling
-  // to the larger of the two and centring lets the sweep bleed further off the
-  // sides instead, which is what it is built to do.
-  const sc = Math.max(w / geom.vw, h / geom.vh);
+  // FIT, on a uniform scale, and centred. Taking the larger ratio would cover
+  // the box and crop whichever axis did not fit - which is precisely the
+  // cropping the frame above exists to avoid. Uniform either way: fitting each
+  // axis independently would stretch the object, and a stretched reflection
+  // stops looking like a reflection.
+  const sc = Math.min(w / geom.vw, h / geom.vh);
   const ox = (w - geom.vw * sc) / 2;
   const oy = (h - geom.vh * sc) / 2;
   const toPx = (p: V3): [number, number] => {
@@ -292,7 +344,11 @@ export function drawFrame(
 
   // Turn every station once, then reuse. Rotating inside the quad loop would
   // do the same trigonometry three times per segment.
-  const st = geom.stations.map((s) => ({ c: turn(s.c), w: turn(s.w), n: turn(s.n) }));
+  const st = geom.stations.map((s) => ({
+    c: turn(s.c, yaw, pitch),
+    w: turn(s.w, yaw, pitch),
+    n: turn(s.n, yaw, pitch),
+  }));
 
   // The material.
   //

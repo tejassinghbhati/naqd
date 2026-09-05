@@ -108,13 +108,13 @@
   --t-axis: 10px;
 
   /*
-    Square. An assay office strikes hallmarks into metal - the whole subject is
-    machined edges and struck corners, and a rounded rectangle is the one shape
-    that says "web app" instead. Kept as tokens rather than deleted so a corner
-    is still a decision made in one place.
+    Rounded, on three steps. `--radius` is the everyday corner, `--radius-lg`
+    is for panels and cards, and `--radius-pill` is fully round - a capsule,
+    which is what every control and the nav itself now are.
   */
-  --radius: 0px;
-  --radius-lg: 0px;
+  --radius: 10px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
 
   /* --- Controls ---------------------------------------------------------
      A control's height is SET, not inherited from whatever its padding and
@@ -138,7 +138,7 @@
   --ctl-fs-md: var(--t3);
   --ctl-fs-lg: var(--t4);
 
-  --display: var(--font-display), "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --display: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
@@ -190,6 +190,9 @@
   --nav-lip: rgb(255 255 255 / 70%);
   --nav-hover: rgb(15 22 34 / 4%);
   --nav-sunk: rgb(15 22 34 / 7%);
+  --nav-bg: rgb(255 255 255 / 76%);
+  --badge-bg: #0a0c10;
+  --badge-ink: #ffffff;
 
   --nav-h: 68px;
 }
@@ -261,7 +264,10 @@
     --sh-core: #ffffff;
     --nav-lip: rgb(255 255 255 / 6%);
     --nav-hover: rgb(255 255 255 / 5%);
-    --nav-sunk: rgb(0 0 0 / 26%);
+    --nav-sunk: rgb(255 255 255 / 10%);
+    --nav-bg: rgb(20 24 30 / 72%);
+    --badge-bg: #ffffff;
+    --badge-ink: #0a0c10;
     --accent: #f0479a;
     --accent-ink: #14060d;
     --focus: #f0479a;
@@ -330,7 +336,10 @@
   --sh-core: #ffffff;
   --nav-lip: rgb(255 255 255 / 6%);
   --nav-hover: rgb(255 255 255 / 5%);
-  --nav-sunk: rgb(0 0 0 / 26%);
+  --nav-sunk: rgb(255 255 255 / 10%);
+  --nav-bg: rgb(20 24 30 / 72%);
+  --badge-bg: #ffffff;
+  --badge-ink: #0a0c10;
   --accent: #f0479a;
   --accent-ink: #14060d;
   --focus: #f0479a;

@@ -20,7 +20,16 @@
 
 import { useEffect, useRef } from "react";
 import type { CalibrationBin } from "@/lib/assay";
-import { ASPECT, STEPS, buildGeometry, drawFrame, type Geometry, type Palette } from "@/lib/ribbon";
+import {
+  ASPECT,
+  MAX_PITCH,
+  MAX_YAW,
+  STEPS,
+  buildGeometry,
+  drawFrame,
+  type Geometry,
+  type Palette,
+} from "@/lib/ribbon";
 
 function readPalette(el: HTMLElement): Palette {
   const cs = getComputedStyle(el);
@@ -33,6 +42,8 @@ function readPalette(el: HTMLElement): Palette {
     spec: v("--rb-spec", "#ffffff"),
   };
 }
+
+const clamp = (v: number, m: number) => (v > m ? m : v < -m ? -m : v);
 
 export function Ribbon({ bins }: { bins: CalibrationBin[] }) {
   const wrap = useRef<HTMLDivElement>(null);
@@ -94,8 +105,14 @@ export function Ribbon({ bins }: { bins: CalibrationBin[] }) {
       // thing and it was turning slowly enough that a reader could look at it
       // for several seconds without being sure it moved at all - which buys
       // the cost of animating it and none of the benefit.
-      const yaw = 0.34 * Math.sin(t * 0.00046) + 0.19 * Math.sin(t * 0.00071 + 1.7) + cx * 0.3;
-      const pitch = 0.17 * Math.sin(t * 0.00037 + 0.6) + cy * 0.16;
+      // Clamped to the same limits the frame was solved against. Without the
+      // clamp a pointer at the far corner pushes the sweep past the bounds the
+      // box was built for, and the object clips at the edge.
+      const yaw = clamp(
+        0.2 * Math.sin(t * 0.00046) + 0.11 * Math.sin(t * 0.00071 + 1.7) + cx * 0.18,
+        MAX_YAW,
+      );
+      const pitch = clamp(0.1 * Math.sin(t * 0.00037 + 0.6) + cy * 0.09, MAX_PITCH);
       paint(yaw, pitch);
       raf = requestAnimationFrame(frame);
     };

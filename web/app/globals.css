@@ -12,35 +12,45 @@
    ============================================================================= */
 
 /*
-  The bar.
+  A floating capsule, not a bar across the top.
 
-  An instrument's fascia, not a website header. Three things make it read that
-  way: a hairline of light along its bottom edge under the rule, so the bar has
-  a machined lip rather than a drawn border; a real vertical rule separating
-  identity from navigation, because a gap is an absence and a rule is a
-  decision; and numbered links, since this site's sections are a sequence and
-  the numbers say so.
+  A full-width bar welds the chrome to the edge of the window and makes the
+  page begin at a hard line. A capsule sitting a little below the top reads as
+  an object ON the page - it has a shadow, the ground passes underneath it, and
+  the content beneath scrolls behind rather than under a lid.
+
+  It is `fixed` rather than `sticky` for the same reason: sticky reserves a
+  strip of layout, which is exactly the hard line the capsule is there to
+  avoid.
 */
 .nav {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  top: var(--s4);
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 40;
+  width: min(calc(100% - var(--s6)), var(--grid-max));
   height: var(--nav-h);
-  background: color-mix(in srgb, var(--paper) 82%, transparent);
-  backdrop-filter: blur(16px) saturate(1.5);
-  border-bottom: 1px solid var(--rule);
-  /* The lip: a bright hairline sitting just under the rule. */
-  box-shadow: 0 1px 0 0 var(--nav-lip), 0 8px 28px -20px rgb(0 0 0 / 30%);
+  border-radius: var(--radius-pill);
+  background: var(--nav-bg);
+  border: 1px solid var(--glass-edge);
+  backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-rim),
+    0 1px 2px 0 rgb(0 0 0 / 6%),
+    0 12px 32px -12px rgb(0 0 0 / 24%),
+    0 32px 64px -24px rgb(0 0 0 / 20%);
 }
 .nav-inner {
   display: flex;
   align-items: center;
-  gap: var(--s5);
+  gap: var(--s4);
   height: 100%;
-  max-width: var(--grid-max);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
+  padding-inline: var(--s3) var(--s3);
 }
+
+/* The page starts under the floating bar, so it has to make its own room. */
+main { padding-top: calc(var(--nav-h) + var(--s5)); }
 
 /* --- Identity -------------------------------------------------------------- */
 
@@ -51,23 +61,23 @@
   text-decoration: none;
   flex: none;
 }
-/* The punch sits in its own bevelled recess, the way a struck hallmark sits in
-   the metal around it. */
+/* A round badge, the way the reference marks its own corner. The hallmark is
+   square inside it, which is the joke: a struck punch in a polished bezel. */
 .brand-punch {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   flex: none;
-  color: var(--ink);
-  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
-  border: 1px solid var(--glass-edge);
+  border-radius: var(--radius-pill);
+  color: var(--badge-ink);
+  background: var(--badge-bg);
   box-shadow:
-    inset 1px 1px 0 0 var(--glass-rim),
-    inset -1px -1px 0 0 rgb(0 0 0 / 10%);
-  transition: border-color 0.18s ease, transform 0.18s cubic-bezier(0.2, 0, 0.1, 1);
+    inset 0 1px 0 0 rgb(255 255 255 / 30%),
+    0 2px 6px -1px rgb(0 0 0 / 24%);
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0.1, 1);
 }
-.brand:hover .brand-punch { border-color: var(--glass-edge-hi); transform: translateY(-1px); }
+.brand:hover .brand-punch { transform: translateY(-1px) scale(1.03); }
 .brand-mark { flex: none; }
 .brand-name {
   font-size: var(--t5);
@@ -75,8 +85,6 @@
   letter-spacing: -0.03em;
   line-height: 1;
 }
-/* The office that struck the mark. Set as a register: mono, tracked out, and
-   quiet enough that it never competes with the name. */
 .brand-reg {
   font-family: var(--mono);
   font-size: 9px;
@@ -86,92 +94,49 @@
   line-height: 1;
   padding-left: var(--s3);
   border-left: 1px solid var(--rule);
-  align-self: stretch;
-  display: flex;
-  align-items: center;
+  align-self: center;
 }
 
-/* A rule, not a gap. */
-.nav-sep {
-  width: 1px;
-  height: 22px;
-  flex: none;
-  background: var(--rule);
-}
+.nav-sep { display: none; }
 
 /* --- Navigation ------------------------------------------------------------ */
 
-/*
-  A segmented selector, not a row of links.
-
-  Links floating in a bar are a website. One bordered strip divided by hairlines
-  is a rotary switch on a fascia, and it makes the current position a POSITION
-  rather than an underline: the selected cell is recessed, with the bevel
-  inverted, exactly as a depressed key would be. That reads at a glance from
-  across the room in a way a 2px rule underneath never does.
-*/
-.nav-links {
-  display: flex;
-  height: var(--ctl-md);
-  border: 1px solid var(--glass-edge);
-  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
-  box-shadow: inset 0 1px 0 0 var(--glass-rim);
-  backdrop-filter: blur(12px) saturate(1.4);
-}
+/* Plain links inside the capsule. The capsule is already the container; a
+   second bordered strip inside it is a box in a box. */
+.nav-links { display: flex; align-items: center; gap: var(--s1); }
 .nav-links a {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--s2);
-  height: 100%;
+  height: 34px;
   padding: 0 var(--s4);
+  border-radius: var(--radius-pill);
   font-size: var(--t3);
   font-weight: 500;
   color: var(--ink-3);
   text-decoration: none;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: color 0.16s ease, background-color 0.16s ease;
 }
-.nav-links a + a { border-left: 1px solid var(--glass-edge); }
 .nav-idx {
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.08em;
   color: var(--ink-4);
-  transition: color 0.15s ease;
+  transition: color 0.16s ease;
 }
-/* Hover brightens; it does not borrow the accent. The accent index is the
-   position readout, and a hover state that looks like the current position
-   tells the reader they are somewhere they are not. */
 .nav-links a:hover { color: var(--ink); background: var(--nav-hover); }
-.nav-links a:hover .nav-idx { color: var(--ink-3); }
-
-/* Depressed. Light falls on the bottom edge of a recess, never the top. */
+/* The current page wears a filled capsule. At this size that reads instantly,
+   where an underline on a floating bar just looks like a stray rule. */
 .nav-links a[aria-current="page"] {
   color: var(--ink);
   background: var(--nav-sunk);
-  box-shadow:
-    inset 0 2px 4px 0 rgb(0 0 0 / 22%),
-    inset 0 -1px 0 0 var(--glass-rim);
 }
 .nav-links a[aria-current="page"] .nav-idx { color: var(--accent); }
-/* A struck bar along the bottom of the depressed cell: the position readout. */
-.nav-links a[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  height: 2px;
-  background: var(--accent);
-  box-shadow: 0 0 10px 0 var(--glow-3);
-}
 
 /* --- The action cluster ---------------------------------------------------- */
 
-.nav-actions { display: flex; align-items: center; }
-/* Overlap by the border width so neighbours share one hairline rather than
-   stacking two, which is the same rule the instrument grid uses. */
-.nav-actions > * + * { margin-left: -1px; }
-.nav-actions > *:hover { z-index: 1; }
+.nav-actions { display: flex; align-items: center; gap: var(--s2); }
 
 .nav .spacer { flex: 1 1 auto; }
 
@@ -232,7 +197,7 @@ button, .btn {
   color: var(--ink);
   background: transparent;
   border: 1px solid var(--rule-2);
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
   padding: var(--s2) var(--s3);
   cursor: pointer;
   text-decoration: none;
@@ -360,7 +325,7 @@ input[type=number] { -moz-appearance: textfield; }
   publication the page IS the surface, and floating everything above it is how a
   layout stops feeling like a document and starts feeling like an app skin.
 */
-.card { border: 1px solid var(--rule); border-radius: var(--radius); background: transparent; }
+.card { border: 1px solid var(--rule); border-radius: var(--radius-lg); background: transparent; }
 .card-hd {
   display: flex;
   align-items: center;
@@ -686,10 +651,10 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
   aspect-ratio: 2.75;
   display: block;
 }
-/* A 3.45 box on a phone is a 110px sliver, which reads as a rule rather than
-   as an object. The box gets taller and the renderer covers it, so the sweep
-   simply runs further off both sides. */
-@media (max-width: 720px) { .ribbon { aspect-ratio: 1.55; } }
+/* The box matches the object's own aspect at every width. It used to go taller
+   on a phone, which made sense while the renderer COVERED the box and could
+   bleed off the sides; now that it fits the object inside, extra height is
+   just empty canvas below it. */
 
 /* A row of cards that reflows by itself. Deliberately NOT the twelve-column
    page grid: nested inside a column, eleven gutters have to fit before any
@@ -803,6 +768,7 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
    top, and the four instruments are the one place on the page the reader is
    asked to choose between things. */
 .instrument-glow { border-radius: var(--radius-lg); }
+.instruments { border-radius: var(--radius-lg); overflow: hidden; }
 .instrument {
   display: flex;
   flex-direction: column;
