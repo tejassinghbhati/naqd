@@ -1,6 +1,7 @@
 node_modules/
 .next/
 .next-build/
+.dev.lock
 out/
 next-env.d.ts
 .env*.local

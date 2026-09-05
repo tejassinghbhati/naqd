@@ -376,9 +376,11 @@ If port 3000 is busy the app moves to the next free one and prints where it went
 the API stops and tells you what to do, because moving it silently would leave the app pointed at
 whatever else is answering there. Run it elsewhere with `PORT=8788 ASSAY_API=http://localhost:8788`.
 
-If the app throws `ENOENT ... .next/server/app/page.js`, the build cache is half-written - usually a
-dev server that was killed mid-compile, or a production build and a dev run sharing the directory.
-Delete `web/.next` and start again; nothing in it is source.
+Both of the cache problems that used to bite here are handled now. A build and a dev server no
+longer share a directory (`dev` uses `.next`, `build` and `start` use `.next-build`), and a dev
+server that is killed rather than stopped leaves a lock behind, so the next `npm run dev` clears
+its own half-written cache and says so. If you ever want to force it: delete `web/.next`, which
+contains nothing that is source.
 
 ```bash
 npm test             # 13 tests over the quoting policy and the statistics
