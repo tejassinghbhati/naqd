@@ -1,0 +1,347 @@
+/* =============================================================================
+   Glow, gloss and glass
+
+   Three effects that share one idea: light behaves differently at an edge than
+   it does across a face. Every value here is a token or derived from one.
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   Border glow
+
+   `--angle` is the bearing from the element's centre to the cursor and `--edge`
+   is how close that cursor is to the rim, both written by the component on
+   pointermove. A conic-gradient mask anchored to `--angle` reveals only the arc
+   of border nearest the pointer; `--edge` fades the whole thing in as you
+   approach. Nothing animates on a timer, so the light is a readout of where
+   your hand is rather than a loop playing next to it.
+   -------------------------------------------------------------------------- */
+
+.glow {
+  --edge: 0;
+  --angle: 45deg;
+  --glow-sens: 24;
+  --glow-pad: 34px;
+  --glow-spread: 26;
+
+  position: relative;
+  isolation: isolate;
+  /* Promotes the element to its own layer. Without it the masked pseudo
+     elements repaint the section behind them on every pointer move. */
+  transform: translate3d(0, 0, 0.01px);
+}
+
+.glow > .glow-rim {
+  position: absolute;
+  inset: calc(var(--glow-pad) * -1);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  /* The arc. Opaque for a slice either side of the cursor bearing, gone by a
+     tenth of the way round, which is what keeps it a moving highlight rather
+     than an outline. */
+  mask-image: conic-gradient(
+    from var(--angle) at center,
+    black 2.5%,
+    transparent calc(var(--glow-spread) * 0.4%),
+    transparent calc(100% - var(--glow-spread) * 0.4%),
+    black 97.5%
+  );
+  opacity: calc((var(--edge) - var(--glow-sens)) / (100 - var(--glow-sens)));
+  transition: opacity 0.28s ease-out;
+}
+.glow:not(:hover) > .glow-rim {
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+
+/* The lamp itself: a rim light on the border, then successively wider and
+   fainter bleeds inside and out. Layering shadows rather than blurring one is
+   what gives it falloff instead of a halo. */
+.glow > .glow-rim::before {
+  content: "";
+  position: absolute;
+  inset: var(--glow-pad);
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px var(--glow-1),
+    inset 0 0 2px 0 var(--glow-2),
+    inset 0 0 7px 0 var(--glow-3),
+    inset 0 0 18px 0 var(--glow-4),
+    inset 0 0 34px 2px var(--glow-5),
+    0 0 2px 0 var(--glow-2),
+    0 0 7px 0 var(--glow-3),
+    0 0 18px 0 var(--glow-4),
+    0 0 34px 2px var(--glow-5),
+    0 0 60px 4px var(--glow-6);
+}
+
+/* A hairline of accent on the border itself, under the bloom. Masked to the
+   same arc, so the rim brightens exactly where the light is. */
+.glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(var(--angle), var(--glow-1), var(--glow-4) 40%, transparent 70%);
+  /* Border-only fill: paint the padding box and punch out everything the
+     content box covers. */
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: calc((var(--edge) - var(--glow-sens)) / (100 - var(--glow-sens)));
+  transition: opacity 0.28s ease-out;
+  pointer-events: none;
+  z-index: 2;
+}
+.glow:not(:hover)::after {
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow > .glow-rim,
+  .glow::after {
+    transition: none;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Machined controls
+
+   The premise is a milled metal part, not a soft plastic pill. Four things do
+   the work, and all four are edge effects, which is why they survive square
+   corners where a rounded-rectangle gradient would not:
+
+     1. A BEVEL. One hairline of white along the top and left inner edge, one of
+        black along the bottom and right. That pair alone is what reads as a
+        face raised above its surroundings, and inverting it is what reads as
+        pressed. It is the oldest trick in interface rendering and nothing has
+        replaced it.
+     2. A SHEEN across the top half only, so the face catches light like a
+        curved surface rather than sitting flat.
+     3. A COLOURED shadow. Grey under a magenta button looks like a sticker on
+        paper; a shadow in the object's own hue looks like the object.
+     4. TRAVEL on press. A control that only changes colour is a link wearing a
+        box.
+   -------------------------------------------------------------------------- */
+
+.btn-pill,
+.btn-glass {
+  position: relative;
+  isolation: isolate;
+  border-radius: 0;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  transition:
+    transform 0.14s cubic-bezier(0.2, 0, 0.1, 1),
+    box-shadow 0.16s ease,
+    background-color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+/* The sheen, shared. Top half, clipped to the face, under the label. */
+.btn-pill::before,
+.btn-glass::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px 52% 1px;
+  background: linear-gradient(180deg, rgb(255 255 255 / var(--sheen, 30%)), rgb(255 255 255 / 0%));
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* --- The primary action ---------------------------------------------------- */
+
+.btn-pill {
+  --sheen: 32%;
+  color: var(--accent-ink);
+  border: 1px solid var(--accent-edge);
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 82%, white) 0%,
+    var(--accent) 52%,
+    color-mix(in srgb, var(--accent) 86%, black) 100%
+  );
+  box-shadow:
+    inset 1px 1px 0 0 rgb(255 255 255 / 42%),
+    inset -1px -1px 0 0 rgb(0 0 0 / 22%),
+    0 1px 0 0 var(--accent-shadow-1),
+    0 8px 18px -6px var(--accent-shadow-2),
+    0 18px 40px -14px var(--accent-shadow-3);
+}
+.btn-pill:hover {
+  --sheen: 42%;
+  transform: translateY(-1px);
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 72%, white) 0%,
+    var(--accent) 50%,
+    color-mix(in srgb, var(--accent) 90%, black) 100%
+  );
+  box-shadow:
+    inset 1px 1px 0 0 rgb(255 255 255 / 55%),
+    inset -1px -1px 0 0 rgb(0 0 0 / 22%),
+    0 1px 0 0 var(--accent-shadow-1),
+    0 12px 26px -6px var(--accent-shadow-2),
+    0 28px 56px -16px var(--accent-shadow-3);
+}
+/* Bevel inverted: light now falls on the bottom edge, which is what a recessed
+   face does. */
+.btn-pill:active {
+  --sheen: 8%;
+  transform: translateY(1px);
+  box-shadow:
+    inset 2px 2px 4px 0 rgb(0 0 0 / 28%),
+    inset -1px -1px 0 0 rgb(255 255 255 / 20%),
+    0 1px 0 0 var(--accent-shadow-1);
+}
+
+/* --- The quiet actions ----------------------------------------------------- */
+
+.btn-glass {
+  --sheen: 22%;
+  border: 1px solid var(--glass-edge);
+  background:
+    linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
+  box-shadow:
+    inset 1px 1px 0 0 var(--glass-rim),
+    inset -1px -1px 0 0 rgb(0 0 0 / 8%),
+    0 1px 0 0 rgb(0 0 0 / 4%),
+    0 6px 16px -8px rgb(0 0 0 / 16%);
+  backdrop-filter: blur(12px) saturate(1.4);
+}
+.btn-glass:hover {
+  --sheen: 34%;
+  border-color: var(--glass-edge-hi);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 1px 1px 0 0 var(--glass-rim),
+    inset -1px -1px 0 0 rgb(0 0 0 / 8%),
+    0 2px 0 0 rgb(0 0 0 / 5%),
+    0 12px 28px -10px rgb(0 0 0 / 24%);
+}
+.btn-glass:active {
+  --sheen: 6%;
+  transform: translateY(1px);
+  box-shadow:
+    inset 2px 2px 4px 0 rgb(0 0 0 / 14%),
+    inset -1px -1px 0 0 var(--glass-rim);
+}
+
+/* -----------------------------------------------------------------------------
+   Glass surfaces
+
+   Cards that sit over the shard field need to look like they are ON it, not
+   pasted over it: a translucent face, a bright top rim, and a real backdrop
+   blur so what passes behind them is visibly behind them.
+   -------------------------------------------------------------------------- */
+
+.glass {
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
+  border: 1px solid var(--glass-edge);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-rim),
+    0 1px 2px 0 rgb(0 0 0 / 4%),
+    0 12px 32px -16px rgb(0 0 0 / 22%);
+  backdrop-filter: blur(14px) saturate(1.3);
+}
+
+/* -----------------------------------------------------------------------------
+   The ground
+   -------------------------------------------------------------------------- */
+
+/*
+  The rim blooms outside its card by design, which on a full-width card is
+  outside the viewport. Clipped at the document rather than at each card,
+  because clipping the card would cut the bloom off square at its own edge and
+  the whole point is that the light spills.
+
+  `clip` rather than `hidden`: hidden makes this a scroll container, which
+  would break `position: sticky` on anything inside it.
+*/
+main { overflow-x: clip; }
+
+/* Fixed rather than scrolled: the field is the room the page sits in, not part
+   of the document. Behind every surface, inert to the pointer, and out of the
+   accessibility tree entirely - it carries no meaning. */
+.shard-field {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  display: block;
+}
+
+/* Sections that fill still need to sit ON the ground rather than paint over
+   it, or the field would be visible only in the gaps between bands. */
+.band-fill { background: color-mix(in srgb, var(--paper-2) 78%, transparent); }
+
+/* -----------------------------------------------------------------------------
+   Card deck
+
+   A receding stack in real perspective. The container carries the perspective
+   so every card shares one vanishing point - set it per card and each one gets
+   its own, which reads as a pile of stickers rather than a stack of objects.
+   -------------------------------------------------------------------------- */
+
+.deck {
+  position: relative;
+  perspective: 1100px;
+  perspective-origin: 30% 40%;
+}
+.deck-card {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
+  transition:
+    transform var(--deck-dur, 620ms) cubic-bezier(0.2, 0, 0.1, 1),
+    opacity 300ms ease-out;
+}
+/* The first card holds the box open: the rest are absolute, so without one
+   in flow the deck has no height of its own. */
+.deck-card:first-child { position: relative; }
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-card { transition: none; }
+}
+
+/* The deck needs room to the right and below for the offset stack and the
+   card that falls out of it. */
+.deck-wrap {
+  padding: var(--s2) var(--s9) var(--s8) var(--s2);
+  overflow: hidden;
+}
+@media (max-width: 720px) {
+  .deck-wrap { padding-right: var(--s7); }
+}
+
+.deck-glow { border-radius: var(--radius-lg); height: 100%; }
+/* Opaque under the glass. A translucent card is right when there is a page
+   behind it; in a stack of four it means reading all four at once. */
+.sample {
+  border-radius: var(--radius-lg);
+  height: 100%;
+  background:
+    linear-gradient(180deg, var(--glass-top), var(--glass-bottom)),
+    var(--paper);
+}
+.sample-hd {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+  padding-bottom: var(--s3);
+  margin-bottom: var(--s3);
+  border-bottom: 1px solid var(--rule);
+}
+.sample-hd .micro { color: var(--ok); letter-spacing: 0.12em; }
+.sample-hd code { color: var(--accent); }
+
+.panel-glow { border-radius: var(--radius-lg); }
+.panel { border-radius: var(--radius-lg); padding: var(--s5); }

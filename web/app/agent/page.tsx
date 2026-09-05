@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getSummary } from "@/lib/stats-server";
 import { EdgeGauge } from "@/components/charts";
 import { OfflineNotice } from "@/components/offline-notice";
+import { Glow } from "@/components/glow";
 import { Band, Head, Cta, Footer } from "@/components/site/parts";
 
 export const metadata: Metadata = {

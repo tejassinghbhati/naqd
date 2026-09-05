@@ -3,6 +3,7 @@ import { getSummary } from "@/lib/stats-server";
 import { EdgeGauge, ForestPlot, type ForestRow } from "@/components/charts";
 import { HeroLive } from "@/components/hero-live";
 import { Ribbon } from "@/components/ribbon";
+import { Glow } from "@/components/glow";
 import { OfflineNotice } from "@/components/offline-notice";
 import { Band, Head, Figures, Cta, Footer } from "@/components/site/parts";
 
@@ -62,7 +63,7 @@ export default async function Landing() {
               <Link href="/research" className="btn btn-pill btn-pill-lg">
                 Read the assay
               </Link>
-              <Link href="/terminal" className="btn btn-ghost btn-lg">
+              <Link href="/terminal" className="btn btn-glass btn-lg">
                 Open the terminal
               </Link>
             </div>
@@ -81,7 +82,8 @@ export default async function Landing() {
         </div>
         <div className="col-5 start-8 v5">
           {s ? (
-            <div className="reading">
+            <Glow className="panel-glow">
+            <div className="reading glass panel">
               <div className="between">
                 <span className="eyebrow">Standing reading</span>
                 <span className="h2f">
@@ -110,6 +112,7 @@ export default async function Landing() {
                 </div>
               </dl>
             </div>
+            </Glow>
           ) : (
             <OfflineNotice />
           )}
@@ -274,14 +277,16 @@ export default async function Landing() {
                 cta: "See the gate",
               },
             ].map((c) => (
-              <Link key={c.h} href={c.href} className="instrument">
-                <span className="instrument-n">{c.n}</span>
-                <h3 className="h3">{c.h}</h3>
-                <p className="body-sm">{c.p}</p>
-                <span className="instrument-cta">
-                  {c.cta} <span aria-hidden="true">&rarr;</span>
-                </span>
-              </Link>
+              <Glow key={c.h} className="instrument-glow">
+                <Link href={c.href} className="instrument">
+                  <span className="instrument-n">{c.n}</span>
+                  <h3 className="h3">{c.h}</h3>
+                  <p className="body-sm">{c.p}</p>
+                  <span className="instrument-cta">
+                    {c.cta} <span aria-hidden="true">&rarr;</span>
+                  </span>
+                </Link>
+              </Glow>
             ))}
           </div>
         </div>
@@ -295,7 +300,8 @@ export default async function Landing() {
           lede="Plain JSON over HTTP. No key, permissive CORS, usable from a notebook, a Grafana panel or a phone."
         />
         <div className="col-6 start-7 v5">
-          <div className="card card-bd">
+          <Glow className="code-glow">
+          <div className="card card-bd glass">
             <pre>{`GET /v1/edge/live
 
 {
@@ -308,6 +314,7 @@ export default async function Landing() {
   "confidence": ${s ? s.live.confidence.toFixed(2) : "0.00"}
 }`}</pre>
           </div>
+          </Glow>
           <Cta href="/developers" small>
             Full reference
           </Cta>

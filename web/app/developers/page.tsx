@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getSummary, API_BASE } from "@/lib/stats-server";
 import { Band, Head, Footer } from "@/components/site/parts";
+import { CardDeck } from "@/components/card-deck";
+import { Glow } from "@/components/glow";
 
 export const metadata: Metadata = {
   title: "Developers",
@@ -37,22 +39,74 @@ const ROUTES = [
 export default async function ApiDocs() {
   const s = await getSummary();
 
-  const example = [
-    `curl -s ${API_BASE}/v1/edge/live | jq`,
-    "",
-    "{",
-    `  "verdict": "${s?.live.verdict ?? "stand-down"}",`,
-    `  "edge": ${s ? s.live.edge.toFixed(6) : "-0.020468"},`,
-    '  "recent": {',
-    `    "mean": ${s ? s.live.recent.mean.toFixed(6) : "-0.020468"},`,
-    `    "t": ${s ? s.live.recent.t.toFixed(4) : "-1.3456"},`,
-    `    "ci95": [${s ? s.live.recent.ci95.map((x) => x.toFixed(6)).join(", ") : "-0.050282, 0.009345"}],`,
-    `    "n": ${s ? s.live.recent.n : 419}`,
-    "  },",
-    `  "confidence": ${s ? s.live.confidence.toFixed(2) : "0.00"},`,
-    `  "windowDays": ${s ? s.live.windowDays : 7}`,
-    "}",
-  ].join("\n");
+  const NL = String.fromCharCode(10);
+  const n = (x: number | undefined, d = 6, f = "0") => (x === undefined ? f : x.toFixed(d));
+
+  /*
+    Four responses, not one. The deck exists to show that this is an API with a
+    surface rather than a single endpoint with a nice example, and every figure
+    below is the live one this request would actually return.
+  */
+  const samples: { route: string; body: string }[] = [
+    {
+      route: "/v1/edge/live",
+      body: [
+        "{",
+        `  "verdict": "${s?.live.verdict ?? "stand-down"}",`,
+        `  "edge": ${n(s?.live.edge, 6, "-0.020468")},`,
+        '  "recent": {',
+        `    "mean": ${n(s?.live.recent.mean, 6, "-0.020468")},`,
+        `    "t": ${n(s?.live.recent.t, 4, "-1.3456")},`,
+        `    "ci95": [${s ? s.live.recent.ci95.map((x) => x.toFixed(6)).join(", ") : "-0.050282, 0.009345"}],`,
+        `    "n": ${s ? s.live.recent.n : 419}`,
+        "  },",
+        `  "confidence": ${n(s?.live.confidence, 2, "0.00")},`,
+        `  "windowDays": ${s ? s.live.windowDays : 7}`,
+        "}",
+      ].join(NL),
+    },
+    {
+      route: "/v1/stats/base-rate",
+      body: [
+        "{",
+        `  "n": ${s ? s.baseRate.n : 9027},`,
+        `  "rate": ${n(s?.baseRate.rate, 6, "0.503046")},`,
+        `  "up": ${s ? s.baseRate.up : 4540},`,
+        '  "verdict": "indistinguishable from a fair coin"',
+        "}",
+      ].join(NL),
+    },
+    {
+      route: "/v1/stats/edge",
+      body: [
+        "{",
+        '  "clustered": {',
+        `    "mean": ${n(s?.edge.clustered.mean, 6, "-0.020634")},`,
+        `    "t": ${n(s?.edge.clustered.t, 4, "-2.3912")},`,
+        `    "n": ${s ? s.edge.clustered.n : 1627}`,
+        "  },",
+        '  "bootstrap": {',
+        `    "ci95": [${s ? s.edge.bootstrap.ci95.map((x) => x.toFixed(6)).join(", ") : "-0.049247, 0.006612"}],`,
+        `    "crossesZero": ${s ? s.edge.bootstrap.crossesZero : true}`,
+        "  }",
+        "}",
+      ].join(NL),
+    },
+    {
+      route: "/v1/liquidity",
+      body: [
+        "{",
+        `  "markets": ${s ? s.coverage.markets : 9027},`,
+        `  "traded": ${s ? s.coverage.traded : 1627},`,
+        `  "coverage": ${n(s?.coverage.coverage, 4, "0.1802")},`,
+        '  "concentration": {',
+        `    "distinctTakers": ${s ? s.concentration.distinctTakers : 133},`,
+        `    "takerHHI": ${n(s?.concentration.takerHHI, 4, "0.0770")}`,
+        "  }",
+        "}",
+      ].join(NL),
+    },
+  ];
 
   return (
     <>
@@ -107,10 +161,27 @@ export default async function ApiDocs() {
       </Band>
 
       <Band>
-        <Head eyebrow="Example" title="A single call" span="col-6" />
+        <Head
+          eyebrow="Example"
+          title="Four calls"
+          lede="Every figure here is the response this request returns right now, recomputed from settled history on each call."
+          span="col-6"
+        />
         <div className="col-7 v5" style={{ marginTop: "var(--s6)" }}>
-          <div className="card card-bd">
-            <pre>{example}</pre>
+          <div className="deck-wrap">
+            <CardDeck>
+              {samples.map((x) => (
+                <Glow key={x.route} className="deck-glow">
+                  <div className="card card-bd glass sample">
+                    <div className="sample-hd">
+                      <span className="mono micro">GET</span>
+                      <code className="mono sm">{x.route}</code>
+                    </div>
+                    <pre>{x.body}</pre>
+                  </div>
+                </Glow>
+              ))}
+            </CardDeck>
           </div>
           <p className="body-sm ink-3 measure">
             <strong>Read confidence as a size multiplier, not a probability.</strong> It scales with

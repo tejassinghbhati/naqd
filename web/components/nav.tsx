@@ -23,18 +23,26 @@ export function Nav() {
     <nav className="nav">
       <div className="nav-inner">
       <Link href="/" className="brand" aria-label="Assay, home">
-        <Mark />
+        <span className="brand-punch">
+          <Mark size={20} />
+        </span>
         <span className="brand-name">Assay</span>
+        {/* The register mark. A hallmark carries the office that struck it, and
+            it is the one place the venue's name belongs at this size. */}
+        <span className="brand-reg">DreamDEX</span>
       </Link>
 
+      <span className="nav-sep" aria-hidden="true" />
+
       <div className="nav-links">
-        {LINKS.map((l) => {
+        {LINKS.map((l, i) => {
           // The landing is not in this list - the wordmark is the way home - so a
           // prefix match is safe here and keeps nested routes lighting up their parent.
           const active = path.startsWith(l.href);
           return (
             <Link key={l.href} href={l.href} aria-current={active ? "page" : undefined}>
-              {l.label}
+              <span className="nav-idx">{String(i + 1).padStart(2, "0")}</span>
+              <span className="nav-label">{l.label}</span>
             </Link>
           );
         })}
@@ -54,7 +62,7 @@ export function Nav() {
           onDisconnect={disconnect}
         />
       ) : (
-        <button type="button" className="btn-primary" onClick={openConnect}>
+        <button type="button" className="btn-primary btn-glass" onClick={openConnect}>
           Connect wallet
         </button>
       )}

@@ -107,8 +107,14 @@
   --hair-2: 2px;
   --t-axis: 10px;
 
-  --radius: 2px;
-  --radius-lg: 4px;
+  /*
+    Square. An assay office strikes hallmarks into metal - the whole subject is
+    machined edges and struck corners, and a rounded rectangle is the one shape
+    that says "web app" instead. Kept as tokens rather than deleted so a corner
+    is still a decision made in one place.
+  */
+  --radius: 0px;
+  --radius-lg: 0px;
 
   --sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
@@ -130,6 +136,34 @@
   --rb-seam: rgba(255, 255, 255, 0.62);
   --rb-perf: rgba(16, 34, 61, 0.26);
   --rb-spec: #ffffff;
+
+  /* Glow, gloss and glass. Decorative light, derived from the one accent, so
+     the chrome can never be mistaken for a data hue. */
+  --glow-1: hsl(330 79% 47% / 92%);
+  --glow-2: hsl(330 79% 47% / 55%);
+  --glow-3: hsl(330 79% 47% / 40%);
+  --glow-4: hsl(330 79% 47% / 26%);
+  --glow-5: hsl(330 79% 47% / 15%);
+  --glow-6: hsl(330 79% 47% / 8%);
+  --accent-edge: hsl(330 79% 34%);
+  --accent-shadow-1: hsl(330 79% 40% / 30%);
+  --accent-shadow-2: hsl(330 79% 40% / 32%);
+  --accent-shadow-3: hsl(330 79% 40% / 26%);
+  --glass-top: rgb(255 255 255 / 82%);
+  --glass-bottom: rgb(255 255 255 / 55%);
+  --glass-edge: rgb(15 22 34 / 10%);
+  --glass-edge-hi: rgb(15 22 34 / 22%);
+  --glass-rim: rgb(255 255 255 / 85%);
+
+  /* The shard field. Deliberately far below body-text contrast: this is a
+     ground, and a ground that competes with the type on it has failed. */
+  --sh-face-hi: rgb(202 216 235 / 26%);
+  --sh-face-lo: rgb(202 216 235 / 0%);
+  --sh-rim: rgb(255 255 255 / 78%);
+  --sh-warm: rgb(217 26 114 / 13%);
+  --sh-cool: rgb(26 107 168 / 15%);
+  --nav-lip: rgb(255 255 255 / 70%);
+  --nav-hover: rgb(15 22 34 / 4%);
 
   --nav-h: 68px;
 }
@@ -172,6 +206,35 @@
     --rb-seam: rgba(255, 255, 255, 0.22);
     --rb-perf: rgba(4, 9, 18, 0.42);
     --rb-spec: #ffffff;
+
+    /* Glow, gloss and glass. On a dark ground the rim can run hotter and the
+       glass has to be lighter than its backdrop rather than darker. */
+    --glow-1: hsl(330 85% 62% / 96%);
+    --glow-2: hsl(330 85% 62% / 62%);
+    --glow-3: hsl(330 85% 62% / 46%);
+    --glow-4: hsl(330 85% 62% / 30%);
+    --glow-5: hsl(330 85% 62% / 18%);
+    --glow-6: hsl(330 85% 62% / 10%);
+    --accent-edge: hsl(330 85% 40%);
+    --accent-edge: hsl(330 85% 40%);
+  --accent-shadow-1: hsl(330 85% 40% / 42%);
+    --accent-shadow-2: hsl(330 85% 45% / 40%);
+    --accent-shadow-3: hsl(330 85% 45% / 30%);
+    --glass-top: rgb(255 255 255 / 7%);
+    --glass-bottom: rgb(255 255 255 / 3%);
+    --glass-edge: rgb(255 255 255 / 11%);
+    --glass-edge-hi: rgb(255 255 255 / 24%);
+    --glass-rim: rgb(255 255 255 / 12%);
+
+    --sh-face-hi: rgb(150 178 216 / 9%);
+    --sh-face-lo: rgb(150 178 216 / 0%);
+    --sh-rim: rgb(196 216 244 / 20%);
+    --sh-warm: rgb(240 71 154 / 15%);
+    --sh-cool: rgb(74 151 204 / 17%);
+  --nav-lip: rgb(255 255 255 / 6%);
+  --nav-hover: rgb(255 255 255 / 5%);
+    --nav-lip: rgb(255 255 255 / 6%);
+    --nav-hover: rgb(255 255 255 / 5%);
     --accent: #f0479a;
     --accent-ink: #14060d;
     --focus: #f0479a;
@@ -212,6 +275,32 @@
   --rb-seam: rgba(255, 255, 255, 0.22);
   --rb-perf: rgba(4, 9, 18, 0.42);
   --rb-spec: #ffffff;
+
+  /* Glow, gloss and glass. On a dark ground the rim can run hotter and the
+     glass has to be lighter than its backdrop rather than darker. */
+  --glow-1: hsl(330 85% 62% / 96%);
+  --glow-2: hsl(330 85% 62% / 62%);
+  --glow-3: hsl(330 85% 62% / 46%);
+  --glow-4: hsl(330 85% 62% / 30%);
+  --glow-5: hsl(330 85% 62% / 18%);
+  --glow-6: hsl(330 85% 62% / 10%);
+  --accent-edge: hsl(330 85% 40%);
+  --accent-shadow-1: hsl(330 85% 40% / 42%);
+  --accent-shadow-2: hsl(330 85% 45% / 40%);
+  --accent-shadow-3: hsl(330 85% 45% / 30%);
+  --glass-top: rgb(255 255 255 / 7%);
+  --glass-bottom: rgb(255 255 255 / 3%);
+  --glass-edge: rgb(255 255 255 / 11%);
+  --glass-edge-hi: rgb(255 255 255 / 24%);
+  --glass-rim: rgb(255 255 255 / 12%);
+
+  --sh-face-hi: rgb(150 178 216 / 9%);
+  --sh-face-lo: rgb(150 178 216 / 0%);
+  --sh-rim: rgb(196 216 244 / 20%);
+  --sh-warm: rgb(240 71 154 / 15%);
+  --sh-cool: rgb(74 151 204 / 17%);
+  --nav-lip: rgb(255 255 255 / 6%);
+  --nav-hover: rgb(255 255 255 / 5%);
   --accent: #f0479a;
   --accent-ink: #14060d;
   --focus: #f0479a;
@@ -245,7 +334,7 @@ img, svg { display: block; max-width: 100%; }
 :where(a, button, input, select, [tabindex]):focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
-  border-radius: 1px;
+  border-radius: 0;
 }
 
 /* =============================================================================

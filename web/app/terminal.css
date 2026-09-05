@@ -52,6 +52,19 @@ body:has(.terminal) .modal-scrim {
   --bad-a: rgba(224, 117, 92, 0.09);
   --focus: #6fb3e0;
 
+  /* The chrome tokens have to come along too. Without them a light-theme page
+     that happens to contain a desk renders the nav's glass controls in the
+     LIGHT palette against the dark bar: white buttons, grey labels, unreadable.
+     Redefining paper and ink is not enough when the surfaces derive from their
+     own set. */
+  --glass-top: rgb(255 255 255 / 7%);
+  --glass-bottom: rgb(255 255 255 / 3%);
+  --glass-edge: rgb(255 255 255 / 11%);
+  --glass-edge-hi: rgb(255 255 255 / 24%);
+  --glass-rim: rgb(255 255 255 / 12%);
+  --nav-lip: rgb(255 255 255 / 6%);
+  --nav-hover: rgb(255 255 255 / 5%);
+
   background: var(--paper);
   color: var(--ink);
 }
@@ -327,10 +340,10 @@ button.link {
    and stretched the strip down over the ticket. */
 .gauge {
   position: relative; height: 22px; width: 190px; flex: none;
-  background: var(--paper-3); border: 1px solid var(--rule); border-radius: 2px;
+  background: var(--paper-3); border: 1px solid var(--rule);
 }
 .gauge .g-zero { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--ink-4); }
-.gauge .g-band { position: absolute; top: 5px; height: 10px; border-radius: 1px; border: 1px solid; }
+.gauge .g-band { position: absolute; top: 5px; height: 10px; border: 1px solid; }
 .gauge .g-pt { position: absolute; top: 2px; width: 2px; height: 16px; }
 .gauge-cap { font-family: var(--mono); font-size: 9.5px; color: var(--ink-3); letter-spacing: 0.06em; }
 
@@ -345,7 +358,7 @@ button.link {
 .statusbar .seg-i { display: flex; align-items: center; gap: 5px; }
 .statusbar .spacer { flex: 1 1 auto; }
 .kbd {
-  font-family: var(--mono); font-size: 9.5px; padding: 0 4px; border-radius: 2px;
+  font-family: var(--mono); font-size: 9.5px; padding: 0 4px;
   border: 1px solid var(--rule-2); background: var(--paper-2); color: var(--ink-3);
 }
 
@@ -360,7 +373,7 @@ button.link {
   letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;
 }
 
-.sk { background: var(--paper-2); border-radius: 2px; position: relative; overflow: hidden; }
+.sk { background: var(--paper-2); position: relative; overflow: hidden; }
 .sk::after {
   content: "";
   position: absolute;

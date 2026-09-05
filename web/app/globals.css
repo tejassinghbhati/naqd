@@ -11,52 +11,156 @@
    Navigation
    ============================================================================= */
 
+/*
+  The bar.
+
+  An instrument's fascia, not a website header. Three things make it read that
+  way: a hairline of light along its bottom edge under the rule, so the bar has
+  a machined lip rather than a drawn border; a real vertical rule separating
+  identity from navigation, because a gap is an absence and a rule is a
+  decision; and numbered links, since this site's sections are a sequence and
+  the numbers say so.
+*/
 .nav {
   position: sticky;
   top: 0;
   z-index: 40;
   height: var(--nav-h);
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  backdrop-filter: blur(16px) saturate(1.5);
   border-bottom: 1px solid var(--rule);
-  background: color-mix(in srgb, var(--paper) 88%, transparent);
-  backdrop-filter: blur(12px);
+  /* The lip: a bright hairline sitting just under the rule. */
+  box-shadow: 0 1px 0 0 var(--nav-lip), 0 8px 28px -20px rgb(0 0 0 / 30%);
 }
 .nav-inner {
   display: flex;
   align-items: center;
-  gap: var(--s6);
+  gap: var(--s5);
   height: 100%;
   max-width: var(--grid-max);
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
-.brand { display: flex; align-items: center; gap: var(--s3); text-decoration: none; flex: none; }
-.brand-mark { flex: none; }
-.brand-name { font-size: var(--t5); font-weight: 500; letter-spacing: -0.022em; line-height: 1; }
+/* --- Identity -------------------------------------------------------------- */
 
-.nav-links { display: flex; gap: var(--s1); }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  text-decoration: none;
+  flex: none;
+}
+/* The punch sits in its own bevelled recess, the way a struck hallmark sits in
+   the metal around it. */
+.brand-punch {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
+  border: 1px solid var(--glass-edge);
+  box-shadow:
+    inset 1px 1px 0 0 var(--glass-rim),
+    inset -1px -1px 0 0 rgb(0 0 0 / 10%);
+  transition: border-color 0.18s ease, transform 0.18s cubic-bezier(0.2, 0, 0.1, 1);
+}
+.brand:hover .brand-punch { border-color: var(--glass-edge-hi); transform: translateY(-1px); }
+.brand-mark { flex: none; }
+.brand-name {
+  font-size: var(--t5);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+/* The office that struck the mark. Set as a register: mono, tracked out, and
+   quiet enough that it never competes with the name. */
+.brand-reg {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  line-height: 1;
+  padding-left: var(--s3);
+  border-left: 1px solid var(--rule);
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+/* A rule, not a gap. */
+.nav-sep {
+  width: 1px;
+  height: 22px;
+  flex: none;
+  background: var(--rule);
+}
+
+/* --- Navigation ------------------------------------------------------------ */
+
+.nav-links { display: flex; gap: var(--s2); }
 .nav-links a {
   position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
   font-size: var(--t3);
   color: var(--ink-3);
   text-decoration: none;
   padding: var(--s2) var(--s3);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.nav-idx {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-4);
   transition: color 0.15s ease;
 }
-.nav-links a:hover { color: var(--ink); }
+.nav-links a:hover { color: var(--ink); background: var(--nav-hover); }
+.nav-links a:hover .nav-idx { color: var(--accent); }
 .nav-links a[aria-current="page"] { color: var(--ink); }
+.nav-links a[aria-current="page"] .nav-idx { color: var(--accent); }
+/* A struck bar, not a hairline: 2px, hard ends, in the accent. At this size a
+   1px underline is a hover state; this is a position indicator. */
 .nav-links a[aria-current="page"]::after {
   content: "";
   position: absolute;
   left: var(--s3);
   right: var(--s3);
-  bottom: 0;
-  height: 1px;
-  background: var(--ink);
+  bottom: -1px;
+  height: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 10px 0 var(--glow-3);
 }
+
 .nav .spacer { flex: 1 1 auto; }
-@media (max-width: 720px) {
+
+/*
+  The bar sheds detail in the order it can afford to lose it, measured rather
+  than guessed: at 834px the theme control was being pushed 80px past the
+  viewport edge because the link indices had widened the row.
+
+  Register first - it is provenance, not navigation. Then the indices, which
+  are ordering the reader can infer. Then the rule. The links themselves go
+  last, and only when the row genuinely cannot hold them.
+*/
+@media (max-width: 1120px) {
+  .brand-reg { display: none; }
+}
+@media (max-width: 1000px) {
+  .nav-idx { display: none; }
+  .nav-inner { gap: var(--s4); }
+}
+@media (max-width: 860px) {
+  .nav-sep { display: none; }
   .nav-inner { gap: var(--s3); }
+  .nav-links a { padding: var(--s2) var(--s2); }
+}
+@media (max-width: 720px) {
   .nav-links { gap: 0; }
   .nav-links a { padding: var(--s2) var(--s1); font-size: var(--t2); }
 }
@@ -66,7 +170,7 @@
   a second route to it: every one of them is also a card further down the page.
   Hiding the wallet button instead would hide the thing the page is for.
 */
-@media (max-width: 560px) {
+@media (max-width: 680px) {
   .nav-links { display: none; }
   .brand-name { font-size: var(--t4); }
 }
@@ -103,7 +207,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   background: var(--accent);
   color: var(--accent-ink);
   border-color: var(--accent);
-  border-radius: 100px;
   font-weight: 600;
   padding: var(--s3) var(--s6);
   font-size: var(--t4);
@@ -411,7 +514,7 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
   font-family: var(--mono);
 }
 .legend span { display: inline-flex; align-items: center; gap: var(--s2); }
-.swatch { width: 10px; height: 10px; border-radius: 1px; flex: none; }
+.swatch { width: 10px; height: 10px; flex: none; }
 .swatch.line { height: 0; border-top: 2px dashed var(--ink-4); border-radius: 0; }
 
 /* =============================================================================
@@ -517,7 +620,7 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
 .instruments {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: var(--s7);
+  gap: var(--s5);
 }
 @media (max-width: 720px) {
   .instruments { grid-template-columns: minmax(0, 1fr); }
@@ -594,19 +697,41 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
    Instruments
    ============================================================================= */
 
+/* Cards, not ruled rows. A rim light needs a rim: the border-glow arc has
+   nothing to travel around on a surface whose only edge is a hairline at the
+   top, and the four instruments are the one place on the page the reader is
+   asked to choose between things. */
+.instrument-glow { border-radius: var(--radius-lg); }
 .instrument {
   display: flex;
   flex-direction: column;
   gap: var(--s3);
-  padding: var(--s5) 0;
-  border-top: 1px solid var(--rule);
+  height: 100%;
+  padding: var(--s6);
+  border-radius: var(--radius-lg);
   text-decoration: none;
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
+  border: 1px solid var(--glass-edge);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-rim),
+    0 1px 2px 0 rgb(0 0 0 / 4%),
+    0 12px 32px -18px rgb(0 0 0 / 20%);
+  backdrop-filter: blur(14px) saturate(1.3);
+  transition: transform 0.24s cubic-bezier(0.2, 0, 0.1, 1), box-shadow 0.24s ease;
 }
-.instrument:last-child { border-bottom: 1px solid var(--rule); }
+.instrument:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-rim),
+    0 2px 6px 0 rgb(0 0 0 / 6%),
+    0 20px 44px -20px rgb(0 0 0 / 28%);
+}
 .instrument-n { font-family: var(--mono); font-size: var(--t1); letter-spacing: 0.16em; color: var(--ink-4); }
 .instrument:hover .instrument-cta { border-bottom-color: var(--ink); }
 .instrument-cta {
   align-self: flex-start;
+  margin-top: auto;
+  padding-top: var(--s3);
   font-size: var(--t3);
   color: var(--ink);
   border-bottom: 1px solid var(--rule-2);
@@ -648,3 +773,5 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
 .route:last-child { border-bottom: 1px solid var(--rule); }
 .route code { background: none; border: 0; padding: 0; color: var(--ink); font-size: var(--t2); }
 @media (max-width: 640px) { .route { grid-template-columns: minmax(0, 1fr); gap: var(--s1); } }
+
+.code-glow, .code-glow > .card { border-radius: var(--radius-lg); }

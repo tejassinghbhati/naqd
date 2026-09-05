@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Schibsted_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { Nav } from "@/components/nav";
+import { Shards } from "@/components/shards";
 import { WalletProvider } from "@/components/wallet/WalletProvider";
 import "./system.css";
 import "./globals.css";
+import "./glow.css";
 import "./terminal.css";
 import "./wallet.css";
 
@@ -69,6 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         {/* The nav shows the account and the terminal signs with it, so the
             connection has to sit above both. */}
+        <Shards />
         <WalletProvider>
           <Nav />
           <main id="main">{children}</main>
