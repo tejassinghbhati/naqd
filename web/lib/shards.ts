@@ -26,6 +26,8 @@ export interface Shard {
   /** Vertices in local space, unit-ish, scaled by `r`. */
   poly: [number, number][];
   r: number;
+  /** Cross-axis squash. Below 1 the piece is a sliver rather than a chunk. */
+  squash: number;
   rot: number;
   /** Drift, in viewport fractions per second. */
   vx: number;
@@ -70,7 +72,16 @@ function makePoly(rnd: () => number): [number, number][] {
   });
 }
 
-export function buildShards(count = 16, seed = 7): Shard[] {
+/*
+  Many small pieces rather than a few large ones.
+
+  At the old size the field was slabs: a shape that big is read as a shape, and
+  a flat polygon the size of a paragraph competes with the paragraph. Broken
+  glass is small, numerous and mostly EDGE - which is also why these are
+  squashed on one axis. A sliver catching light along its length reads as
+  glass; an equilateral blob reads as a polygon.
+*/
+export function buildShards(count = 38, seed = 7): Shard[] {
   const rnd = mulberry32(seed);
   return Array.from({ length: count }, () => {
     const depth = rnd();
@@ -78,11 +89,12 @@ export function buildShards(count = 16, seed = 7): Shard[] {
       x: rnd(),
       y: rnd(),
       poly: makePoly(rnd),
-      r: 0.045 + depth * 0.105,
+      r: 0.014 + depth * 0.042,
+      squash: 0.26 + rnd() * 0.5,
       rot: rnd() * Math.PI * 2,
-      vx: (rnd() - 0.5) * 0.006,
-      vy: (rnd() - 0.5) * 0.004 - 0.002,
-      spin: (rnd() - 0.5) * 0.02,
+      vx: (rnd() - 0.5) * 0.008,
+      vy: (rnd() - 0.5) * 0.005 - 0.0025,
+      spin: (rnd() - 0.5) * 0.03,
       depth,
     };
   });
@@ -118,10 +130,16 @@ export function drawShards(
     const cos = Math.cos(rot);
     const sin = Math.sin(rot);
 
-    const pts = s.poly.map(([vx, vy]) => [X + (vx * cos - vy * sin) * R, Y + (vx * sin + vy * cos) * R] as [number, number]);
+    // Squash across the local y axis before rotating, so the sliver's long
+    // side lands wherever the piece happens to be turned.
+    const pts = s.poly.map(([vx0, vy0]) => {
+      const vy = vy0 * s.squash;
+      return [X + (vx0 * cos - vy * sin) * R, Y + (vx0 * sin + vy * cos) * R] as [number, number];
+    });
 
-    // Nearer shards are more present; far ones fade toward the ground.
-    const a = 0.28 + s.depth * 0.5;
+    // Nearer shards are more present; far ones fade toward the ground. Steeper
+    // than before: a shallow falloff gives a flat field with no depth in it.
+    const a = 0.1 + s.depth * s.depth * 0.9;
 
     const path = new Path2D();
     path.moveTo(pts[0]![0], pts[0]![1]);
@@ -162,10 +180,13 @@ export function drawShards(
         ctx.stroke();
       };
 
-      // Dispersion: the same edge, split either side of the rim.
-      stroke(-0.9, -0.9, pal.fringeCool, 0.55, 1.4);
-      stroke(0.9, 0.9, pal.fringeWarm, 0.45, 1.4);
-      stroke(0, 0, pal.rim, 1, 1);
+      // Dispersion: the same edge, split either side of the rim. Weighted by
+      // depth as well as facing - a distant piece should lose its chromatic
+      // fringe before it loses its outline, which is what depth of field does.
+      const near = 0.35 + s.depth * 0.65;
+      stroke(-0.8, -0.8, pal.fringeCool, 0.6 * near, 1.2);
+      stroke(0.8, 0.8, pal.fringeWarm, 0.5 * near, 1.2);
+      stroke(0, 0, pal.rim, near, 1);
     }
   }
   ctx.globalAlpha = 1;

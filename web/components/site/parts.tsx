@@ -11,6 +11,7 @@
 
 import Link from "next/link";
 import { Mark } from "./mark";
+import { Reveal } from "./reveal";
 
 /** A full-width horizontal band. Vertical rhythm comes from the space scale. */
 export function Band({
@@ -30,7 +31,7 @@ export function Band({
   const cls = size === "sm" ? "band-sm" : size === "lg" ? "band-lg" : "band";
   return (
     <section id={id} className={`${cls} ${rule ? "band-rule" : ""} ${fill ? "band-fill" : ""}`}>
-      <div className="grid">{children}</div>
+      <Reveal className="grid">{children}</Reveal>
     </section>
   );
 }

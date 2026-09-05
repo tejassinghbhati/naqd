@@ -527,7 +527,21 @@ pre code { background: none; border: 0; padding: 0; }
    Charts
    ============================================================================= */
 
-figure { margin: 0; }
+/*
+  A chart sits on its own surface.
+
+  The shard field is a ground for the ARGUMENT, not for the data: read through
+  a transparent plot area it puts moving geometry behind error bars, and a
+  reader cannot tell at a glance which lines are the measurement. The panel is
+  barely there against the page and completely opaque to the field.
+*/
+figure {
+  margin: 0;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: var(--s5);
+}
+figure figcaption { padding-inline: 0; }
 figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); max-width: var(--measure); line-height: 1.6; }
 .grid-line { stroke: var(--rule); stroke-width: 1; }
 .axis-line { stroke: var(--rule-2); stroke-width: 1; }

@@ -180,11 +180,11 @@
 
   /* The shard field. Deliberately far below body-text contrast: this is a
      ground, and a ground that competes with the type on it has failed. */
-  --sh-face-hi: rgb(202 216 235 / 26%);
+  --sh-face-hi: rgb(196 212 234 / 40%);
   --sh-face-lo: rgb(202 216 235 / 0%);
-  --sh-rim: rgb(255 255 255 / 78%);
-  --sh-warm: rgb(217 26 114 / 13%);
-  --sh-cool: rgb(26 107 168 / 15%);
+  --sh-rim: rgb(255 255 255 / 92%);
+  --sh-warm: rgb(217 26 114 / 22%);
+  --sh-cool: rgb(26 107 168 / 24%);
   --nav-lip: rgb(255 255 255 / 70%);
   --nav-hover: rgb(15 22 34 / 4%);
 
@@ -250,11 +250,11 @@
     --glass-edge-hi: rgb(255 255 255 / 24%);
     --glass-rim: rgb(255 255 255 / 12%);
 
-    --sh-face-hi: rgb(150 178 216 / 9%);
+    --sh-face-hi: rgb(158 186 226 / 16%);
     --sh-face-lo: rgb(150 178 216 / 0%);
-    --sh-rim: rgb(196 216 244 / 20%);
-    --sh-warm: rgb(240 71 154 / 15%);
-    --sh-cool: rgb(74 151 204 / 17%);
+    --sh-rim: rgb(214 230 252 / 46%);
+    --sh-warm: rgb(240 71 154 / 26%);
+    --sh-cool: rgb(74 151 204 / 30%);
   --nav-lip: rgb(255 255 255 / 6%);
   --nav-hover: rgb(255 255 255 / 5%);
     --nav-lip: rgb(255 255 255 / 6%);
@@ -319,11 +319,11 @@
   --glass-edge-hi: rgb(255 255 255 / 24%);
   --glass-rim: rgb(255 255 255 / 12%);
 
-  --sh-face-hi: rgb(150 178 216 / 9%);
+  --sh-face-hi: rgb(158 186 226 / 16%);
   --sh-face-lo: rgb(150 178 216 / 0%);
-  --sh-rim: rgb(196 216 244 / 20%);
-  --sh-warm: rgb(240 71 154 / 15%);
-  --sh-cool: rgb(74 151 204 / 17%);
+  --sh-rim: rgb(214 230 252 / 46%);
+  --sh-warm: rgb(240 71 154 / 26%);
+  --sh-cool: rgb(74 151 204 / 30%);
   --nav-lip: rgb(255 255 255 / 6%);
   --nav-hover: rgb(255 255 255 / 5%);
   --accent: #f0479a;
