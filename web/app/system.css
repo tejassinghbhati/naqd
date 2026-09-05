@@ -138,6 +138,7 @@
   --ctl-fs-md: var(--t3);
   --ctl-fs-lg: var(--t4);
 
+  --display: var(--font-display), "Archivo", ui-sans-serif, system-ui, sans-serif;
   --sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
@@ -187,6 +188,7 @@
   --sh-cool: rgb(26 107 168 / 24%);
   --nav-lip: rgb(255 255 255 / 70%);
   --nav-hover: rgb(15 22 34 / 4%);
+  --nav-sunk: rgb(15 22 34 / 7%);
 
   --nav-h: 68px;
 }
@@ -255,10 +257,9 @@
     --sh-rim: rgb(214 230 252 / 46%);
     --sh-warm: rgb(240 71 154 / 26%);
     --sh-cool: rgb(74 151 204 / 30%);
-  --nav-lip: rgb(255 255 255 / 6%);
-  --nav-hover: rgb(255 255 255 / 5%);
     --nav-lip: rgb(255 255 255 / 6%);
     --nav-hover: rgb(255 255 255 / 5%);
+    --nav-sunk: rgb(0 0 0 / 26%);
     --accent: #f0479a;
     --accent-ink: #14060d;
     --focus: #f0479a;
@@ -326,6 +327,7 @@
   --sh-cool: rgb(74 151 204 / 30%);
   --nav-lip: rgb(255 255 255 / 6%);
   --nav-hover: rgb(255 255 255 / 5%);
+  --nav-sunk: rgb(0 0 0 / 26%);
   --accent: #f0479a;
   --accent-ink: #14060d;
   --focus: #f0479a;
@@ -388,7 +390,7 @@ img, svg { display: block; max-width: 100%; }
   than a headline that was designed.
 */
 .display {
-  font-family: var(--sans);
+  font-family: var(--display);
   font-weight: 800;
   font-size: min(var(--t9), 6.1vw, 10.4vh);
   line-height: 0.94;
@@ -400,9 +402,9 @@ img, svg { display: block; max-width: 100%; }
    belongs to the landing, where it is the only thing on screen besides the
    object; used on every page it stops being an entrance. */
 .display-sm { font-size: var(--t8); letter-spacing: -0.036em; line-height: 0.98; }
-.h1 { font-weight: 700; font-size: var(--t8); line-height: 1.02; letter-spacing: -0.034em; }
-.h2 { font-weight: 700; font-size: var(--t7); line-height: 1.1; letter-spacing: -0.028em; }
-.h3 { font-weight: 500; font-size: var(--t6); line-height: var(--lh-snug); letter-spacing: -0.016em; }
+.h1 { font-family: var(--display); font-weight: 700; font-size: var(--t8); line-height: 1.02; letter-spacing: -0.034em; }
+.h2 { font-family: var(--display); font-weight: 700; font-size: var(--t7); line-height: 1.1; letter-spacing: -0.028em; }
+.h3 { font-family: var(--display); font-weight: 600; font-size: var(--t6); line-height: var(--lh-snug); letter-spacing: -0.016em; }
 .h4 { font-weight: 500; font-size: var(--t5); line-height: 1.3; letter-spacing: -0.011em; }
 
 /* Fluid only where a fixed size would actually break: the two largest steps. */

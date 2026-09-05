@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Schibsted_Grotesk, IBM_Plex_Mono } from "next/font/google";
+import { Archivo, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import { Nav } from "@/components/nav";
 import { Shards } from "@/components/shards";
 import { WalletProvider } from "@/components/wallet/WalletProvider";
@@ -9,19 +9,42 @@ import "./glow.css";
 import "./terminal.css";
 import "./wallet.css";
 
-// Self-hosted through next/font: no render-blocking request to a font CDN, and
-// no layout shift while a fallback swaps out.
-// One family for everything. A display serif beside a text sans is a
-// contrast the page has to earn; without it the type system is quieter and
-// there is one voice to get right instead of two. Numbers stay monospaced.
-const sans = Schibsted_Grotesk({
+/*
+  Three faces, each doing one job. All self-hosted through next/font, so there
+  is no render-blocking request to a font CDN and no layout shift while a
+  fallback swaps out.
+
+  ARCHIVO carries the display. It was drawn for signage and highway lettering,
+  which is exactly the brief a headline has: read at size, hold its shape when
+  set tight, and stay square under weight. At 800 it has closed apertures and
+  flat terminals - engineered rather than friendly, which is the register an
+  assay office wants.
+
+  INSTRUMENT SANS carries running text and every control. It is narrower than
+  the display face and slightly technical in the details, so a paragraph does
+  not read as a shrunken headline. Two grotesks only work together when one is
+  doing something the other cannot; these differ in width and in weight class,
+  and never appear at the same size.
+
+  JETBRAINS MONO carries data. It was drawn for code, which means it is drawn
+  for columns of digits: unambiguous 0/O and 1/l, and even colour down a
+  column of prices, which is what a book of quotes actually needs.
+*/
+const display = Archivo({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const sans = Instrument_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });
 
-const mono = IBM_Plex_Mono({
+const mono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-mono",
@@ -61,7 +84,7 @@ try {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
       </head>
