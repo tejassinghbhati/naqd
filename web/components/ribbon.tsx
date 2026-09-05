@@ -88,10 +88,14 @@ export function Ribbon({ bins }: { bins: CalibrationBin[] }) {
       // Ease toward the pointer rather than tracking it. The constant is per
       // frame, so this is framerate-dependent by a hair, and that is fine: it
       // is a feel, not a measurement.
-      cx += (px - cx) * 0.045;
-      cy += (py - cy) * 0.045;
-      const yaw = 0.17 * Math.sin(t * 0.00023) + 0.1 * Math.sin(t * 0.00037 + 1.7) + cx * 0.17;
-      const pitch = 0.085 * Math.sin(t * 0.00019 + 0.6) + cy * 0.09;
+      cx += (px - cx) * 0.06;
+      cy += (py - cy) * 0.06;
+      // Wider and faster than a drift. The object is the page's one moving
+      // thing and it was turning slowly enough that a reader could look at it
+      // for several seconds without being sure it moved at all - which buys
+      // the cost of animating it and none of the benefit.
+      const yaw = 0.34 * Math.sin(t * 0.00046) + 0.19 * Math.sin(t * 0.00071 + 1.7) + cx * 0.3;
+      const pitch = 0.17 * Math.sin(t * 0.00037 + 0.6) + cy * 0.16;
       paint(yaw, pitch);
       raf = requestAnimationFrame(frame);
     };

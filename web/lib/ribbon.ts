@@ -59,7 +59,7 @@ export const STEPS = 12;
  * and a third of it fell below the fold, which meant none of the material work
  * was visible without scrolling.
  */
-export const ASPECT = 3.45;
+export const ASPECT = 2.75;
 
 const N = 100;
 /** Strips across the band's width. See BOW. */
@@ -78,7 +78,7 @@ const BOW = 0.34;
 const SPAN = 2.9; // world length of the sweep
 const RAKE = 0.1; // a slight climb, so the sweep is not symmetric
 const BULGE = 0.34; // how far the middle leans toward the viewer
-const HALF_W = 0.135; // half the band's width, in world units
+const HALF_W = 0.168; // half the band's width, in world units
 const THICK = 0.024;
 
 export interface Bin {

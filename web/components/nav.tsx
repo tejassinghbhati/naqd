@@ -50,6 +50,9 @@ export function Nav() {
 
       <div className="spacer" />
 
+      {/* One cluster, not two floating buttons. Sharing a border is what makes
+          a pair of controls read as a single piece of hardware. */}
+      <div className="nav-actions">
       {conn ? (
         <AccountMenu
           cfg={cfg}
@@ -68,6 +71,7 @@ export function Nav() {
       )}
 
       <ThemeToggle />
+      </div>
       </div>
     </nav>
   );

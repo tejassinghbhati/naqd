@@ -101,41 +101,77 @@
 
 /* --- Navigation ------------------------------------------------------------ */
 
-.nav-links { display: flex; gap: var(--s2); }
+/*
+  A segmented selector, not a row of links.
+
+  Links floating in a bar are a website. One bordered strip divided by hairlines
+  is a rotary switch on a fascia, and it makes the current position a POSITION
+  rather than an underline: the selected cell is recessed, with the bevel
+  inverted, exactly as a depressed key would be. That reads at a glance from
+  across the room in a way a 2px rule underneath never does.
+*/
+.nav-links {
+  display: flex;
+  height: var(--ctl-md);
+  border: 1px solid var(--glass-edge);
+  background: linear-gradient(180deg, var(--glass-top), var(--glass-bottom));
+  box-shadow: inset 0 1px 0 0 var(--glass-rim);
+  backdrop-filter: blur(12px) saturate(1.4);
+}
 .nav-links a {
   position: relative;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--s2);
+  height: 100%;
+  padding: 0 var(--s4);
   font-size: var(--t3);
+  font-weight: 500;
   color: var(--ink-3);
   text-decoration: none;
-  padding: var(--s2) var(--s3);
   transition: color 0.15s ease, background-color 0.15s ease;
 }
+.nav-links a + a { border-left: 1px solid var(--glass-edge); }
 .nav-idx {
   font-family: var(--mono);
   font-size: 9px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--ink-4);
   transition: color 0.15s ease;
 }
+/* Hover brightens; it does not borrow the accent. The accent index is the
+   position readout, and a hover state that looks like the current position
+   tells the reader they are somewhere they are not. */
 .nav-links a:hover { color: var(--ink); background: var(--nav-hover); }
-.nav-links a:hover .nav-idx { color: var(--accent); }
-.nav-links a[aria-current="page"] { color: var(--ink); }
+.nav-links a:hover .nav-idx { color: var(--ink-3); }
+
+/* Depressed. Light falls on the bottom edge of a recess, never the top. */
+.nav-links a[aria-current="page"] {
+  color: var(--ink);
+  background: var(--nav-sunk);
+  box-shadow:
+    inset 0 2px 4px 0 rgb(0 0 0 / 22%),
+    inset 0 -1px 0 0 var(--glass-rim);
+}
 .nav-links a[aria-current="page"] .nav-idx { color: var(--accent); }
-/* A struck bar, not a hairline: 2px, hard ends, in the accent. At this size a
-   1px underline is a hover state; this is a position indicator. */
+/* A struck bar along the bottom of the depressed cell: the position readout. */
 .nav-links a[aria-current="page"]::after {
   content: "";
   position: absolute;
-  left: var(--s3);
-  right: var(--s3);
-  bottom: -1px;
+  inset-inline: 0;
+  bottom: 0;
   height: 2px;
   background: var(--accent);
   box-shadow: 0 0 10px 0 var(--glow-3);
 }
+
+/* --- The action cluster ---------------------------------------------------- */
+
+.nav-actions { display: flex; align-items: center; }
+/* Overlap by the border width so neighbours share one hairline rather than
+   stacking two, which is the same rule the instrument grid uses. */
+.nav-actions > * + * { margin-left: -1px; }
+.nav-actions > *:hover { z-index: 1; }
 
 .nav .spacer { flex: 1 1 auto; }
 
@@ -647,7 +683,7 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
   width: 100%;
   /* Matches ASPECT in lib/ribbon. Reserved before the first frame paints, so
      nothing below the hero moves when the object appears. */
-  aspect-ratio: 3.45;
+  aspect-ratio: 2.75;
   display: block;
 }
 /* A 3.45 box on a phone is a 110px sliver, which reads as a rule rather than
