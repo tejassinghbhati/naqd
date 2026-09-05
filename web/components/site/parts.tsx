@@ -111,13 +111,14 @@ export function Footer({ asOf }: { asOf?: number }) {
     <footer className="footer">
       <div className="grid">
         <div className="col-5 v4">
-          <Link href="/" className="brand" aria-label="Assay, home">
+          <Link href="/" className="brand" aria-label="Naqd, home">
             <Mark size={20} />
-            <span className="brand-name">Assay</span>
+            <span className="brand-name">Naqd</span>
           </Link>
           <p className="body-sm" style={{ maxWidth: "38ch" }}>
-            An assay office for prediction market prices. We test what DreamDEX event-contract prices
-            are actually made of, and act only when the assay says there is something there.
+            Naqd means the coin and the appraisal of it. We appraise DreamDEX event-contract
+            prices against what actually settles, and act only when the appraisal says there is
+            something there.
           </p>
         </div>
 
@@ -146,7 +147,7 @@ export function Footer({ asOf }: { asOf?: number }) {
           <span>Not financial advice. Event contracts can lose their entire stake.</span>
           <span className="mono">
             {asOf
-              ? `Assayed ${new Date(asOf * 1000).toISOString().slice(0, 16).replace("T", " ")} UTC`
+              ? `Appraised ${new Date(asOf * 1000).toISOString().slice(0, 16).replace("T", " ")} UTC`
               : "Stats API offline"}
           </span>
         </div>

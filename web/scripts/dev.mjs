@@ -41,8 +41,8 @@ const cache = join(root, ".next");
 const lock = join(root, ".dev.lock");
 
 if (existsSync(lock)) {
-  console.log("[assay] the last dev server was killed rather than stopped, so .next may be");
-  console.log("[assay] half-written. Clearing it; the first compile will be slower than usual.");
+  console.log("[naqd] the last dev server was killed rather than stopped, so .next may be");
+  console.log("[naqd] half-written. Clearing it; the first compile will be slower than usual.");
   rmSync(cache, { recursive: true, force: true });
 }
 writeFileSync(lock, String(process.pid));

@@ -1,5 +1,5 @@
 /**
- * Assay agent - the loop.
+ * Naqd agent - the loop.
  *
  * Reads the measured edge out of the local store, asks the policy what to quote,
  * and places post-only orders on the markets that pass every gate. Its default

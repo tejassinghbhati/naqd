@@ -1,5 +1,5 @@
 /**
- * Assay app - network definitions and the venue we trade.
+ * Naqd app - network definitions and the venue we trade.
  *
  * Kept separate from the wallet plumbing because these are facts about the
  * deployment, not about the user: a browser with no wallet at all still needs

@@ -1,11 +1,11 @@
 <div align="center">
 
-# Assay
+# Naqd
 
-**An assay office for prediction market prices.**
+**In Urdu and Persian, _naqd_ means both the coin and the appraisal of it.**
 
 We take DreamDEX event-contract prices, test what they are actually made of, and publish the result -
-as an API, a research site, a trading terminal, and an agent that only trades when the assay says
+as an API, a research site, a trading terminal, and an agent that only trades when the appraisal says
 there is something there.
 
 Built for the [Somnia × DreamDEX Event Contracts Hackathon](https://dorahacks.io/hackathon/event-contracts/detail)
@@ -14,7 +14,7 @@ Built for the [Somnia × DreamDEX Event Contracts Hackathon](https://dorahacks.i
 
 </div>
 
-![Assay](docs/web-home.png)
+![Naqd](docs/web-home.png)
 
 > The hero backdrop is not decoration. It is the venue&rsquo;s real calibration curve rendered as
 > light: the diagonal of perfect pricing, and every price bucket sitting off it by exactly as much
@@ -104,7 +104,7 @@ flowchart LR
     RPC[("RPC<br/>on-chain state")]
   end
 
-  subgraph assay["Assay"]
+  subgraph naqd["Naqd"]
     ING["Ingest<br/>idempotent backfill"]
     DB[("SQLite<br/>markets · fills · oracle")]
     AN["Analytics<br/>calibration · edge · PnL"]
@@ -214,7 +214,7 @@ A Next.js 15 application on the App Router, four routes sharing one design syste
 
 ### Design
 
-An assay office publishes reports; a trading desk operates instruments. Those are different jobs, so
+An appraiser publishes findings; a trading desk operates instruments. Those are different jobs, so
 they get different registers - deliberately. The publication surfaces are light, editorial and set
 on a strict grid. The terminal is dark and dense, because that is what a desk is.
 
@@ -248,7 +248,7 @@ inline script, so navigating never flashes the wrong one.
 ### The terminal
 
 A trading client that puts the measurement next to the money. Connect a wallet, browse the
-open windows with live countdowns and books, and trade - with Assay's fair value and a
+open windows with live countdowns and books, and trade - with Naqd's fair value and a
 **RICH / CHEAP / IN LINE** badge beside every price.
 
 It opens on **mainnet**, because that is where the markets are: the testnet indexer carries no
@@ -338,7 +338,7 @@ sequenceDiagram
 
 DreamDEX's own docs are explicit that *"the HTTP API covers spot only - no event-contract
 endpoints,"* so anything wanting this data today has to run the TypeScript SDK and hold a viem
-client. Assay serves it as plain JSON, no key, permissive CORS.
+client. Naqd serves it as plain JSON, no key, permissive CORS.
 
 | Route | Returns |
 |---|---|
@@ -374,7 +374,7 @@ stats service running, every price simply shows **no fair value** rather than a 
 
 If port 3000 is busy the app moves to the next free one and prints where it went. If 8787 is busy
 the API stops and tells you what to do, because moving it silently would leave the app pointed at
-whatever else is answering there. Run it elsewhere with `PORT=8788 ASSAY_API=http://localhost:8788`.
+whatever else is answering there. Run it elsewhere with `PORT=8788 NAQD_API=http://localhost:8788`.
 
 Both of the cache problems that used to bite here are handled now. A build and a dev server no
 longer share a directory (`dev` uses `.next`, `build` and `start` use `.next-build`), and a dev

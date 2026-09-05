@@ -30,10 +30,10 @@ const line = (mark: string, label: string, detail: string) => console.log(`[${ma
 const main = async () => {
   const cfg = loadAgentConfig();
   const edgeNetwork = (process.env.EDGE_NETWORK ?? "mainnet") as Network;
-  const dbPath = process.env.ASSAY_DB ?? `data/assay-${edgeNetwork}.db`;
+  const dbPath = process.env.NAQD_DB ?? `data/naqd-${edgeNetwork}.db`;
   let problems = 0;
 
-  console.log("assay doctor\n");
+  console.log("naqd doctor\n");
 
   // --- 1. The chain the agent would trade on --------------------------------
   console.log(`agent target: ${cfg.network} (chain ${cfg.chainId})`);

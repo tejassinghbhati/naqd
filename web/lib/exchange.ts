@@ -1,5 +1,5 @@
 /**
- * Assay app - the SDK client, and every guard that keeps a click honest.
+ * Naqd app - the SDK client, and every guard that keeps a click honest.
  *
  * The event-contract SDK has a set of edges that fail SILENTLY, which is far
  * worse in a UI than in a bot: a bot logs and retries, a user just sees a

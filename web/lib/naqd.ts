@@ -1,5 +1,5 @@
 /**
- * Assay app - the fair-value feed.
+ * Naqd app - the fair-value feed.
  *
  * This is the file that makes this app different from any other DreamDEX
  * frontend. Everyone can show you the price. Only this one can tell you what
@@ -46,7 +46,7 @@ export interface CalibrationBin {
   significant: boolean;
 }
 
-export interface AssayStats {
+export interface NaqdStats {
   live: LiveEdge;
   calibration: CalibrationBin[];
   makerRoi: number;
@@ -67,7 +67,7 @@ const API = "/api/stats";
  * has to stay usable as a plain trading client without it. Every consumer here
  * treats a null as "we have no measurement", never as "the edge is zero".
  */
-export async function fetchStats(signal?: AbortSignal): Promise<AssayStats | null> {
+export async function fetchStats(signal?: AbortSignal): Promise<NaqdStats | null> {
   try {
     const res = await fetch(`${API}/v1/summary`, { signal, cache: "no-store" });
     if (!res.ok) return null;
@@ -125,7 +125,7 @@ const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x
  */
 export function fairValue(
   // Narrowed to the one field this actually reads. The server's `Summary` and
-  // the client's `AssayStats` carry different extras; both satisfy this, so
+  // the client's `NaqdStats` carry different extras; both satisfy this, so
   // neither caller needs a cast.
   stats: { live: LiveEdge } | null,
   impliedUp: number | null | undefined,
@@ -133,7 +133,7 @@ export function fairValue(
   const implied = impliedUp ?? null;
 
   if (!stats) {
-    return { fair: null, implied, edge: null, signal: "unknown", explain: "Edge data unavailable - start the Assay API to see fair value." };
+    return { fair: null, implied, edge: null, signal: "unknown", explain: "Edge data unavailable - start the Naqd API to see fair value." };
   }
   if (stats.live.verdict === "stand-down") {
     return {

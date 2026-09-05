@@ -11,7 +11,7 @@
  * grey reserved for "this interval touches zero, so it says nothing".
  */
 
-import type { CalibrationBin } from "@/lib/assay";
+import type { CalibrationBin } from "@/lib/naqd";
 import type { Estimate, WeeklyEdge, SeriesRow } from "@/lib/stats-server";
 import { cadence } from "@/lib/format";
 

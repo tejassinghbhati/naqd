@@ -110,15 +110,15 @@ export default async function Landing() {
       <section className="hero">
         <div className="grid">
           <div className="col-12 hero-stack">
-            <span className="eyebrow">Assay office · DreamDEX event contracts</span>
-            <h1 className="display">Trust, but assay.</h1>
+            <span className="eyebrow">Naqd · DreamDEX event contracts</span>
+            <h1 className="display">Trust, but weigh it.</h1>
             <p className="prose hero-lede">
-              An assay office tests metal for what it is genuinely made of. We do that to prices,
-              across every event contract this venue settles.
+              In Urdu and Persian, <em>naqd</em>{" "}means both the coin and the appraisal of it. We
+              do the appraising, across every event contract this venue settles.
             </p>
             <div className="h3f">
               <Link href="/research" className="btn btn-pill btn-lg">
-                Read the assay
+                Read the appraisal
               </Link>
               <Link href="/terminal" className="btn btn-glass btn-lg">
                 Open the terminal
@@ -156,7 +156,7 @@ export default async function Landing() {
               <EdgeGauge estimate={s.live.recent} point={s.live.edge} />
               <dl className="reading-facts">
                 <div>
-                  <dt className="eyebrow">Assayed</dt>
+                  <dt className="eyebrow">Appraised</dt>
                   <dd>{num(s.baseRate.n)}</dd>
                 </div>
                 <div>
@@ -184,8 +184,8 @@ export default async function Landing() {
         />
         <div className="col-5 start-7 v4">
           <p className="prose">
-            A venue quotes 70% and you either take it or you do not. There is no assay office for
-            prices: no independent party asking whether markets priced at 70% actually resolve that
+            A venue quotes 70% and you either take it or you do not. Nobody appraises the price:
+            there is no independent party asking whether markets priced at 70% actually resolve that
             way, and no way to know whether the number you are paying is well-calibrated or merely
             confident.
           </p>
@@ -315,7 +315,7 @@ export default async function Landing() {
               {
                 n: "02",
                 h: "Public event-contract API",
-                p: "DreamDEX's own HTTP API covers spot only, so anything wanting this data has to run the TypeScript SDK and hold a viem client. Assay serves it as plain JSON: no key, permissive CORS, every figure recomputed from settled history.",
+                p: "DreamDEX's own HTTP API covers spot only, so anything wanting this data has to run the TypeScript SDK and hold a viem client. Naqd serves it as plain JSON: no key, permissive CORS, every figure recomputed from settled history.",
                 href: "/developers",
                 cta: "Browse the routes",
               },

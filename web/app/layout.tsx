@@ -38,17 +38,17 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://assay.local"),
+  metadataBase: new URL("https://naqd.local"),
   title: {
-    default: "Assay",
-    template: "%s · Assay",
+    default: "Naqd",
+    template: "%s · Naqd",
   },
   description:
-    "An assay office for prediction market prices. We test what DreamDEX event-contract prices are actually made of, and trade only when the assay says there is something there.",
+    "Naqd means the coin and the appraisal of it. We appraise DreamDEX event-contract prices against what actually settles, and trade only when the appraisal says there is something there.",
   openGraph: {
-    title: "Assay",
+    title: "Naqd",
     description:
-      "When this venue says 70%, does it happen 70% of the time? An assay office for DreamDEX event-contract prices.",
+      "When this venue says 70%, does it happen 70% of the time? An appraisal of DreamDEX event-contract prices, measured against what settled.",
     type: "website",
   },
 };
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
  */
 const THEME_INIT = `
 try {
-  var t = localStorage.getItem("assay-theme");
+  var t = localStorage.getItem("naqd-theme");
   if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
 } catch (e) {}
 `;

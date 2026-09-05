@@ -1,5 +1,5 @@
 /**
- * Server-side reads of the Assay stats API.
+ * Server-side reads of the Naqd stats API.
  *
  * The research pages are rendered on the server, so they fetch the measurement
  * directly rather than shipping a loading spinner to the browser and filling it
@@ -12,9 +12,9 @@
  * explains the gap.
  */
 
-import type { CalibrationBin, LiveEdge } from "./assay";
+import type { CalibrationBin, LiveEdge } from "./naqd";
 
-export const API_BASE = process.env.ASSAY_API ?? "http://localhost:8787";
+export const API_BASE = process.env.NAQD_API ?? "http://localhost:8787";
 
 export interface Estimate {
   mean: number;

@@ -22,7 +22,7 @@ import Link from "next/link";
 import { NETWORKS } from "@/lib/chain";
 import { createExchange } from "@/lib/exchange";
 import { loadBook, loadLiveMarkets, type Book, type LiveMarket } from "@/lib/markets";
-import { fairValue, type LiveEdge } from "@/lib/assay";
+import { fairValue, type LiveEdge } from "@/lib/naqd";
 import { cadence } from "@/lib/format";
 
 const MARKETS_MS = 20_000;
@@ -158,7 +158,7 @@ export function HeroLive({ stats }: { stats: { live: LiveEdge } | null }) {
 
         {/* The column nobody else has. */}
         <div className="live-fair">
-          <span className="eyebrow">Assay fair</span>
+          <span className="eyebrow">Naqd fair</span>
           <span className="live-px mono" style={{ color: "var(--ink)" }}>
             {fair.fair === null ? "–" : fair.fair.toFixed(2)}
           </span>

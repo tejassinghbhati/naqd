@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark" | "system";
 
-const KEY = "assay-theme";
+const KEY = "naqd-theme";
 
 /**
  * Three states, not two.

@@ -1,5 +1,5 @@
 /**
- * Assay - where the liquidity actually is.
+ * Naqd - where the liquidity actually is.
  *
  * The headline number for this venue is not its volume, it is its coverage: of
  * 6,906 binary markets created on mainnet, only ~1,200 ever printed a single

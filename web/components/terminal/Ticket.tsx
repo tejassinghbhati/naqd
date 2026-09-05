@@ -21,7 +21,7 @@ import type { SomniaMarkets, MarketOnchain } from "@somnia-chain/markets-sdk";
 import type { NetworkConfig } from "@/lib/chain";
 import type { LiveMarket, Book } from "@/lib/markets";
 import { placeOrder, explainError, minSize, tickStep, type Outcome, type OrderMode } from "@/lib/exchange";
-import type { FairValue } from "@/lib/assay";
+import type { FairValue } from "@/lib/naqd";
 import { cadence } from "@/lib/format";
 
 interface Props {
@@ -265,7 +265,7 @@ export function Ticket({
             <>
               <div className="sep" />
               <div className="r">
-                <span className="k">vs Assay fair</span>
+                <span className="k">vs Naqd fair</span>
                 <span
                   className="v"
                   style={{ color: valueCents > 0.5 ? "var(--ok)" : valueCents < -0.5 ? "var(--bad)" : "var(--ink-3)" }}

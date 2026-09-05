@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Assay Terminal.
+ * Naqd Terminal.
  *
  * A trading client for DreamDEX event contracts that shows, beside every price,
  * what that price has historically been wrong by. No other frontend can render
@@ -33,7 +33,7 @@ import {
   type Book,
   type LiveMarket,
 } from "@/lib/markets";
-import { fairValue, fetchStats, type AssayStats } from "@/lib/assay";
+import { fairValue, fetchStats, type NaqdStats } from "@/lib/naqd";
 import { OrderBook } from "@/components/terminal/OrderBook";
 import { Ticket } from "@/components/terminal/Ticket";
 import { MarketList } from "@/components/terminal/MarketList";
@@ -58,7 +58,7 @@ export default function TerminalClient() {
   const [tops, setTops] = useState<Map<string, number>>(new Map());
   const [book, setBook] = useState<Book>(EMPTY_BOOK);
   const [onchain, setOnchain] = useState<MarketOnchain | null>(null);
-  const [stats, setStats] = useState<AssayStats | null>(null);
+  const [stats, setStats] = useState<NaqdStats | null>(null);
   const [claims, setClaims] = useState<ClaimRow[]>([]);
   const [claiming, setClaiming] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -240,7 +240,7 @@ export default function TerminalClient() {
     <div className="terminal">
       <header className="topbar">
         <div className="wordmark">
-          <span className="name">ASSAY</span>
+          <span className="name">NAQD</span>
           <span className="tag">EVENT CONTRACTS</span>
         </div>
 

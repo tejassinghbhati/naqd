@@ -1,5 +1,5 @@
 /**
- * `npm run agent` - run the Assay market-making agent.
+ * `npm run agent` - run the Naqd market-making agent.
  *
  * Defaults to DRY_RUN and to testnet. It logs exactly what it would place and
  * sends nothing until you set DRY_RUN=false, which is the order every one of
@@ -25,7 +25,7 @@ const config = loadAgentConfig();
 // markets are too thin to estimate anything, and the pricing behaviour we are
 // modelling is the venue's, not the chain's. Say so rather than let it surprise.
 const edgeNetwork = process.env.EDGE_NETWORK ?? "mainnet";
-const dbPath = process.env.ASSAY_DB ?? `data/assay-${edgeNetwork}.db`;
+const dbPath = process.env.NAQD_DB ?? `data/naqd-${edgeNetwork}.db`;
 
 const num = (name: string, def: number) => {
   const raw = process.env[name];
@@ -39,7 +39,7 @@ const db = openDb(dbPath);
 const asOf = Number(getMeta(db, "last_backfill_at") ?? 0);
 const ageHours = asOf ? (Date.now() / 1000 - asOf) / 3600 : Infinity;
 
-console.log("assay agent");
+console.log("naqd agent");
 console.log(`  trading on   ${config.network} (chain ${config.chainId})${config.dryRun ? "  [DRY RUN]" : "  [LIVE]"}`);
 console.log(`  venue        ${config.venueId.slice(0, 12)}...`);
 console.log(`  edge from    ${dbPath} (${edgeNetwork})`);
@@ -52,8 +52,8 @@ if (!Number.isFinite(ageHours)) {
 }
 if (ageHours > 48) {
   console.error(`\nstore is ${ageHours.toFixed(0)}h old - refusing to size quotes off a stale edge.`);
-  console.error("run `npm run backfill`, or set ASSAY_ALLOW_STALE=1 to override.");
-  if (process.env.ASSAY_ALLOW_STALE !== "1") process.exit(1);
+  console.error("run `npm run backfill`, or set NAQD_ALLOW_STALE=1 to override.");
+  if (process.env.NAQD_ALLOW_STALE !== "1") process.exit(1);
 }
 if (!config.dryRun && !config.privateKey) {
   console.error("\nDRY_RUN=false but no PRIVATE_KEY is set.");

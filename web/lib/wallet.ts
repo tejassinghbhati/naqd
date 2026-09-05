@@ -49,7 +49,7 @@ declare global {
   }
 }
 
-const STORAGE_KEY = "assay-wallet-rdns";
+const STORAGE_KEY = "naqd-wallet-rdns";
 
 /**
  * Listen for wallet announcements.

@@ -1,5 +1,5 @@
 /**
- * Assay app - reading live markets, books, and positions.
+ * Naqd app - reading live markets, books, and positions.
  *
  * Everything here is a read. Writes live in exchange.ts, so a component that
  * only displays data cannot accidentally reach a signer.

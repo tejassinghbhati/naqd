@@ -1,5 +1,5 @@
 /**
- * Assay - calibration: when this venue says 70%, does it happen 70% of the time?
+ * Naqd - calibration: when this venue says 70%, does it happen 70% of the time?
  *
  * Short windows are what make this measurable at all. A Polymarket question
  * resolves in months, so its calibration curve is a lifetime project. DreamDEX

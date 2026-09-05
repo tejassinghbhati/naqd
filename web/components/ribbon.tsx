@@ -19,7 +19,7 @@
  */
 
 import { useEffect, useRef } from "react";
-import type { CalibrationBin } from "@/lib/assay";
+import type { CalibrationBin } from "@/lib/naqd";
 import {
   ASPECT,
   MAX_PITCH,

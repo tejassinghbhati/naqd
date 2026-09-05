@@ -22,11 +22,11 @@ export function Nav() {
   return (
     <nav className="nav">
       <div className="nav-inner">
-      <Link href="/" className="brand" aria-label="Assay, home">
+      <Link href="/" className="brand" aria-label="Naqd, home">
         <span className="brand-punch">
           <Mark size={20} />
         </span>
-        <span className="brand-name">Assay</span>
+        <span className="brand-name">Naqd</span>
         {/* The register mark. A hallmark carries the office that struck it, and
             it is the one place the venue's name belongs at this size. */}
         <span className="brand-reg">DreamDEX</span>

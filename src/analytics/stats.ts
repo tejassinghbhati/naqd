@@ -1,5 +1,5 @@
 /**
- * Assay - the statistics the rest of the analytics stands on.
+ * Naqd - the statistics the rest of the analytics stands on.
  *
  * This file exists because the obvious way to measure a prediction-market edge
  * is wrong, and wrong in a direction that manufactures confidence.
@@ -73,7 +73,7 @@ function mulberry32(seed: number): () => number {
  * preserved and only correlation ACROSS blocks is assumed away. On our data the
  * ordinary CI on the pricing error is [-0.047, -0.006] - comfortably negative -
  * while this one is [-0.051, +0.022], which crosses zero. The second is the
- * honest one, and it is why Assay's agent refuses to trade a "constant" bias.
+ * honest one, and it is why Naqd's agent refuses to trade a "constant" bias.
  */
 export function blockBootstrap(
   blocks: number[][],

@@ -1,5 +1,5 @@
 /**
- * Assay API - a public read API for DreamDEX event contracts.
+ * Naqd API - a public read API for DreamDEX event contracts.
  *
  * This exists to fill a documented gap. DreamDEX's own HTTP API covers spot
  * only ("The HTTP API covers spot only - no event-contract endpoints"), so
@@ -27,7 +27,7 @@ import { Indexer, KNOWN_VENUE, COLLATERAL_DECIMALS, toFloat, type Network } from
 import { liveMarkets } from "../indexer/queries.js";
 
 const network = ((process.env.NETWORK ?? "mainnet").toLowerCase() === "testnet" ? "testnet" : "mainnet") as Network;
-const dbPath = process.env.ASSAY_DB ?? `data/assay-${network}.db`;
+const dbPath = process.env.NAQD_DB ?? `data/naqd-${network}.db`;
 const port = Number(process.env.PORT ?? 8787);
 
 const db: DB = openDb(dbPath);
@@ -89,7 +89,7 @@ type Handler = (ctx: Ctx) => void | Promise<void>;
 const routes: Record<string, Handler> = {
   "/": ({ res }) =>
     send(res, 200, {
-      name: "assay",
+      name: "naqd",
       description: "Public read API for DreamDEX event contracts on Somnia",
       network,
       venueId,
@@ -255,6 +255,6 @@ server.on("error", (e: NodeJS.ErrnoException) => {
 });
 
 server.listen(port, () => {
-  console.log(`assay api - ${network} - http://localhost:${port}`);
+  console.log(`naqd api - ${network} - http://localhost:${port}`);
   console.log(`  store ${dbPath}  venue ${venueId.slice(0, 10)}...`);
 });

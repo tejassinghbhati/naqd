@@ -1,5 +1,5 @@
 /**
- * Assay - is there an edge in this venue's pricing right now?
+ * Naqd - is there an edge in this venue's pricing right now?
  *
  * The finding this module encodes, measured on 6,906 mainnet markets and the
  * 1,200 of them that traded:

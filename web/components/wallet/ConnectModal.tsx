@@ -150,7 +150,7 @@ export function ConnectModal({ open, wallets, connecting, error, onPick, onClose
           )}
 
           <p className="small ink-4" style={{ marginTop: "var(--s3)" }}>
-            Assay never holds your funds. Orders are signed in your wallet and settle directly
+            Naqd never holds your funds. Orders are signed in your wallet and settle directly
             against the DreamDEX pool.
           </p>
         </div>

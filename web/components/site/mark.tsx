@@ -1,8 +1,9 @@
 /**
- * The Assay mark.
+ * The Naqd mark.
  *
- * A hallmark is what an assay office strikes into metal once it has tested the
- * metal and found it to be what it claims. So the mark is a struck punch, and
+ * A hallmark is what an assay office strikes into metal once it has tested it
+ * and found it genuine. A sarraf did the same to a coin, and `naqd` is that
+ * act - the coin and the judgement of it in one word. So the mark is a struck punch, and
  * what is struck into it is the finding itself.
  *
  * Inside the punch: a hairline at centre is ZERO. A bar with hard end caps is a

@@ -18,7 +18,7 @@
 
 import { useEffect, useRef } from "react";
 import type { LiveMarket, Book } from "@/lib/markets";
-import { fairValue, type AssayStats } from "@/lib/assay";
+import { fairValue, type NaqdStats } from "@/lib/naqd";
 
 const fmtLeft = (s: number): string => {
   if (s <= 0) return "closed";
@@ -60,7 +60,7 @@ function Row({
   market: LiveMarket;
   /** Book mid in UP-probability terms, or undefined when nothing rests. */
   mid: number | undefined;
-  stats: AssayStats | null;
+  stats: NaqdStats | null;
   now: number;
   selected: boolean;
   onSelect: () => void;
@@ -107,7 +107,7 @@ export function MarketList({
   markets: LiveMarket[];
   /** Book mid per marketId, lowercased keys. */
   tops: Map<string, number>;
-  stats: AssayStats | null;
+  stats: NaqdStats | null;
   now: number;
   selectedId: string | null;
   onSelect: (id: string) => void;
