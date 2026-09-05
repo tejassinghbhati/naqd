@@ -20,11 +20,9 @@ function readPalette(el: HTMLElement): ShardPalette {
   const cs = getComputedStyle(el);
   const v = (n: string, f: string) => cs.getPropertyValue(n).trim() || f;
   return {
-    faceHi: v("--sh-face-hi", "rgba(255,255,255,0.5)"),
-    faceLo: v("--sh-face-lo", "rgba(255,255,255,0)"),
-    rim: v("--sh-rim", "rgba(255,255,255,0.6)"),
-    fringeWarm: v("--sh-warm", "rgba(217,26,114,0.18)"),
-    fringeCool: v("--sh-cool", "rgba(26,107,168,0.18)"),
+    blend: (v("--sh-blend", "lighter") as GlobalCompositeOperation) || "lighter",
+    ch: [v("--sh-ch1", "#ff2f6b"), v("--sh-ch2", "#38ff9e"), v("--sh-ch3", "#2f8bff")],
+    core: v("--sh-core", "#ffffff"),
   };
 }
 

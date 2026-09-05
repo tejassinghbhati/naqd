@@ -179,13 +179,14 @@
   --glass-edge-hi: rgb(15 22 34 / 22%);
   --glass-rim: rgb(255 255 255 / 85%);
 
-  /* The shard field. Deliberately far below body-text contrast: this is a
-     ground, and a ground that competes with the type on it has failed. */
-  --sh-face-hi: rgb(196 212 234 / 40%);
-  --sh-face-lo: rgb(202 216 235 / 0%);
-  --sh-rim: rgb(255 255 255 / 92%);
-  --sh-warm: rgb(217 26 114 / 22%);
-  --sh-cool: rgb(26 107 168 / 24%);
+  /* The shard field. Multiply on paper: the channels subtract toward their
+     complements, so the dispersion still reads without summing to white. Held
+     far below body-text contrast - this is a ground. */
+  --sh-blend: multiply;
+  --sh-ch1: #ff6d9c;
+  --sh-ch2: #4ce0a6;
+  --sh-ch3: #6d9dff;
+  --sh-core: #e8eef7;
   --nav-lip: rgb(255 255 255 / 70%);
   --nav-hover: rgb(15 22 34 / 4%);
   --nav-sunk: rgb(15 22 34 / 7%);
@@ -251,12 +252,13 @@
     --glass-edge: rgb(255 255 255 / 11%);
     --glass-edge-hi: rgb(255 255 255 / 24%);
     --glass-rim: rgb(255 255 255 / 12%);
-
-    --sh-face-hi: rgb(158 186 226 / 16%);
-    --sh-face-lo: rgb(150 178 216 / 0%);
-    --sh-rim: rgb(214 230 252 / 46%);
-    --sh-warm: rgb(240 71 154 / 26%);
-    --sh-cool: rgb(74 151 204 / 30%);
+    /* The shard field. Additive on a dark ground: the three channels sum back to
+       white where they overlap, which is what makes a glint a glint. */
+    --sh-blend: lighter;
+    --sh-ch1: #ff2f6b;
+    --sh-ch2: #35ffa8;
+    --sh-ch3: #3a7dff;
+    --sh-core: #ffffff;
     --nav-lip: rgb(255 255 255 / 6%);
     --nav-hover: rgb(255 255 255 / 5%);
     --nav-sunk: rgb(0 0 0 / 26%);
@@ -319,12 +321,13 @@
   --glass-edge: rgb(255 255 255 / 11%);
   --glass-edge-hi: rgb(255 255 255 / 24%);
   --glass-rim: rgb(255 255 255 / 12%);
-
-  --sh-face-hi: rgb(158 186 226 / 16%);
-  --sh-face-lo: rgb(150 178 216 / 0%);
-  --sh-rim: rgb(214 230 252 / 46%);
-  --sh-warm: rgb(240 71 154 / 26%);
-  --sh-cool: rgb(74 151 204 / 30%);
+  /* The shard field. Additive on a dark ground: the three channels sum back to
+     white where they overlap, which is what makes a glint a glint. */
+  --sh-blend: lighter;
+  --sh-ch1: #ff2f6b;
+  --sh-ch2: #35ffa8;
+  --sh-ch3: #3a7dff;
+  --sh-core: #ffffff;
   --nav-lip: rgb(255 255 255 / 6%);
   --nav-hover: rgb(255 255 255 / 5%);
   --nav-sunk: rgb(0 0 0 / 26%);
