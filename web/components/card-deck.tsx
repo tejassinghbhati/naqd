@@ -87,7 +87,20 @@ export function CardDeck({
     };
   }, [advance, interval, total]);
 
+  /*
+    The stack recedes up and to the right, so the box has to reserve room for
+    it. That room goes on the CLIPPING wrapper, not on the deck: an absolutely
+    positioned child resolves `inset` against its ancestor's padding box, so
+    padding the deck itself moves the cards' origin up with it and the back
+    card still travels off the top. Padding the wrapper leaves the deck where
+    it is and gives the transforms somewhere to go that overflow will not cut.
+
+    Derived from the same constants that place the cards, so the two cannot
+    drift apart the first time a step changes.
+  */
+  const back = Math.max(0, total - 1);
   return (
+    <div className="deck-wrap" style={{ paddingTop: back * DY, paddingRight: back * DX }}>
     <div
       className={`deck ${className}`.trim()}
       onPointerEnter={() => (paused.current = true)}
@@ -116,6 +129,7 @@ export function CardDeck({
           </div>
         );
       })}
+    </div>
     </div>
   );
 }

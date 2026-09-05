@@ -57,6 +57,7 @@ body:has(.terminal) .modal-scrim {
      LIGHT palette against the dark bar: white buttons, grey labels, unreadable.
      Redefining paper and ink is not enough when the surfaces derive from their
      own set. */
+  --glass-hi: rgb(255 255 255 / 13%);
   --glass-top: rgb(255 255 255 / 7%);
   --glass-bottom: rgb(255 255 255 / 3%);
   --glass-edge: rgb(255 255 255 / 11%);

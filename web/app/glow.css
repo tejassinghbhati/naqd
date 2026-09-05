@@ -298,6 +298,8 @@ main { overflow-x: clip; }
 }
 .deck-card {
   position: absolute;
+  /* Filling the padded content box is what lets a back card's upward transform
+     travel INTO the reserved padding instead of off the top of a clipped box. */
   inset: 0;
   transform-style: preserve-3d;
   backface-visibility: hidden;
@@ -314,15 +316,9 @@ main { overflow-x: clip; }
   .deck-card { transition: none; }
 }
 
-/* The deck needs room to the right and below for the offset stack and the
-   card that falls out of it. */
-.deck-wrap {
-  padding: var(--s2) var(--s9) var(--s8) var(--s2);
-  overflow: hidden;
-}
-@media (max-width: 720px) {
-  .deck-wrap { padding-right: var(--s7); }
-}
+/* Room below for the card that falls out of the stack. The room ABOVE and to
+   the right is reserved by the deck itself, from its own offsets. */
+.deck-wrap { padding-bottom: var(--s7); overflow: hidden; }
 
 .deck-glow { border-radius: var(--radius-lg); height: 100%; }
 /* Opaque under the glass. A translucent card is right when there is a page

@@ -168,8 +168,7 @@ export default async function ApiDocs() {
           span="col-6"
         />
         <div className="col-7 v5" style={{ marginTop: "var(--s6)" }}>
-          <div className="deck-wrap">
-            <CardDeck>
+          <CardDeck>
               {samples.map((x) => (
                 <Glow key={x.route} className="deck-glow">
                   <div className="card card-bd glass sample">
@@ -181,8 +180,7 @@ export default async function ApiDocs() {
                   </div>
                 </Glow>
               ))}
-            </CardDeck>
-          </div>
+          </CardDeck>
           <p className="body-sm ink-3 measure">
             <strong>Read confidence as a size multiplier, not a probability.</strong> It scales with
             how far the near bound of the interval sits from zero, so a wide interval sizes small

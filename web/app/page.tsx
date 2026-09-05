@@ -4,6 +4,7 @@ import { EdgeGauge, ForestPlot, type ForestRow } from "@/components/charts";
 import { HeroLive } from "@/components/hero-live";
 import { Ribbon } from "@/components/ribbon";
 import { Glow } from "@/components/glow";
+import { CardDeck } from "@/components/card-deck";
 import { OfflineNotice } from "@/components/offline-notice";
 import { Band, Head, Figures, Cta, Footer } from "@/components/site/parts";
 
@@ -20,6 +21,62 @@ const num = (n: number) => n.toLocaleString("en-US");
  */
 export default async function Landing() {
   const s = await getSummary();
+
+  const NL = String.fromCharCode(10);
+  const nf = (x: number | undefined, d = 6, f = "0") => (x === undefined ? f : x.toFixed(d));
+
+  /* The same four the developers page cycles, computed from this request. */
+  const samples: { route: string; body: string }[] = [
+    {
+      route: "/v1/edge/live",
+      body: [
+        "{",
+        `  "verdict": "${s?.live.verdict ?? "stand-down"}",`,
+        `  "edge": ${nf(s?.live.edge, 6, "-0.020468")},`,
+        '  "recent": {',
+        `    "ci95": [${s ? s.live.recent.ci95.map((x) => x.toFixed(6)).join(", ") : "-0.050282, 0.009345"}],`,
+        `    "n": ${s ? s.live.recent.n : 419}`,
+        "  },",
+        `  "confidence": ${nf(s?.live.confidence, 2, "0.00")}`,
+        "}",
+      ].join(NL),
+    },
+    {
+      route: "/v1/stats/base-rate",
+      body: [
+        "{",
+        `  "n": ${s ? s.baseRate.n : 9027},`,
+        `  "rate": ${nf(s?.baseRate.rate, 6, "0.503046")},`,
+        `  "up": ${s ? s.baseRate.up : 4540},`,
+        '  "verdict": "indistinguishable from a fair coin"',
+        "}",
+      ].join(NL),
+    },
+    {
+      route: "/v1/stats/edge",
+      body: [
+        "{",
+        '  "clustered": {',
+        `    "mean": ${nf(s?.edge.clustered.mean, 6, "-0.020634")},`,
+        `    "t": ${nf(s?.edge.clustered.t, 4, "-2.3912")}`,
+        "  },",
+        '  "bootstrap": {',
+        `    "crossesZero": ${s ? s.edge.bootstrap.crossesZero : true}`,
+        "  }",
+        "}",
+      ].join(NL),
+    },
+    {
+      route: "/v1/liquidity",
+      body: [
+        "{",
+        `  "markets": ${s ? s.coverage.markets : 9027},`,
+        `  "traded": ${s ? s.coverage.traded : 1627},`,
+        `  "coverage": ${nf(s?.coverage.coverage, 4, "0.1802")}`,
+        "}",
+      ].join(NL),
+    },
+  ];
 
   const forest: ForestRow[] | null = s
     ? [
@@ -300,21 +357,23 @@ export default async function Landing() {
           lede="Plain JSON over HTTP. No key, permissive CORS, usable from a notebook, a Grafana panel or a phone."
         />
         <div className="col-6 start-7 v5">
-          <Glow className="code-glow">
-          <div className="card card-bd glass">
-            <pre>{`GET /v1/edge/live
-
-{
-  "verdict": "${s?.live.verdict ?? "stand-down"}",
-  "edge": ${s ? s.live.edge.toFixed(6) : "-0.020468"},
-  "recent": {
-    "ci95": [${s ? s.live.recent.ci95.map((x) => x.toFixed(4)).join(", ") : "-0.0503, 0.0093"}],
-    "n": ${s ? s.live.recent.n : 419}
-  },
-  "confidence": ${s ? s.live.confidence.toFixed(2) : "0.00"}
-}`}</pre>
-          </div>
-          </Glow>
+          {/* Four responses in a receding stack rather than one sample flat on
+              the page. The band's claim is that this is an API with a surface,
+              and a single endpoint printed once does not make that case. The
+              full route list is a click away, so cycling hides nothing. */}
+          <CardDeck>
+              {samples.map((x) => (
+                <Glow key={x.route} className="deck-glow">
+                  <div className="card card-bd glass sample">
+                    <div className="sample-hd">
+                      <span className="mono micro">GET</span>
+                      <code className="mono sm">{x.route}</code>
+                    </div>
+                    <pre>{x.body}</pre>
+                  </div>
+                </Glow>
+              ))}
+          </CardDeck>
           <Cta href="/developers" small>
             Full reference
           </Cta>

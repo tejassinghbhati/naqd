@@ -171,6 +171,7 @@
   --accent-shadow-1: hsl(330 79% 40% / 30%);
   --accent-shadow-2: hsl(330 79% 40% / 32%);
   --accent-shadow-3: hsl(330 79% 40% / 26%);
+  --glass-hi: rgb(255 255 255 / 96%);
   --glass-top: rgb(255 255 255 / 82%);
   --glass-bottom: rgb(255 255 255 / 55%);
   --glass-edge: rgb(15 22 34 / 10%);
@@ -242,7 +243,8 @@
   --accent-shadow-1: hsl(330 85% 40% / 42%);
     --accent-shadow-2: hsl(330 85% 45% / 40%);
     --accent-shadow-3: hsl(330 85% 45% / 30%);
-    --glass-top: rgb(255 255 255 / 7%);
+    --glass-hi: rgb(255 255 255 / 13%);
+  --glass-top: rgb(255 255 255 / 7%);
     --glass-bottom: rgb(255 255 255 / 3%);
     --glass-edge: rgb(255 255 255 / 11%);
     --glass-edge-hi: rgb(255 255 255 / 24%);
@@ -310,6 +312,7 @@
   --accent-shadow-1: hsl(330 85% 40% / 42%);
   --accent-shadow-2: hsl(330 85% 45% / 40%);
   --accent-shadow-3: hsl(330 85% 45% / 30%);
+  --glass-hi: rgb(255 255 255 / 13%);
   --glass-top: rgb(255 255 255 / 7%);
   --glass-bottom: rgb(255 255 255 / 3%);
   --glass-edge: rgb(255 255 255 / 11%);
