@@ -9,6 +9,7 @@
   },
   "scripts": {
     "backfill": "tsx src/cli/backfill.ts",
+    "charts": "tsx src/cli/charts.ts",
     "doctor": "tsx src/cli/doctor.ts",
     "analyze": "tsx src/cli/analyze.ts",
     "api": "tsx src/api/server.ts",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^22.10.0",
+    "playwright-core": "^1.56.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
