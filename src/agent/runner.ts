@@ -177,10 +177,10 @@ export class Agent {
         price,
         quantity: size,
         expireTimestampNs: expireNs,
-        // Post-only. Settled PnL favours the passive side (+0.11% ROI against
-        // -0.17% for takers) on a zero-fee book, so the whole gap is the spread
-        // changing hands - and an order that would cross is one we want
-        // rejected, not filled.
+        // Post-only, as risk control rather than as a claimed edge: whether the
+        // passive side gets paid does not survive a week-block bootstrap. What
+        // it does buy is that an order which would cross is rejected instead of
+        // filled, so a book that moved while we were deciding costs us nothing.
         orderType: ORDER_TYPE.PostOnly,
       });
       assertTxOk(res, `placeOrder(${label})`);

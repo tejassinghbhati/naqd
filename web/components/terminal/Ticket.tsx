@@ -5,11 +5,12 @@
  *
  * Two things here are opinions the data earned, not defaults:
  *
- *   Rest (post-only) is the default order type. Settled PnL on this venue
- *   splits +0.11% ROI to the passive side against -0.17% for takers, on a book
- *   that charges no fees at all, so the entire gap is the spread changing
- *   hands. Thin, but free and one-directional, which is why resting is the easy
- *   path here and taking is the deliberate one.
+ *   Rest (post-only) is the default order type - but not because makers are
+ *   measurably paid here. Pooled over fills that split looks decisive and has
+ *   already changed sign between snapshots; bootstrapped over whole weeks it
+ *   straddles zero. What resting actually buys is that an order which would
+ *   cross is rejected rather than filled, so a stale book costs you nothing.
+ *   That is a risk argument, and it holds whichever way the split points.
  *
  *   The payoff is stated in money before it is stated in probability. A binary
  *   contract pays 1 per share, so "risk 4.20 to make 5.80" is the sentence a
@@ -228,7 +229,7 @@ export function Ticket({
           </div>
           <p className="xs dim" style={{ marginTop: 2, lineHeight: 1.45 }}>
             {mode === "post"
-              ? "Rests on the book, rejected rather than crossed. Settled PnL favours makers here, +0.11% against -0.17%."
+              ? "Rests on the book, rejected rather than crossed, so a book that moved costs you nothing."
               : "Takes what is there now and cancels the rest. You pay the spread."}
           </p>
         </div>

@@ -60,7 +60,7 @@ export default async function AgentPage() {
   const behaviour = [
     {
       h: "Post-only, both sides",
-      p: "Settled PnL favours the passive side, +0.11% against −0.17% for takers, on a book with no fees at all, so the entire gap is the spread changing hands. Thin, but free and consistent, which makes an order that would cross one we want rejected rather than filled.",
+      p: "Not because makers are measurably paid here: pooled over fills that split looks decisive and has already changed sign between snapshots, and bootstrapped over whole weeks it straddles zero. Resting is risk control. An order that would cross is rejected rather than filled, so a book that moved while we were deciding costs nothing.",
     },
     {
       h: "Sized to the near bound",

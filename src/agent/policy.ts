@@ -7,24 +7,29 @@
  *
  * Three empirical results from `npm run analyze` drive every decision below:
  *
- *   1. The underlying is a coin flip. Across 6,902 resolved mainnet markets the
- *      window closed up 50.58% of the time, CI [49.40%, 51.76%] - indistinguish-
+ *   1. The underlying is a coin flip. Across 13,883 resolved mainnet markets the
+ *      window closed up 50.16% of the time, CI [49.33%, 50.99%] - indistinguish-
  *      able from 50%. So the prior is 0.5 and there is no directional drift to
  *      harvest. Any edge has to come from the PRICE being wrong, not the asset.
  *
- *   2. The passive side is the one that wins, though thinly. Settled PnL splits
- *      +0.11% ROI to makers and -0.17% to takers on a book that charges no fees
- *      at all, so the whole difference is the spread changing hands. It is a
- *      small edge, but it is the only free one available and it points one way,
- *      so this agent is post-only and never crosses to express a view.
+ *   2. Whether the passive side gets PAID is not established, and this agent
+ *      does not claim it is. Pooled over fills the maker/taker split looks
+ *      decisive and has already changed sign between two snapshots of the same
+ *      venue; week-block bootstrapped it is [-3.09c, +0.45c], straddling zero.
+ *      So post-only is NOT justified here as a measured edge. It is justified as
+ *      risk control: a resting order cannot cross into a book that moved while
+ *      we were deciding, and on a venue where four markets in five never trade
+ *      at all the useful thing to supply is liquidity, not aggression.
  *
  *   3. The mispricing is real but not constant. Week-block bootstrap puts the
- *      pricing error at [-5.1c, +2.2c] - straddling zero. So the agent asks
+ *      pricing error at [-4.0c, +0.7c] - straddling zero. So the agent asks
  *      `liveEdge()` every cycle and quotes nothing when the answer is
  *      stand-down.
  *
- * Result 3 is the one that makes this different from the sample strategies: the
- * default state is flat, and it takes positive evidence to leave it.
+ * Results 2 and 3 are what make this different from the sample strategies: two
+ * of the three numbers it would most like to lean on do not survive their own
+ * error bars, so the default state is flat and it takes positive evidence to
+ * leave it.
  */
 
 import type { LiveEdge } from "../analytics/edge.js";

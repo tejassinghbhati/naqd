@@ -23,6 +23,7 @@
  */
 
 import type { ScoredFill } from "./queries.js";
+import { blockBootstrap, clusteredEstimate, isoWeek, type Estimate } from "./stats.js";
 
 export interface TraderStats {
   address: string;
@@ -151,5 +152,79 @@ export function makerVsTaker(fills: ScoredFill[]): {
   return {
     maker: { pnl: mPnl, staked: mStake, roi: mStake > 0 ? mPnl / mStake : 0, trades: n },
     taker: { pnl: tPnl, staked: tStake, roi: tStake > 0 ? tPnl / tStake : 0, trades: n },
+  };
+}
+
+/** The maker's edge on one fill, in probability points: how much the outcome
+ *  went the passive side's way. Exactly the negative of the taker's. */
+const makerEdgeOf = (f: ScoredFill) => (f.takerIsBid === 1 ? f.price - f.up : f.up - f.price);
+
+const usable = (f: ScoredFill) => f.takerIsBid !== null && f.quantity > 0;
+
+export interface MakerEdgeReport {
+  /** Pooled ROI, the shape `makerVsTaker` returns. Reported only as the foil. */
+  pooledMakerRoi: number;
+  pooledTakerRoi: number;
+  /** One observation per market. */
+  clustered: Estimate;
+  /** Resampling whole weeks. The interval that survives autocorrelation. */
+  bootstrap: { mean: number; ci95: [number, number]; crossesZero: boolean; blocks: number };
+  /** Maker ROI week by week, so a reader can see the sign move. */
+  weekly: { week: string; n: number; roi: number }[];
+  /** True when the weekly ROIs are not all the same sign. */
+  signFlips: boolean;
+}
+
+/**
+ * Does the passive side actually get paid?
+ *
+ * `makerVsTaker` answers this by pooling every fill, which is the same mistake
+ * the pricing-error estimate makes and which this project exists to catch: fills
+ * inside one window share a single outcome, and whole weeks run rich then cheap.
+ * Measured on the venue's full history the pooled number has already changed
+ * sign once between snapshots, which is the tell.
+ *
+ * So the maker edge gets the identical three-stage treatment the pricing error
+ * gets - pooled, clustered by market, then bootstrapped over whole weeks - and
+ * the last one is the only one anybody should act on.
+ */
+export function makerEdgeReport(fills: ScoredFill[]): MakerEdgeReport {
+  const rows = fills.filter(usable);
+  const pooled = makerVsTaker(fills);
+
+  const byWeek = new Map<string, ScoredFill[]>();
+  for (const f of rows) {
+    const k = isoWeek(f.expiry);
+    const arr = byWeek.get(k);
+    if (arr) arr.push(f);
+    else byWeek.set(k, [f]);
+  }
+
+  const weekly = [...byWeek.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([week, fs]) => {
+      const m = makerVsTaker(fs);
+      return { week, n: m.maker.trades, roi: m.maker.roi };
+    });
+
+  // Blocks are the weeks' market-level mean maker edges, matching edgeReport.
+  const blocks = [...byWeek.values()].map((fs) => {
+    const perMarket = new Map<string, number[]>();
+    for (const f of fs) {
+      const arr = perMarket.get(f.marketId);
+      if (arr) arr.push(makerEdgeOf(f));
+      else perMarket.set(f.marketId, [makerEdgeOf(f)]);
+    }
+    return [...perMarket.values()].map((v) => v.reduce((a, b) => a + b, 0) / v.length);
+  });
+
+  const meaningful = weekly.filter((w) => w.n >= 20);
+  return {
+    pooledMakerRoi: pooled.maker.roi,
+    pooledTakerRoi: pooled.taker.roi,
+    clustered: clusteredEstimate(rows, (f) => f.marketId, makerEdgeOf),
+    bootstrap: blockBootstrap(blocks),
+    weekly,
+    signFlips: meaningful.length > 1 && new Set(meaningful.map((w) => Math.sign(w.roi))).size > 1,
   };
 }

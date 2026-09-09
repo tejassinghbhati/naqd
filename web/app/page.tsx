@@ -9,6 +9,8 @@ import { Band, Head, Figures, Cta, Footer } from "@/components/site/parts";
 
 const cents = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(2)}¢`;
 const pct = (x: number, d = 2) => `${(x * 100).toFixed(d)}%`;
+/* Carries its own sign, so a value that flips does not render "+-2.75%". */
+const signedPct = (x: number, d = 2) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(d)}%`;
 const num = (n: number) => n.toLocaleString("en-US");
 
 /**
@@ -275,16 +277,31 @@ export default async function Landing() {
                   s: `${num(s.coverage.markets - s.coverage.traded)} never quoted`,
                 },
                 { k: "Brier skill", v: s.calibration.brierSkill.toFixed(3), s: "vs a coin flip" },
-                { k: "Maker ROI", v: `+${pct(s.makerVsTaker.maker.roi)}`, s: "passive side", tone: "ok" },
-                { k: "Taker ROI", v: pct(s.makerVsTaker.taker.roi), s: "aggressive side", tone: "bad" },
+                /* Signed, and never pre-stamped with a "+": this split has
+                   changed sign between snapshots, and a hard-coded plus renders
+                   "+-2.75%" the first time it goes the other way. */
+                {
+                  k: "Maker ROI",
+                  v: signedPct(s.makerVsTaker.maker.roi),
+                  s: "passive side, pooled",
+                  tone: s.makerVsTaker.maker.roi >= 0 ? "ok" : "bad",
+                },
+                {
+                  k: "Taker ROI",
+                  v: signedPct(s.makerVsTaker.taker.roi),
+                  s: "aggressive side, pooled",
+                  tone: s.makerVsTaker.taker.roi >= 0 ? "ok" : "bad",
+                },
               ]}
             />
           </div>
           <p className="col-6 body-sm" style={{ marginTop: "var(--s5)" }}>
-            Two of these shaped everything we built. The underlying is a coin flip, so any edge has to
-            come from the price being wrong rather than the asset moving. And the passive side is the
-            one that wins, thinly, on a venue that charges no fees at all, so every order we
-            place is post-only.
+            One of these shaped everything we built: the underlying is a coin flip, so any edge has
+            to come from the price being wrong rather than the asset moving. The maker/taker split
+            is the cautionary one. Pooled over fills it looks decisive, and it has already changed
+            sign between two snapshots of this venue; bootstrapped over whole weeks it straddles
+            zero. So we still rest rather than cross, but for risk reasons rather than because the
+            spread is measurably ours.
           </p>
         </Band>
       )}
@@ -317,7 +334,7 @@ export default async function Landing() {
               {
                 n: "03",
                 h: "Trading terminal",
-                p: "Live books, countdowns, depth and tape, with the measured fair value beside every price and a rich / cheap / in-line read on each market. Post-only by default, because settled PnL favours the passive side.",
+                p: "Live books, countdowns, depth and tape, with the measured fair value beside every price and a rich / cheap / in-line read on each market. Post-only by default, so an order that would cross is refused rather than filled.",
                 href: "/terminal",
                 cta: "Open the desk",
               },
