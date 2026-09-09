@@ -16,9 +16,9 @@ Built for the [Somnia × DreamDEX Event Contracts Hackathon](https://dorahacks.i
 
 ![Naqd](docs/web-home.png)
 
-> The hero backdrop is not decoration. It is the venue&rsquo;s real calibration curve rendered as
-> light: the diagonal of perfect pricing, and every price bucket sitting off it by exactly as much
-> as it actually missed by.
+> Beside the venue&rsquo;s live price sits the price our measurement says is right, and the gap
+> between them. When the interval covers zero the page says **no edge** rather than inventing a
+> number, which is most of the time, and is the point.
 
 ---
 
@@ -36,18 +36,18 @@ and then refused to stop at the first answer.
 
 ## What we found
 
-Measured on **9,040 binary markets** from the mainnet venue `0x458b30c2…`, of which 9,027 resolved
-and 1,627 traded, carrying 3,696 fills.
+Measured on **13,910 binary markets** from the mainnet venue `0x458b30c2…`, of which 13,883 resolved
+and 2,451 traded, carrying 5,060 fills.
 
 ### 1. The underlying is a coin flip
 
-The window closed up **50.30%** of the time, 95% CI **[49.27%, 51.34%]** - indistinguishable from
-50%, and consistent across both assets and both cadences. There is no drift to harvest, so any edge
-has to come from the *price* being wrong.
+The window closed up **50.16%** of the time, 95% CI **[49.33%, 50.99%]** - indistinguishable from
+50%, and consistent across both assets and all three cadences. There is no drift to harvest, so any
+edge has to come from the *price* being wrong.
 
 ### 2. Prices are informative, but miscalibrated
 
-Brier skill of **0.514** against an always-50% forecaster, so the prices carry real information.
+Brier skill of **0.551** against an always-50% forecaster, so the prices carry real information.
 But the calibration curve bends away from the diagonal at both ends.
 
 ![Calibration curve](docs/calibration.png)
@@ -65,33 +65,58 @@ difference between a real finding and an artifact of aggregation.**
 
 | Estimator | Mean error | 95% interval | Reading |
 |---|---:|---:|---|
-| Per fill (naive) | −3.88¢ | [−5.15¢, −2.62¢] | t = −6.03 · "obviously real" |
-| Clustered by market | −2.06¢ | [−3.76¢, −0.37¢] | t = −2.39 · worth a look |
-| Week-block bootstrap | −2.06¢ | **[−4.92¢, +0.66¢]** | **straddles zero** |
+| Per fill (naive) | −2.76¢ | [−3.81¢, −1.71¢] | t = −5.17 · "obviously real" |
+| Clustered by market | −1.22¢ | [−2.54¢, +0.11¢] | t = −1.79 · already gone |
+| Week-block bootstrap | −1.22¢ | **[−3.98¢, +0.67¢]** | **straddles zero** |
 
-The naive estimate counts 3,696 fills as independent observations when they are really 1,627 coin
+The naive estimate counts 5,060 fills as independent observations when they are really 2,451 coin
 flips - every fill inside one window shares a single outcome. That alone moves the t-statistic from
-−6.03 to −2.39. And the errors are correlated in *time* as well:
+−5.17 to −1.79, which is enough on its own to take the finding below significance. And the errors
+are correlated in *time* as well:
 
 ![Weekly pricing error](docs/weekly-edge.png)
 
-Weekly means run −0.5¢, +0.8¢, −6.6¢, −4.0¢, +0.8¢. **They change sign.** Resample whole weeks and
-the interval covers zero.
+Weekly means run −0.5¢, +0.8¢, −6.6¢, −4.0¢, +0.2¢, +1.6¢. **They change sign.** Resample whole
+weeks and the interval covers zero by a wide margin.
 
 > **A bot that hard-codes "always fade UP" is fitting last month's weather.** What the data supports
 > is measuring the edge continuously and standing down when it is not there.
 
 ### 5. Most markets never trade at all
 
-Only **18.0%** of settled markets saw a single trade. The venue's bottleneck is emptiness, not
+Only **17.7%** of settled markets saw a single trade. The venue's bottleneck is emptiness, not
 signal quality - which is why the agent's job is to *provide* liquidity, not take it.
 
-### 6. Makers get paid, takers do not
+### 6. Whether makers get paid is *not* established - and we caught ourselves getting this wrong
 
-Settled PnL splits **+0.11% ROI** to the passive side and **−0.17%** to the aggressive side, on a
-venue that charges zero fees, so the entire difference is the spread changing hands. It is a thin
-edge rather than a dramatic one, but it points consistently one way and it is free, so every order
-this project places is post-only.
+An earlier snapshot of this venue put settled PnL at **+0.11% ROI** to the passive side against
+**−0.17%** to the aggressive side, and this README used to present that as a finding, with
+post-only ordering justified by it. Re-running the same code over a store roughly 50% larger
+returned **−2.75%** to makers and **+3.01%** to takers. The number did not shift. It *flipped*.
+
+The reason is embarrassing and worth stating plainly: that estimate was a pooled mean over fills,
+with no clustering and no interval - **exactly the mistake finding 4 exists to catch**, committed
+two headings later in our own document. Given the identical three-stage treatment:
+
+| Estimator | Maker edge | 95% interval | Reading |
+|---|---:|---:|---|
+| Pooled per fill | −1.83¢ | *no interval reported* | how we got it wrong |
+| Clustered by market | −1.83¢ | [−2.90¢, −0.76¢] | t = −3.34 · clears zero |
+| Week-block bootstrap | −1.83¢ | **[−3.09¢, +0.45¢]** | **straddles zero** |
+
+Weekly maker ROI runs **+0.15%, +4.96%, −8.56%, +6.82%, −4.16%, −9.40%** - four sign changes in six
+weeks. So the honest statement is that on this venue, over this history, we cannot tell whether
+liquidity provision is paid.
+
+The agent is still **post-only**, but the justification changed, and that matters more than the
+number did. Resting is not a claimed edge here; it is risk control. A post-only order that would
+cross is *rejected* rather than filled, so a book that moved while we were deciding costs nothing.
+On a venue where four markets in five never trade, supplying liquidity is the useful thing to do
+whichever way the split happens to point that week.
+
+> Every headline number in this section is now produced by `npm run analyze` and checked by
+> `npm run verify`, and the figures by `npm run charts`. That is the whole reason this section
+> could be caught being wrong at all.
 
 ---
 
@@ -147,16 +172,16 @@ two are each wrong on their own.
 
 ```mermaid
 flowchart TD
-  A["6,906 binary markets<br/>from the indexer"] --> B{"finalized<br/>and not voided?"}
+  A["13,910 binary markets<br/>from the indexer"] --> B{"finalized<br/>and not voided?"}
   B -->|no| X["excluded - a voided market pays<br/>both sides 0.5, and an unresolved<br/>one reads winner = 0"]
-  B -->|yes| C["2,683 scored fills<br/>implied price vs realized outcome"]
+  B -->|yes| C["5,060 scored fills<br/>implied price vs realized outcome"]
 
-  C --> D["Naive: mean over fills<br/>−3.10c, t = −4.08"]
+  C --> D["Naive: mean over fills<br/>−2.76c, t = −5.17"]
   D --> E{"are fills<br/>independent?"}
-  E -->|"no - 20 fills in one<br/>window are one coin flip"| F["Cluster by market<br/>−2.59c, t = −2.48"]
+  E -->|"no - 20 fills in one<br/>window are one coin flip"| F["Cluster by market<br/>−1.22c, t = −1.79"]
 
   F --> G{"are markets<br/>independent in time?"}
-  G -->|"no - whole weeks run<br/>rich, then cheap"| H["Week-block bootstrap<br/>CI [−5.06c, +2.12c]"]
+  G -->|"no - whole weeks run<br/>rich, then cheap"| H["Week-block bootstrap<br/>CI [−3.98c, +0.67c]"]
 
   H --> I{"does the interval<br/>cross zero?"}
   I -->|yes| J["NO EDGE<br/>agent stands down"]
@@ -240,6 +265,8 @@ Three rules hold it together, and they live in [`web/app/system.css`](web/app/sy
 | `/terminal` | The trading desk |
 | `/developers` | The public API, with a live example response |
 
+![The research report](docs/web-research.png)
+
 `/`, `/research`, `/agent` and `/developers` are **server components**: they fetch the measurement on the server
 and ship it inside the HTML, revalidating every 60 seconds. Only `/terminal` runs on the client,
 because it holds a wallet and reads live chain state. Theme resolves before first paint via a small
@@ -259,11 +286,17 @@ opens the desk where the faucet works.
 > **The one SDK edge that is a performance bug, not a correctness bug.**
 > `exchange.loadMarkets()` walks every venue on the chain and builds a viem client per venue.
 > Measured against mainnet it takes **over five minutes** to return, cached or forced - so a UI
-> built on it never finishes connecting. The whole read path goes through the binary tier instead
+> built on it never finishes connecting. Every read path here goes through the binary tier instead
 > (`listLiveBinaryMarkets`, `getBinaryOrderBook`, `getFills`), which answers the same question in
 > **under two seconds**. Markets are keyed by `marketId` and books by `poolAddress`, never by a
 > unified symbol: a binary pool is *recycled* across successive markets, so a pool address does not
 > name a market for longer than one window.
+>
+> The agent obeys the same rule, and it is not only a UI concern there: on a 45-second requote loop
+> a five-minute market list means the first pass never completes. A full mainnet pass - six markets,
+> six on-chain status reads, six book reads - now runs in **15 seconds**. The book it prices against
+> is fetched by the pool the on-chain status gate just returned, not the indexer's copy, so the book
+> being read and the pool being quoted onto are the same object.
 
 ![The trading desk](docs/web-terminal.png)
 
@@ -385,6 +418,7 @@ contains nothing that is source.
 ```bash
 npm test             # 13 tests over the quoting policy and the statistics
 npm run verify       # re-derive every number quoted in this README
+npm run charts       # redraw the three figures above from the current store
 ```
 
 `npm run doctor` is the one to run first, and the one to run when something goes quiet. It is
@@ -438,12 +472,12 @@ are ten slices of one coin flip, so a wallet can post a 200% ROI over "10 trades
 exactly one position. Ranking without that filter puts single-bet wallets on top - the same artifact
 this project exists to catch elsewhere.
 
-**Concentration is reported next to the edge.** 133 distinct takers, largest holding 15% of flow, Herfindahl 0.077. A real market rather than one bot talking to itself, but a *small* one, and every
+**Concentration is reported next to the edge.** 144 distinct takers, largest holding 17% of flow, Herfindahl 0.076. A real market rather than one bot talking to itself, but a *small* one, and every
 number here should be read with that in mind.
 
 ### Known limits
 
-- The edge is estimated from ~1,627 traded markets over about three weeks. Enough to reject a
+- The edge is estimated from ~2,451 traded markets over about six weeks. Enough to reject a
   constant bias; not enough to characterise the regimes that replace it.
 - Settled PnL counts unredeemed winnings and does not model open inventory. It measures trading
   skill, not wallet balance.
