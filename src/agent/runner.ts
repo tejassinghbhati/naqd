@@ -18,7 +18,7 @@
  *   one key race each other's nonce. Serialising it here is free.
  */
 
-import type { Hex } from "viem";
+import type { Address, Hex } from "viem";
 import {
   assertTxOk,
   isTradable,
@@ -47,8 +47,10 @@ export interface RunnerOptions {
 
 interface LiveRow {
   marketId: Hex;
+  /** The pool the book rests on. Time-varying: pools are recycled across
+   *  successive markets, so this is only valid for this window. */
+  pool: Address;
   asset: string;
-  symbol: string;
   intervalSec: number;
   expiry: number;
 }
@@ -95,26 +97,35 @@ export class Agent {
     return placed;
   }
 
+  /**
+   * The venue's currently-tradable binary markets, soonest expiry first.
+   *
+   * Through the BINARY tier, not `loadMarkets()`. The unified sweep walks every
+   * venue on the chain and builds a viem client per venue - over five minutes
+   * against mainnet, cached or forced - so an agent on a 45s requote loop never
+   * finishes its first pass. This is one indexer query, filtered server-side.
+   *
+   * Venue scope, lifecycle and the `expiry > now` cut are all pushed into the
+   * query: `listLiveBinaryMarkets` is defined as live-only and ordered
+   * closingSoon. The local guard below is kept anyway, because a row with no
+   * cadence cannot be given a window fraction and the policy needs one.
+   */
   private async liveMarkets(): Promise<LiveRow[]> {
-    const all = Object.values(await this.ctx.exchange.loadMarkets(true));
+    const rows = await this.ctx.exchange.client.listLiveBinaryMarkets({
+      venueId: this.ctx.config.venueId,
+      status: "Trading",
+      limit: 50,
+    });
     const now = Math.floor(Date.now() / 1000);
-    return all
-      .filter((m) => m.type === "binary" && m.active)
-      .filter((m) => {
-        const info = m.info as { marketType?: string; venueId?: string };
-        return info.marketType === "BINARY" && String(info.venueId ?? "").toLowerCase() === this.ctx.config.venueId.toLowerCase();
-      })
-      .map((m) => {
-        const info = m.info as { marketId: string; asset?: string; intervalSec?: number | string; expiry?: number | string };
-        return {
-          marketId: info.marketId as Hex,
-          asset: info.asset ?? "?",
-          symbol: m.symbol,
-          intervalSec: Number(info.intervalSec ?? 0),
-          expiry: Number(info.expiry ?? 0),
-        };
-      })
-      .filter((m) => m.expiry > now && m.intervalSec > 0)
+    return rows
+      .map((r) => ({
+        marketId: r.marketId as Hex,
+        pool: r.poolAddress as Address,
+        asset: String(r.asset ?? "?"),
+        intervalSec: Number(r.intervalSec ?? 0),
+        expiry: Number(r.expiry ?? 0),
+      }))
+      .filter((m) => m.marketId && m.pool && m.expiry > now && m.intervalSec > 0)
       .sort((a, b) => a.expiry - b.expiry);
   }
 
@@ -129,7 +140,10 @@ export class Agent {
       return 0;
     }
 
-    const book = await this.bookTop(m.symbol);
+    // `onchain.pool`, not the indexer's copy: the row that chose this market
+    // may be seconds stale, and the pool we price against must be the pool the
+    // order is about to be placed on.
+    const book = await this.bookTop(onchain.pool);
     const now = Math.floor(Date.now() / 1000);
     const plan = planQuotes(
       { book, edge, secondsLeft: m.expiry - now, intervalSec: m.intervalSec },
@@ -176,11 +190,28 @@ export class Agent {
     return placed;
   }
 
-  private async bookTop(symbol: string): Promise<BookTop> {
+  /**
+   * Top of the YES book for one market, in probability terms.
+   *
+   * Keyed by POOL, and specifically by the pool the on-chain read just handed
+   * back, so the book being priced and the pool being quoted onto are the same
+   * object. A binary pool is recycled across successive markets, so a symbol
+   * does not name a book for longer than one window - which is exactly how a
+   * quote ends up anchored to a mid belonging to a market that closed an hour
+   * ago.
+   *
+   * The chain returns raw collateral units per whole outcome token, so scaling
+   * happens here, once, against the venue's decimals.
+   */
+  private async bookTop(pool: Address): Promise<BookTop> {
     try {
-      const ob = await this.ctx.exchange.fetchOrderBook(symbol, 5);
-      const bestBid = ob.bids?.[0]?.[0];
-      const bestAsk = ob.asks?.[0]?.[0];
+      const one = 10 ** this.ctx.config.decimals;
+      const ob = await this.ctx.exchange.client.getBinaryOrderBook(pool, {
+        depth: 5,
+        decimals: this.ctx.config.decimals,
+      });
+      const bestBid = ob.yesBids?.[0] ? Number(ob.yesBids[0].price) / one : undefined;
+      const bestAsk = ob.yesAsks?.[0] ? Number(ob.yesAsks[0].price) / one : undefined;
       const mid =
         bestBid !== undefined && bestAsk !== undefined ? (bestBid + bestAsk) / 2 : (bestBid ?? bestAsk);
       return { bestBid, bestAsk, mid };

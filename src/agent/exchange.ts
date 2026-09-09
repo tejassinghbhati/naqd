@@ -26,7 +26,6 @@ import {
   SOMNIA_MAINNET_ADDRESSES,
   SOMNIA_TESTNET_ADDRESSES,
   type MarketOnchain,
-  type UnifiedMarket,
 } from "@somnia-chain/markets-sdk";
 import { defineChain, type Chain, type Hex } from "viem";
 import { COLLATERAL_DECIMALS, KNOWN_VENUE, type Network } from "../indexer/client.js";
@@ -196,12 +195,3 @@ export function quantize(cfg: AgentConfig, humanShares: number): bigint {
 }
 
 export const toHuman = (raw: bigint, decimals: number): number => Number(raw) / 10 ** decimals;
-
-/** The YES / NO tradable symbols for a binary market (outcome 0 = YES). */
-export function outcomeSymbols(market: UnifiedMarket): { yes: string; no: string } {
-  const outs = market.outcomes ?? [];
-  return {
-    yes: outs[0]?.symbol ?? `${market.symbol}#YES`,
-    no: outs[1]?.symbol ?? `${market.symbol}#NO`,
-  };
-}
