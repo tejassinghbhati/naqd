@@ -2,7 +2,6 @@ import Link from "next/link";
 import { getSummary } from "@/lib/stats-server";
 import { EdgeGauge, ForestPlot, type ForestRow } from "@/components/charts";
 import { HeroLive } from "@/components/hero-live";
-import { Ribbon } from "@/components/ribbon";
 import { Glow } from "@/components/glow";
 import { CardDeck } from "@/components/card-deck";
 import { OfflineNotice } from "@/components/offline-notice";
@@ -126,10 +125,6 @@ export default async function Landing() {
             </div>
           </div>
         </div>
-
-        {/* The measurement, swept into a surface. Its bend is the venue's
-            calibration error, exaggerated for scale but true in shape. */}
-        <Ribbon bins={s?.calibration.byMarket ?? []} />
       </section>
 
       {/* -------------------------------------------------------- Live strip */}

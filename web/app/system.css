@@ -142,23 +142,6 @@
   --sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* The hero ribbon. Decorative surface shading, never a data encoding. */
-  --rb-s0: #f2f7fd;
-  --rb-s1: #e2ecf8;
-  --rb-s2: #cfdef2;
-  --rb-s3: #b6cbe9;
-  --rb-s4: #9ab3dc;
-  --rb-s5: #7d99cb;
-  --rb-s6: #6280b6;
-  --rb-s7: #4a679d;
-  --rb-s8: #365081;
-  --rb-s9: #243a63;
-  --rb-s10: #152747;
-  --rb-s11: #0b172e;
-  --rb-edge: #10161f;
-  --rb-seam: rgba(255, 255, 255, 0.62);
-  --rb-perf: rgba(16, 34, 61, 0.26);
-  --rb-spec: #ffffff;
 
   /* Glow, gloss and glass. Decorative light, derived from the one accent, so
      the chrome can never be mistaken for a data hue. */
@@ -219,22 +202,6 @@
     --warn-a: rgba(199, 154, 62, 0.1);
     --bad: #e0755c;
     --bad-a: rgba(224, 117, 92, 0.09);
-    --rb-s0: #f7fbff;
-    --rb-s1: #e2edfa;
-    --rb-s2: #c8dbf1;
-    --rb-s3: #aac2e4;
-    --rb-s4: #8aa7d4;
-    --rb-s5: #6d8bc0;
-    --rb-s6: #5372a9;
-    --rb-s7: #3d5a8d;
-    --rb-s8: #2b4370;
-    --rb-s9: #1d3054;
-    --rb-s10: #12203a;
-    --rb-s11: #0a1424;
-    --rb-edge: #050810;
-    --rb-seam: rgba(255, 255, 255, 0.22);
-    --rb-perf: rgba(4, 9, 18, 0.42);
-    --rb-spec: #ffffff;
 
     /* Glow, gloss and glass. On a dark ground the rim can run hotter and the
        glass has to be lighter than its backdrop rather than darker. */
@@ -292,22 +259,6 @@
   --warn-a: rgba(199, 154, 62, 0.1);
   --bad: #e0755c;
   --bad-a: rgba(224, 117, 92, 0.09);
-  --rb-s0: #f7fbff;
-  --rb-s1: #e2edfa;
-  --rb-s2: #c8dbf1;
-  --rb-s3: #aac2e4;
-  --rb-s4: #8aa7d4;
-  --rb-s5: #6d8bc0;
-  --rb-s6: #5372a9;
-  --rb-s7: #3d5a8d;
-  --rb-s8: #2b4370;
-  --rb-s9: #1d3054;
-  --rb-s10: #12203a;
-  --rb-s11: #0a1424;
-  --rb-edge: #050810;
-  --rb-seam: rgba(255, 255, 255, 0.22);
-  --rb-perf: rgba(4, 9, 18, 0.42);
-  --rb-spec: #ffffff;
 
   /* Glow, gloss and glass. On a dark ground the rim can run hotter and the
      glass has to be lighter than its backdrop rather than darker. */

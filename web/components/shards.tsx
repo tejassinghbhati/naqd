@@ -3,11 +3,11 @@
 /**
  * The page ground.
  *
- * A fixed canvas behind every surface on the site. Same lifecycle discipline as
- * the hero ribbon: it reads its palette out of CSS so it follows the theme, it
- * stops when the reader asks for reduced motion, and it stops when the tab is
- * hidden. It is `pointer-events: none` throughout and carries no meaning, so it
- * is hidden from assistive technology entirely.
+ * A fixed canvas behind every surface on the site. It reads its palette out of
+ * CSS so it follows the theme, it stops when the reader asks for reduced
+ * motion, and it stops when the tab is hidden. It is `pointer-events: none`
+ * throughout and carries no meaning, so it is hidden from assistive technology
+ * entirely.
  *
  * The one thing it must never do is compete with the type sitting on it, which
  * is why the palette tokens are held so low and why nothing here pulses.

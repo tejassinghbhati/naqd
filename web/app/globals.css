@@ -610,12 +610,15 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
 /* A centred stack: eyebrow, headline, one line of copy, one pill. Everything
    else on the page is left-aligned to the grid, which is what makes this one
    moment read as the opening rather than as more layout. */
+/* Symmetric block padding. The bottom carries real space rather than zero:
+   the buttons are the last thing in the section, and without it they sit
+   flush against the live strip below. */
 .hero {
-  padding-block: var(--s7) 0;
+  padding-block: var(--s7);
   text-align: center;
   overflow: hidden;
 }
-@media (max-width: 820px) { .hero { padding-block: var(--s6) 0; } }
+@media (max-width: 820px) { .hero { padding-block: var(--s6); } }
 
 .hero-stack {
   display: flex;
@@ -634,27 +637,6 @@ figcaption { font-size: var(--t2); color: var(--ink-3); margin-top: var(--s4); m
   .hero-stack .h3f { flex-direction: column; align-items: stretch; width: 100%; max-width: 22rem; }
   .hero-stack .h3f > .btn { width: 100%; }
 }
-
-/* The ribbon is allowed past the grid on both sides: a sculptural object that
-   stops neatly at a container edge stops reading as an object. */
-.ribbon-wrap {
-  margin-top: var(--s3);
-  width: 100vw;
-  margin-inline: calc(50% - 50vw);
-  pointer-events: none;
-}
-@media (max-width: 820px) { .ribbon-wrap { margin-top: var(--s5); } }
-.ribbon {
-  width: 100%;
-  /* Matches ASPECT in lib/ribbon. Reserved before the first frame paints, so
-     nothing below the hero moves when the object appears. */
-  aspect-ratio: 2.75;
-  display: block;
-}
-/* The box matches the object's own aspect at every width. It used to go taller
-   on a phone, which made sense while the renderer COVERED the box and could
-   bleed off the sides; now that it fits the object inside, extra height is
-   just empty canvas below it. */
 
 /* A row of cards that reflows by itself. Deliberately NOT the twelve-column
    page grid: nested inside a column, eleven gutters have to fit before any
